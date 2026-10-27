@@ -10,7 +10,7 @@
 
 一个面向 Claude Code、Codex 和 Google Antigravity 的插件，让工作项目、研究和竞赛在多个 AI 会话之间持续推进。它包含一个技能、主机钩子、`ro` 命令行工具和一个只读审核代理。四个 Markdown 文件保存设置、任务队列、可复用的发现和持久的交接记录。预设决定会话如何共享队列、由谁审核发现，以及适用哪些证据检查。
 
-**版本 6.0.2。** 自 5.1.0 以来的变更见 [CHANGELOG.md](CHANGELOG.md)。现有项目可继续使用；更改其设置前，请先阅读下方的迁移一节。
+**版本 7.0.0。** 变更见 [CHANGELOG.md](CHANGELOG.md)。此版本读取由 6.0 及以后版本创建或升级的项目；更早的项目见下方“升级”一节。
 
 ## 为什么使用它
 
@@ -110,7 +110,7 @@ ro --session <host-session> --slot A close
 | [`quick`](examples/quick-script-cleanup/README.md) | 单个代理的短期工作 | work | classic | short | off | self |
 | [`work-project`](examples/work-project-data-migration/README.md) | 持续数天的迁移、分析或构建 | work | unified | staged | light | independent-review |
 | [`solo-research`](examples/solo-research-literature-replication/README.md) | 单个代理的长期研究（研究推荐） | research | unified | staged | light | independent-review |
-| [`team-research`](examples/team-research-cv-leakage/README.md) | 多个会话或主机并行（5.1.0 的方式） | research | classic | short | light | cross-host-once |
+| [`team-research`](examples/team-research-cv-leakage/README.md) | 多个会话或主机并行（每个槽位一个段落） | research | classic | short | light | cross-host-once |
 | [`competition-solo`](examples/competition-solo-tabular/README.md) | 主要由一个代理进行的竞赛 | competition | unified | staged | light | independent-review |
 | [`competition-team`](examples/competition-team-forecasting/README.md) | 由并行会话或主机参与的竞赛 | competition | classic | short | light | hybrid |
 
@@ -145,6 +145,8 @@ python <skill-root>/scripts/check_project.py .
 
 初始化程序写入四个协调文件，并将渲染元数据存放在 `.ro/` 中。`Language` 只作用于自由文本；标题、字段名、ID、状态词、检查 ID 和设置键保持英文，以便检查器、钩子和 `ro` 正常工作。
 
+初始化还会在 `agents.md` 中写入 `## Working rules`，因此未加载技能的会话也会在添加工作前检索、只在一处记录结果并正常收尾。若 `CLAUDE.md` 尚未提到 `agents.md`，会追加一行 `@agents.md`（Claude Code 的导入语法），`--no-claude-md` 可跳过。`--reconfigure` 会把现有项目更新为同样的形式，并保留 `## Project rules`。由于每个会话都会加载 `agents.md`，而 Codex 只读取前 32 KiB，超过 12 KiB 时检查器会报告 `agents.size`。
+
 ## 工作流
 
 槽位（`A`、`B`、… `AA`）命名的是工作线，而不是工具或人，因此任何主机都可以接续一个槽位。
@@ -155,7 +157,7 @@ python <skill-root>/scripts/check_project.py .
 
 ### Classic
 
-每个槽位拥有 `plan.md` 中的一个 `## Agent: <slot>` 段落，只阅读自己段落的详细内容；重复检查、分派和接管只读取有限的元数据。条目只能通过有记录的接管更换所有者，其他主机放入队列的条目通常仍归该主机。这是 5.1.0 的行为，也是没有 `Workflow` 行的项目的默认值。[Classic 工作流](skills/research-orchestrator/references/workflow-classic.md)。[跨主机接管一个条目的例外](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment)要求来源主机空闲、较近工作已用尽，并符合所列资格条件。
+每个槽位拥有 `plan.md` 中的一个 `## Agent: <slot>` 段落，只阅读自己段落的详细内容；重复检查、分派和接管只读取有限的元数据。条目只能通过有记录的接管更换所有者，其他主机放入队列的条目通常仍归该主机。这是没有 `Workflow` 行的项目的默认值。[Classic 工作流](skills/research-orchestrator/references/workflow-classic.md)。[跨主机接管一个条目的例外](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment)要求来源主机空闲、较近工作已用尽，并符合所列资格条件。
 
 ### Unified
 
@@ -268,6 +270,8 @@ work 配置则只保留一条会话摘要，随条目完成而更新：
 
 **添加条目之前**，运行 `ro dupcheck <terms>` 并阅读发现索引（`ro index`）。若已有相同主张的 `VERIFIED` 结果，只能添加带 `Improvement` 的实质不同的后续条目；`CHALLENGED` 的结果要等质疑解决后再说；`PENDING` 的结果与其重复，不如去审核。还要浏览已排队条目的标题和 `Hypothesis`/`Goal` 行，并在写入前重新读取 `plan.md`；若期间出现了相同条目，保留较早的那条。
 
+**编写脚本前**，先搜索工具登记表（`ro tools <terms>`），已登记的工具应升级版本后扩展，而不是复制（[工具登记表](skills/research-orchestrator/references/tools.md)）。
+
 [条目字段、优先级与后续条目](skills/research-orchestrator/references/plan-items.md)、[记录](skills/research-orchestrator/references/records.md)。
 
 ## 条目生命周期
@@ -338,13 +342,15 @@ ro kill <job>
 
 ## `ro` CLI
 
-`ro` 指 `python <skill-root>/scripts/ro.py`。命令具有权威性，可在所有主机上使用；钩子只是让它们更早运行。全局选项为 `--project`、`--slot` 和 `--session`；每个命令都有 `--help`。
+`ro` 指 `python <skill-root>/scripts/ro.py`。命令具有权威性，可在所有主机上使用；钩子只是让它们更早运行。全局选项为 `--project`、`--slot` 和 `--session`；每个命令都有 `--help`。输出到管道或文件时在所有操作系统上都是 UTF-8，因此任何语言的记录都能原样读回。
 
 | 命令 | 用途 |
 | --- | --- |
 | `next-id {D,H,I,X,N}` | 预留下一个发现、计划条目、测量工具、外部操作或笔记的 ID |
 | `dupcheck <terms>` | 添加工作前搜索标题和关键行，包括已归档的记录 |
-| `index [ID]` | 打印发现索引，或某一条的完整内容 |
+| `index [ID] [--full]` | 打印截断 Finding 的当前发现索引（`--full` 显示完整行和已归档存根），或包括已归档条目在内的单个完整条目 |
+| `archive {discoveries,events,restore}` | 检查器报告 `history.size` 时，将已确定的发现或较早的事件移到 `docs/archive/`；`restore <ID>` 把已归档的发现取回以便修改；`--before`、`--dry-run` |
+| `tools [terms] [--init]` | 编写脚本前搜索 `docs/tools.md` 工具登记表；`--init` 创建带使用规则的登记表 |
 | `claim <item>`、`release <item>` | 在项目锁下认领 unified 队列中的条目，或释放它 |
 | `launch --item … --expect … -- <command>` | 启动一个自有作业，带有绑定的输入和输出、错误模式、心跳、确认窗口和可选的 `--require-receipt` |
 | `monitor <job>`、`jobs [--prune]`、`kill <job>` | 跟踪作业直至得到结果，列出作业和监控状态，停止经身份核验的自有进程树 |
@@ -379,19 +385,17 @@ ro kill <job>
 - 逐次调用的钩子在崩溃、超时、输入格式错误或缺少解释器时放行；`ro brief` 会报告钩子自检和警告计数。当验证失败或无法运行时，`ro external`、`ro launch` 和 Git pre-push 关卡会拒绝执行；pre-push 会扫描每个待推送的提交，包括提交信息和路径。
 - 钩子用于防止协作会话中的意外，并不是针对恶意行为的安全边界。嵌套的解释器代码体、here-string 内容、别名、动态路径和编码过的密钥都超出了可靠解析的范围。
 
-Claude Code 插件订阅 `AskUserQuestion` 和 `Agent`；`Autonomy: away` 与 `Brief requirements` 未启用时，相应包装器不启动 Python。Read-bound 订阅仍需通过安装程序选择。SessionStart 和 `ro brief` 仅在 Git 检出目录缺少已注册的 pre-push 关卡时输出 `publish gate not installed` 和 `install.py --project <检出根目录>`；已有注册关卡负责发布扫描，避免每次调用重复扫描；逐次调用的预检读取推送所在的检出目录。包装器分别解析项目提示和命令工作目录，项目外不需要解释器。没有作业注册表时，Stop 和编辑检查也跳过 Python。PostToolUse 只复用稳定超过两秒的文件戳；审核回执或产物变化时，简报使缓存检查失效；简报最多对 64 MiB 审核证据计算哈希，其余标为未验证，由 `check_project.py` 完整验证。保存的 Windows 测量显示，项目外及无作业 Stop/编辑调用的 p95 为 23–36 ms，普通 shell 检查和未变化的 PostToolUse 为 48–125 ms；这些数据不代表新的受监督子进程测量。
+Claude Code 插件订阅 `AskUserQuestion` 和 `Agent`；`Autonomy: away` 与 `Brief requirements` 未启用时，相应包装器不启动 Python。Read-bound 订阅仍需通过安装程序选择。SessionStart 和 `ro brief` 仅在 Git 检出目录缺少已注册的 pre-push 关卡时输出 `publish gate not installed` 和 `install.py --project <检出根目录>`；已有注册关卡负责发布扫描，避免每次调用重复扫描；逐次调用的预检读取推送所在的检出目录。包装器分别解析项目提示和命令工作目录，项目外不需要解释器。没有作业注册表时，Stop 和编辑检查也跳过 Python。PostToolUse 只复用稳定超过两秒的文件戳；审核回执或产物变化时，简报使缓存检查失效；简报最多对 64 MiB 审核证据计算哈希，其余标为未验证，由 `check_project.py` 完整验证。保存的 Windows 测量显示，项目外及无作业 Stop/编辑调用的 p95 为 24–39 ms，普通 shell 检查和未变化的 PostToolUse 为 52–123 ms；对已审查目录做哈希的完整启动 SessionStart 约 157 ms，不属于快速路径预算；这些数据不代表新的受监督子进程测量。
 
 [钩子、能力矩阵与信任](skills/research-orchestrator/references/hooks-capabilities.md)、[发布关卡](skills/research-orchestrator/references/publication-safety.md)。
 
-## 从 5.1.0 迁移
+## 升级
 
-更新已安装的插件不会改写现有项目：缺失的设置保持 5.1.0 的行为（classic 工作流、short 条目、cross-host-once 审核、守卫关闭）。手动安装时请将旧技能文件夹替换为 `research-orchestrator`，不要保留两份；更名说明见 CHANGELOG。
-
-5.1.0 中已认可的 `multi`/`same-host` 审核仍然有效。重新配置会将其指纹保存在 `agents.md` 中；新审核遵循当前验证规则。
+更新已安装的插件不会改写现有项目。7.0 只读取 `agents.md` 带有 `<!-- ro-template: ... -->` 标记的项目（6.0 及以后）；更早的项目会被 7.0 拒绝，请先用 6.0.x 升级（`init_research_orchestrator.py . --reconfigure`）。手动安装时请将旧技能文件夹替换为 `research-orchestrator`，不要保留两份。
 
 1. 保存四个文件和 `.ro/` 状态的可恢复副本，运行检查器并修复结构性错误。
 2. 将手写在 `agents.md` 生成部分中的指示移到 `## Project rules`；重新配置会原样保留该区域。
-3. 刷新生成的设置和阅读指引。如要采用某个预设，请加上 `--preset <preset>` 及其回答；第二条命令会把 classic 项目切换为 unified 工作流：
+3. 刷新生成的设置、阅读指引和工作规则；模板 v3.4 的项目会升级到 v3.5。如要采用某个预设，请加上 `--preset <preset>` 及其回答；第二条命令会把 classic 项目切换为 unified 工作流：
 
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
@@ -401,7 +405,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --work
 4. 更改 `Workflow` 还需要 `--migrate`；请先释放活动槽位。每次设置转换都会在写入前验证拟议记录，规范化兼容的目标和审核字段，同时保留证据和实际队列顺序。协调文件发生变化时，即使工作流不变，也会使用 `*.pre-migrate` 备份和恢复日志。
 5. 检查结果，重新运行检查器，并将此次变更记录为交接事件。
 
-在更改工作流或使用 `--force` 之前，请阅读[迁移与回滚流程](skills/research-orchestrator/references/migration-v2-to-v3.md)。
+在更改工作流或使用 `--force` 之前，请阅读[升级、修复与回滚流程](skills/research-orchestrator/references/migration.md)。
 
 ## 校验与 CI
 

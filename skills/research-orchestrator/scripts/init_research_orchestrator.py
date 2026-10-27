@@ -130,17 +130,8 @@ def render_agents(settings: dict[str, str], project: str, version: str | None = 
     version = version or rs.CURRENT_TEMPLATE
     if version not in rs.TEMPLATE_VERSIONS:
         raise ValueError(f"unknown template version '{version}'")
-    if version == "v2":
-        values = {
-            "{{PROJECT_NAME}}": project, "{{PLATFORM_MODE}}": settings["platform_mode"],
-            "{{PLATFORMS}}": settings["platforms"], "{{GIT_SYNC}}": settings["git"],
-            "{{COLLECTOR}}": settings["collector"], "{{QUEUE_LIMITS}}": settings["queue_limits"],
-            "{{REVIEWER}}": settings["reviewer"], "{{FALLBACK}}": settings["fallback"],
-        }
-        conditions = {"mode": settings["platform_mode"], "git": settings["git"]}
-        return render(TEMPLATES / "v2" / "AGENTS.md.template", values, conditions)
-    values = {"{{PROJECT_NAME}}": project, "{{RENDER_KEY}}": rs.render_key(settings, version),
-              "{{SUMMARY}}": rs.summary_line(settings), "{{SETTINGS_BLOCK}}": rs.settings_block(settings, version),
+    values = {"{{PROJECT_NAME}}": project, "{{RENDER_KEY}}": rs.render_key(settings),
+              "{{SUMMARY}}": rs.summary_line(settings), "{{SETTINGS_BLOCK}}": rs.settings_block(settings),
               "{{READING_POINTERS}}": rs.reading_pointers(settings)}
     values.update({"{{" + setting.key.upper() + "}}": settings[setting.key] for setting in rs.SETTINGS})
     folder = TEMPLATES if version == rs.CURRENT_TEMPLATE else TEMPLATES / version
@@ -218,14 +209,6 @@ def rules_state(text: str, stored: rs.StoredSettings, current: dict[str, str]) -
     """'ok', 'stale' (generated for other settings), or 'edited' (the generated part was changed by hand)."""
     body = comparable(rs.split_agents(text)[0])
     project = stored.project or "x"
-    if stored.version == "v2":
-        if body == comparable(render_agents(current, project, "v2")):
-            return "ok"
-        for mode in rs.SETTING["platform_mode"].choices:
-            for git in rs.SETTING["git"].choices:
-                if body == comparable(render_agents({**current, "platform_mode": mode, "git": git}, project, "v2")):
-                    return "stale"
-        return "edited"
     generated_for = rendered_settings(stored, current)
     if stored.version not in rs.TEMPLATE_VERSIONS:
         return "edited"
@@ -970,6 +953,11 @@ def reconfigure(target: Path, args: argparse.Namespace) -> int:
     project = args.name or stored.project or target.name
     _generated, region = rs.split_agents(text)
     has_settings = "platform_mode" in stored.values and "git" in stored.values
+    if has_settings and not stored.version:
+        # Releases before 6.0 wrote no template marker; their layout is upgraded by 6.0.x only.
+        print("Error: agents.md has no '<!-- ro-template: ... -->' marker, so it predates release 6.0. Upgrade it "
+              "with research-orchestrator 6.0.x (init_research_orchestrator.py . --reconfigure) first.", file=sys.stderr)
+        return 1
     if not args.force and not has_settings:
         print("Error: agents.md has no Project settings; it predates them. Re-run with --force to replace it.",
               file=sys.stderr)
@@ -996,16 +984,6 @@ def reconfigure(target: Path, args: argparse.Namespace) -> int:
     # edited by hand since: that is the source of a migration.
     old_workflow = rs.files_workflow(stored) if has_settings else rs.SETTING["workflow"].default
     content = compose_agents(settings, project, region, newline=text_newline(text))
-    if stored.version == "v2" and (target / "discoveries.md").is_file():
-        # Keep the evidence untouched and the exception portable with agents.md;
-        # machine-local .ro metadata is deliberately excluded from coordination sync.
-        import check_project
-        legacy = check_project.Checker(target)
-        legacy.run(quiet=True)
-        if any(issue.check == "discovery.legacy.invalid" for issue in legacy.issues):
-            raise ValueError("restore the invalid legacy review preservation record before reconfiguration")
-        if hasattr(legacy, "discoveries") and (manifest := legacy.legacy_review_manifest()):
-            content = content.rstrip("\r\n") + text_newline(text) * 2 + manifest.replace("\n", text_newline(text))
     if settings["workflow"] != old_workflow:
         if not args.migrate:
             print(f"Error: Workflow changes from {old_workflow} to {settings['workflow']}; the plan items must move "
@@ -1037,6 +1015,7 @@ def reconfigure(target: Path, args: argparse.Namespace) -> int:
         code = 0
     if code == 0:
         ignore_tool_state(target, settings)
+        link_claude_md(target, args)
     if code == 0 and args.save_preset:
         save_preset(args, settings, project)
     return code
@@ -1052,6 +1031,28 @@ def ignore_tool_state(target: Path, settings: dict[str, str]) -> None:
         from ro_state import atomic_text
         newline = text_newline(text)
         atomic_text(path, text + (newline if text and not text.endswith(("\n", "\r")) else "") + ".ro/" + newline)
+
+
+CLAUDE_LINE = "Read and follow @agents.md: this project's research-orchestrator settings and working rules."
+
+
+def link_claude_md(target: Path, args: argparse.Namespace) -> None:
+    """Make Claude Code load agents.md in every session, even when the skill is not invoked.
+
+    `@agents.md` is Claude Code's import syntax. An existing CLAUDE.md that already names
+    agents.md is left alone; otherwise one line is appended with the file's own newline.
+    """
+    if getattr(args, "no_claude_md", False):
+        return
+    path = target / "CLAUDE.md"
+    text = read_raw_text(path) if path.exists() else ""
+    if re.search(r"agents\.md", text, re.I):
+        return
+    from ro_state import atomic_text
+    newline = text_newline(text)
+    separator = "" if not text else (newline if text.endswith(("\n", "\r")) else newline * 2)
+    atomic_text(path, text + separator + CLAUDE_LINE + newline)
+    print(f"[{'UPDATE' if text else 'CREATE'}] {path} (imports agents.md for Claude Code)")
 
 
 def repair_identity(target: Path, workflow: str, args: argparse.Namespace) -> tuple[list[str], str]:
@@ -1152,6 +1153,7 @@ def initialize(target: Path, args: argparse.Namespace) -> int:
         created += write_if_missing(target / filename, render(TEMPLATES / template, values, conditions)) == "create"
 
     print(f"Done. Created {created} file(s). Existing files were preserved.")
+    link_claude_md(target, args)
     print(f"Settings: {rs.describe(settings)}; user {user or 'none yet'}")
     if args.save_preset:
         save_preset(args, settings, name)
@@ -1180,6 +1182,8 @@ def build_parser() -> argparse.ArgumentParser:
         parser.add_argument(setting.flag, dest=setting.key, help=setting.help)
     parser.add_argument("--list-presets", action="store_true", help="List built-in and user presets, then exit")
     parser.add_argument("--save-preset", metavar="NAME", help="Save the effective settings as preset user:NAME")
+    parser.add_argument("--no-claude-md", action="store_true",
+                        help="Do not add the line to CLAUDE.md that makes Claude Code load agents.md")
     parser.add_argument("--answers", metavar="JSON", help="Setup answers as a JSON object or UTF-8 JSON file; flags override keys")
     parser.add_argument("--reconfigure", action="store_true",
                         help="Regenerate agents.md above '## Project rules' from its settings and any flags")
@@ -1211,9 +1215,8 @@ def apply_answers(args: argparse.Namespace) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     # Settings contain '—'; never crash on a legacy console code page such as cp949.
-    for stream in (sys.stdout, sys.stderr):
-        if hasattr(stream, "reconfigure"):
-            stream.reconfigure(errors="backslashreplace")
+    from ro_console import utf8_output
+    utf8_output()
     args = build_parser().parse_args(argv)
     try:
         apply_answers(args)

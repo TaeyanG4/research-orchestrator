@@ -40,6 +40,39 @@ def measure(call, *, batches=3, samples=20):
             "p95_ms": sorted(p95s)[len(p95s) // 2], "output_correct": True}
 
 
+def reviewed_project(target, env):
+    """An initialized project whose changed stage cites a reviewed two-file directory."""
+    target.mkdir()
+    sys.path.insert(0, str(SCRIPTS))
+    from ro_proc import no_window_flags
+    subprocess.run([sys.executable, str(SCRIPTS / "init_research_orchestrator.py"), str(target), "-n", "started",
+                    "--preset", "solo-research", "--platforms", "Claude Code", "--user", "operator"],
+                   check=True, capture_output=True, env=env, timeout=60, creationflags=no_window_flags())
+    run = target / "run"
+    run.mkdir()
+    for index in range(2):
+        (run / f"part-{index}.txt").write_text(f"reviewed result {index}\n", encoding="utf-8")
+    handoff = target / "handoff.md"
+    handoff.write_text(handoff.read_text(encoding="utf-8").rstrip("\n") + "\n\n"
+                       "### 2026-10-25 10:00 — A — H-A-01/s1\n- Host: Claude Code\n- User: operator\n"
+                       "- Action: ran the stage\n- Result: reviewed\n- Artifacts: run\n"
+                       "- Discovery updates: none — stage progress, no experiment\n- Review verdict: none\n"
+                       "- Resource: none\n- Other executor: none\n- New plan items: none — nothing follows\n"
+                       "- Decision: changed\n- Review artifact: run\n", encoding="utf-8", newline="\n")
+    sys.path.insert(0, str(SCRIPTS))
+    import ro_evidence
+    from ro_state import Project
+    ro_evidence.receipt_add(Project(target, slot="A", session="timing-review"), "run", "independent-reviewer",
+                            "PASS", "H-A-01/s1:after")
+    return target
+
+
+def started_cleanly(output):
+    context = output.get("hookSpecificOutput", {}).get("additionalContext", "")
+    return (output.get("hookSpecificOutput", {}).get("hookEventName") == "SessionStart"
+            and "Research Orchestrator" in context and "event.stage.review" not in context)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
@@ -79,19 +112,25 @@ def main(argv=None):
             commands["sh"] = [shell, (ROOT / "hooks/ro-hook.sh").as_posix()]
         if os.name == "nt":
             commands["cmd"] = [os.environ.get("COMSPEC", "cmd.exe"), "/d", "/c", str(ROOT / "hooks/ro-hook.cmd")]
-        scenarios = {"unrelated": (unrelated, ["PreToolUse"]), "stop-no-jobs": (project, ["Stop", "--general"]),
-                     "edit-no-jobs": (project, ["PreToolUse", "--tool", "edit"]),
-                     "post-unchanged": (project, ["PostToolUse", "--general"]),
-                     "pre-shell": (project, ["PreToolUse"])}
+        started = reviewed_project(base / "started", env)
+        empty = lambda output: output == {}
+        scenarios = {"unrelated": (unrelated, ["PreToolUse"], empty),
+                     "stop-no-jobs": (project, ["Stop", "--general"], empty),
+                     "edit-no-jobs": (project, ["PreToolUse", "--tool", "edit"], empty),
+                     "post-unchanged": (project, ["PostToolUse", "--general"], empty),
+                     "pre-shell": (project, ["PreToolUse"], empty),
+                     # A full startup brief: the checker reruns and hashes the receipt's review directory.
+                     "session-start-review": (started, ["SessionStart", "--general"], started_cleanly)}
         for wrapper, command in commands.items():
-            for name, (cwd, extra) in scenarios.items():
-                payload = json.dumps({"cwd": str(cwd), "tool_name": "Bash",
+            for name, (cwd, extra, expected) in scenarios.items():
+                payload = json.dumps({"cwd": str(cwd), "tool_name": "Bash", "hook_event_name": extra[0],
+                                      "source": "startup", "session_id": "timing-session",
                                       "tool_input": {"command": "echo ready"}})
                 def invoke():
                     proc = subprocess.run([*command, *extra], input=payload, text=True, capture_output=True,
                                           cwd=cwd, env=env, timeout=10, creationflags=no_window_flags())
-                    if proc.returncode or proc.stderr or json.loads(proc.stdout) != {}:
-                        raise RuntimeError(f"Unexpected hook result for {wrapper}/{name}")
+                    if proc.returncode or proc.stderr or not expected(json.loads(proc.stdout)):
+                        raise RuntimeError(f"Unexpected hook result for {wrapper}/{name}: {proc.stdout[:400]}")
                 results[wrapper + "/" + name] = measure(invoke)
         import ro_records
         ro_records._checker_brief(owner)
@@ -108,7 +147,7 @@ def main(argv=None):
               "method": "2 warmups, 3 batches of 20 calls; median nearest-rank batch p95; correct output required",
               "results": results}
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
     for name, measurement in results.items():
         print(f"{name}: p95 {measurement['p95_ms']:.3f} ms")
     return 0

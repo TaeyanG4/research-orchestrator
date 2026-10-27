@@ -38,7 +38,7 @@ SKILL_MAX_BYTES = 12_000
 REFERENCE_MAX_BYTES = 10_000
 REFERENCE_FILES = ("presets.md", "workflow-classic.md", "workflow-unified.md", "verification.md", "compute.md",
                    "git-sync.md", "plan-collector.md", "staged-items.md", "research-guards.md", "competition.md",
-                   "adapters/kaggle.md", "postmortem.md", "hooks.md", "operations-safety.md", "migration-v2-to-v3.md")
+                   "adapters/kaggle.md", "postmortem.md", "hooks.md", "operations-safety.md", "migration.md")
 PRESETS = ("quick", "work-project", "solo-research", "team-research", "competition-solo", "competition-team")
 PRESET_FILE_KEYS = ["name", "summary", "profile", "workflow", "verification", "item_size", "guards", "enforcement",
                     "block", "platform_mode", "platforms", "collector", "queue_limits", "reviewer", "fallback", "asks"]

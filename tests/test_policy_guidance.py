@@ -20,14 +20,14 @@ def test_new_project_scaffolds_rule_replacements_without_new_checker_fields(tmp_
     assert re.search(r"not.{0,20}checker field", guidance, re.I)
 
 
-def test_v33_upgrade_preserves_old_and_new_user_policy_verbatim(tmp_path):
+def test_v34_upgrade_preserves_old_and_new_user_policy_verbatim(tmp_path):
     target = make_project(tmp_path, "policy-upgrade", "--preset", "quick", "--platforms", "local", "--git", "off")
     settings = check(target).values
-    old_region = init.render(SKILL / "templates/v3.3/PROJECT_RULES.md.template",
+    old_region = init.render(SKILL / "templates/v3.4/PROJECT_RULES.md.template",
                              {"{{STANDING_RULES_BUDGET}}": str(rs.STANDING_RULES_BUDGET)}, {})
     old_region += "\n- Before each schema change, save a snapshot. | Replaces: nightly snapshot\n"
     agents = target / "agents.md"
-    agents.write_text(init.render_agents(settings, target.name, "v3.3") + "\n" + old_region,
+    agents.write_text(init.render_agents(settings, target.name, "v3.4") + "\n" + old_region,
                       encoding="utf-8", newline="\n")
     assert not found(check(target), check_id="agents.rules.edited")
     result = run_init(target, "--reconfigure")
@@ -36,14 +36,14 @@ def test_v33_upgrade_preserves_old_and_new_user_policy_verbatim(tmp_path):
     assert not found(check(target), check_id="agents.rules.stale")
 
 
-def test_v33_templates_are_frozen_with_their_original_bytes():
-    assert rs.CURRENT_TEMPLATE == "v3.4"
+def test_v34_templates_are_frozen_with_their_released_bytes():
+    assert rs.CURRENT_TEMPLATE == "v3.5"
     digests = {
-        "AGENTS.md.template": "52c7a0f6965f0169c0939fba977a441c31d84566bfbd0417337c89035121eebb",
-        "PROJECT_RULES.md.template": "8825e0255b8ad1ba6781a04fc246f3d41beada9e5e534c941a4dd5f464bbca27",
+        "AGENTS.md.template": "b9fa844d65a0601c686bca948e74cd862e3e945cb87c242dd5b40e8b087fa5ba",
+        "PROJECT_RULES.md.template": "fbad56e0a33a2da8787733a92708c2aa45d8f7db6552e595216e06f3bc0efcc8",
     }
     for name, digest in digests.items():
-        data = (SKILL / "templates/v3.3" / name).read_bytes().replace(b"\r\n", b"\n")
+        data = (SKILL / "templates/v3.4" / name).read_bytes().replace(b"\r\n", b"\n")
         assert hashlib.sha256(data).hexdigest() == digest
 
 

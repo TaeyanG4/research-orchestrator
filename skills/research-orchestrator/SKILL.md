@@ -20,7 +20,7 @@ Use these lowercase project files across sessions:
 
 For configured-language prose and stable structural keys, follow [references/records.md](references/records.md).
 
-Keep coordination in these four files to avoid competing state. Use linked `docs/` records for archived history, supporting evidence and retrospectives. `.ro/` is tool state, not a coordination file; see [references/operations-safety.md](references/operations-safety.md).
+Keep coordination in these four files to avoid competing state. Linked `docs/` records hold archived history (`ro archive`), supporting evidence, retrospectives and the tool registry. `.ro/` is tool state, not a coordination file; see [references/operations-safety.md](references/operations-safety.md).
 
 ## Setup
 
@@ -36,24 +36,24 @@ Initialize with those answers:
 python <skill-root>/scripts/init_research_orchestrator.py . --preset quick --user <user>
 ```
 
-Replace `quick` with the chosen preset. `<skill-root>` contains this file. The initializer creates missing files; `--agents` sets the slot count or unique slot names. Without `--preset`, it uses `custom` defaults.
+Replace `quick` with the chosen preset. `<skill-root>` contains this file. The initializer creates missing files; `--agents` sets the slot count or unique slot names.
 
-For an existing project, use its settings instead of repeating setup. Establish the user identity and take or resume a slot through [references/sessions.md](references/sessions.md). For v2 files, missing settings, or a workflow change, read [references/migration-v2-to-v3.md](references/migration-v2-to-v3.md) before rewriting anything. Ordinary setting changes and precedence belong to the presets reference.
+For an existing project, use its settings instead of repeating setup. Establish the user identity and take or resume a slot through [references/sessions.md](references/sessions.md). For an older template, missing settings, or a workflow change, read [references/migration.md](references/migration.md) before rewriting anything.
 
 ## Read order
 
 1. Start with only this core, `agents.md`, and the project records needed to resume. Read each reference when performing its operation, using the table below; an enabled setting is not a startup reading assignment.
-2. Read the `discoveries.md` index: record headings and `Finding`, `Status`, and `Cross-check` lines (`ro index`). Open full entries when they match a proposed item, supply a premise, or need review. The index keeps settled, negative, and inconclusive results visible without loading every evidence trail.
+2. Read the `discoveries.md` index (`ro index`): live record headings and `Finding`, `Status`, and `Cross-check` lines. Open full entries when they match a proposed item, supply a premise, or need review. The index keeps settled, negative, and inconclusive results visible without loading every evidence trail; `ro dupcheck` also searches archives.
 3. Read `handoff.md` Shared state, your own active section, and events relevant to resuming your work.
 4. Read your own classic plan section, or unified items you are considering. For duplicate checks, scan all item headings and `Hypothesis`/`Goal` lines. Consult the workflow reference before claiming or moving work.
 5. Run the checker below, or use the fresh checker result supplied by SessionStart.
 
-Another active slot's resumable state and detailed evidence are private for coordination purposes; the workflow references define the narrow exceptions that allow dispatch and collaboration without entangling independent reasoning.
+Another active slot's resumable state and detailed evidence are private, so reasoning stays independent; the workflow references define the narrow exceptions.
 
 ## Item lifecycle
 
 1. **Claim or own:** select work through the active workflow. Use [references/plan-items.md](references/plan-items.md) for duplicate checks, scoring, and item fields before adding or choosing an item.
-2. **Work:** run the next step that can change a decision (a test, a comparison, a build, a draft). For long jobs, follow [launch, monitor, record, close](references/operations-safety.md#lookup-launch-monitor-and-stop); confirmation is not completion.
+2. **Work:** run the next step that can change a decision (a test, a comparison, a build, a draft). Search `ro tools` before writing a script. For long jobs, follow [launch, monitor, record, close](references/operations-safety.md#lookup-launch-monitor-and-stop); confirmation is not completion.
 3. **Discovery:** record reusable findings and decisions, including negative or inconclusive experiment outcomes to avoid repeats. Research and competition keep one discovery per experiment; reviews update the reviewed discovery. With no eligible reviewer, [leave review pending and close without polling](references/verification.md#common-rules). Work keeps reusable results (below).
 4. **Event:** append an event pointing to the discovery using [references/records.md](references/records.md). Non-experiment steps such as a claim, take-over, routing change, or session close may have no discovery.
 5. **Follow-ups:** decide what the result changes using the follow-up procedure in the plan-items reference, including a reason when nothing follows.
@@ -61,7 +61,7 @@ Another active slot's resumable state and detailed evidence are private for coor
 
 For `work` (`quick`, `work-project`), use compact items in queue or header `Next:` order; scores are optional. Keep reusable discoveries, dated changed-stage events, and one session summary with `Completed: <IDs>`, finalized at close. See plan-items and records for formats. Duplicate checks apply. Research and competition keep per-item records; header `Ordering: queue` makes scores optional there too.
 
-When the queue empties, follow the workflow's search order. Stop when nothing worthwhile remains; filling a queue is not a reason to invent low-value work.
+When the queue empties, follow the workflow's search order. Stop when nothing worthwhile remains; never invent low-value work to fill a queue.
 
 ## One home per fact
 
@@ -81,9 +81,9 @@ ro --session <host-session> --slot A close
 
 `ro` means `python <skill-root>/scripts/ro.py`. `ro brief` restores context; `ro close` releases idle slots and writes `Paused:` for an empty, idle project. Remove `Paused:` when resuming; see [session close](references/sessions.md).
 
-- **ERROR** (exit 1): contradictory files or missing required structure, such as dangling IDs or missing claim lines. Resolve errors in your own records before starting new work.
+- **ERROR** (exit 1): contradictory files or missing required structure, such as dangling IDs or missing claims. Resolve errors in your own records before starting new work.
 - **WARN:** actionable concerns such as stale claims or a future timestamp. `--strict` makes warnings fail too.
-- **INFO:** compatibility notes, field order, bare `none`, and advice. Exit 2 means the project could not be read.
+- **INFO:** compatibility notes, field order, bare `none`, advice. Exit 2: the project could not be read.
 
 `--baseline-update` stores finding fingerprints in `.ro/checker-baseline.json`; later runs flag new issues. Baselines never hide or downgrade findings.
 
@@ -110,9 +110,10 @@ Fix your records, missing structure, and cited Shared state values. Put another 
 | Operational commands | IDs, claims, jobs, observations, briefs | [references/operations-safety.md](references/operations-safety.md) |
 | Session | Take, resume, or close a slot | [references/sessions.md](references/sessions.md) |
 | Plan | Add, score, or derive follow-ups | [references/plan-items.md](references/plan-items.md) |
-| Records | Write discovery, event, or shared update | [references/records.md](references/records.md) |
+| Records | Write discovery, event, or shared update; archive history | [references/records.md](references/records.md) |
+| Tools | Write, change, or reuse scripts | [references/tools.md](references/tools.md) |
 | Project rules | Add policy, override, or lesson | [references/project-rules.md](references/project-rules.md) |
-| Migration | v2 upgrade or workflow change | [references/migration-v2-to-v3.md](references/migration-v2-to-v3.md) |
+| Migration | Template upgrade, repair, or workflow change | [references/migration.md](references/migration.md) |
 | Project close | Review the completed project | [references/postmortem.md](references/postmortem.md) |
 
 ## Safety

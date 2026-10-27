@@ -707,9 +707,11 @@ def test_post_launch_supervisor_exception_keeps_bindings_before_any_refresh(proj
              "windows_job": "Local\\ro-test-" + __import__("uuid").uuid4().hex if os.name == "nt" else None,
              "log": str(project.root / "runner.log")}
     project.write_json("jobs.json", [entry])
-    code = ("import sys; sys.path.insert(0,sys.argv[1]); import ro_jobs\n"
+    # Fail only the runner's own poll. Patching the shared time module also broke the macOS
+    # identity lookup (subprocess waits for `ps` with time.sleep) before registration.
+    code = ("import sys, time, types; sys.path.insert(0,sys.argv[1]); import ro_jobs\n"
             "def fail_after_start(_): raise RuntimeError('injected post-launch supervisor failure')\n"
-            "ro_jobs.time.sleep=fail_after_start\n"
+            "ro_jobs.time=types.SimpleNamespace(time=time.time,monotonic=time.monotonic,sleep=fail_after_start)\n"
             "sys.exit(ro_jobs._runner(sys.argv[2],sys.argv[3]))\n")
     flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS if os.name == "nt" else 0
     with Path(entry["log"]).open("wb") as output:

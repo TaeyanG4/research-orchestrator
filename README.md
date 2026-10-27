@@ -10,7 +10,7 @@
 
 A plugin for Claude Code, Codex, and Google Antigravity that keeps work projects, research, and competitions moving across AI sessions. It bundles a skill, host hooks, the `ro` command-line tool, and a read-only reviewer agent. Four Markdown files hold the settings, the work queue, reusable findings, and a durable handoff. A preset decides how sessions share the queue, who reviews a finding, and which evidence checks apply.
 
-**Release 6.0.2.** The changes from 5.1.0 are listed in [CHANGELOG.md](CHANGELOG.md). Existing projects keep working; read the migration section below before changing their settings.
+**Release 7.0.0.** Changes are listed in [CHANGELOG.md](CHANGELOG.md). This release reads projects created or upgraded by release 6.0 or later; the Upgrading section below covers older ones.
 
 ## Why use it
 
@@ -110,7 +110,7 @@ A preset fills the settings block in `agents.md`; every value stays visible and 
 | [`quick`](examples/quick-script-cleanup/README.md) | short work by one agent | work | classic | short | off | self |
 | [`work-project`](examples/work-project-data-migration/README.md) | a multi-day migration, analysis, or build | work | unified | staged | light | independent-review |
 | [`solo-research`](examples/solo-research-literature-replication/README.md) | long research by one agent (recommended for research) | research | unified | staged | light | independent-review |
-| [`team-research`](examples/team-research-cv-leakage/README.md) | several sessions or hosts in parallel (the 5.1.0 way) | research | classic | short | light | cross-host-once |
+| [`team-research`](examples/team-research-cv-leakage/README.md) | several sessions or hosts in parallel (one section per slot) | research | classic | short | light | cross-host-once |
 | [`competition-solo`](examples/competition-solo-tabular/README.md) | a competition run mainly by one agent | competition | unified | staged | light | independent-review |
 | [`competition-team`](examples/competition-team-forecasting/README.md) | a competition with parallel sessions or hosts | competition | classic | short | light | hybrid |
 
@@ -145,6 +145,8 @@ python <skill-root>/scripts/check_project.py .
 
 The initializer writes the four coordination files and stores rendering metadata in `.ro/`. `Language` applies to free text only: headings, field names, IDs, status words, check IDs, and setting keys stay English so the checker, hooks, and `ro` keep working.
 
+Setup also writes `## Working rules` into `agents.md`, so a session that never loads the skill still searches before adding work, records results once and closes cleanly, and adds `@agents.md` (Claude Code's import) to `CLAUDE.md` unless that file already names `agents.md` (`--no-claude-md` skips it). `--reconfigure` brings existing projects to the same layout and keeps `## Project rules`. The checker reports `agents.size` when `agents.md` passes 12 KiB, since every session loads it and Codex reads only the first 32 KiB.
+
 ## Workflows
 
 Slots (`A`, `B`, … `AA`) name lines of work, not tools or people, so any host can continue a slot.
@@ -155,7 +157,7 @@ Slots (`A`, `B`, … `AA`) name lines of work, not tools or people, so any host 
 
 ### Classic
 
-Each slot owns one `## Agent: <slot>` section of `plan.md` and reads only its own detailed section; duplicate checks, dispatch, and take-overs use narrow metadata reads. An item changes owner only through a logged take-over, and items normally stay with that host. This is the 5.1.0 behaviour and the default for projects without a `Workflow` line. [Classic workflow](skills/research-orchestrator/references/workflow-classic.md). The [one-item cross-host takeover exception](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment) requires an idle source, exhausted nearer work and the listed eligibility conditions.
+Each slot owns one `## Agent: <slot>` section of `plan.md` and reads only its own detailed section; duplicate checks, dispatch, and take-overs use narrow metadata reads. An item changes owner only through a logged take-over, and items normally stay with that host. This is the default for projects without a `Workflow` line. [Classic workflow](skills/research-orchestrator/references/workflow-classic.md). The [one-item cross-host takeover exception](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment) requires an idle source, exhausted nearer work and the listed eligibility conditions.
 
 ### Unified
 
@@ -268,6 +270,8 @@ The work profile keeps one session summary instead, updated as items finish:
 
 **Before adding an item**, run `ro dupcheck <terms>` and read the discovery index (`ro index`). A `VERIFIED` result with the same claim allows only a materially different follow-up with an `Improvement`, a `CHALLENGED` one waits until its challenge is resolved, and a `PENDING` one is better reviewed than repeated. Scan queued headings and `Hypothesis`/`Goal` lines too, then re-read `plan.md` just before writing; if the same item appeared meanwhile, keep the earlier one.
 
+**Before writing a script**, search the tool registry (`ro tools <terms>`) and extend a listed tool, bumping its version, instead of copying it ([tool registry](skills/research-orchestrator/references/tools.md)).
+
 [Item fields, priority, and follow-ups](skills/research-orchestrator/references/plan-items.md), [records](skills/research-orchestrator/references/records.md).
 
 ## Item lifecycle
@@ -338,13 +342,15 @@ Start the printed monitor command at once: a confirmed launch only proves that t
 
 ## The `ro` CLI
 
-`ro` stands for `python <skill-root>/scripts/ro.py`. Commands are authoritative and work on every host; hooks only run them sooner. Global options are `--project`, `--slot`, and `--session`; each command has `--help`.
+`ro` stands for `python <skill-root>/scripts/ro.py`. Commands are authoritative and work on every host; hooks only run them sooner. Global options are `--project`, `--slot`, and `--session`; each command has `--help`. Output to a pipe or file is UTF-8 on every OS, so captured records in any language read back unchanged.
 
 | Command | Purpose |
 | --- | --- |
 | `next-id {D,H,I,X,N}` | reserve the next discovery, plan item, instrument, external action, or note ID |
 | `dupcheck <terms>` | search headings and key lines, including archived records, before adding work |
-| `index [ID]` | print the discovery index, or one full entry |
+| `index [ID] [--full]` | print the live discovery index with findings clipped (`--full`: whole lines and archived stubs), or one full entry, archived ones included |
+| `archive {discoveries,events,restore}` | move settled discoveries or older events to `docs/archive/` when the checker reports `history.size`; `restore <ID>` brings an archived discovery back to revise it; `--before`, `--dry-run` |
+| `tools [terms] [--init]` | search the `docs/tools.md` registry before writing a script; `--init` creates it with its rules |
 | `claim <item>`, `release <item>` | claim a unified-queue item under the project lock, or release it |
 | `launch --item … --expect … -- <command>` | start an owned job with bound inputs and outputs, error patterns, heartbeat, a confirmation window, and optional `--require-receipt` |
 | `monitor <job>`, `jobs [--prune]`, `kill <job>` | follow a job to its outcome, list job and monitor state, stop an identity-verified owned process tree |
@@ -379,19 +385,17 @@ Trust Codex hooks through `/hooks` before relying on them; `ro` commands and Git
 - Per-call hooks fail open on a crash, timeout, malformed input, or missing interpreter; `ro brief` reports the hooks self-test and warning counts. `ro external`, `ro launch`, and the Git pre-push gate refuse when their validation fails or cannot run; pre-push scans every outgoing commit, including messages and paths.
 - Hooks prevent accidents in cooperating sessions; they are not an adversarial security boundary. Nested interpreter bodies, here-string bodies, aliases, dynamic paths, and encoded secrets are outside reliable parsing.
 
-The Claude Code plugin subscribes to `AskUserQuestion` and `Agent`; their wrappers skip Python when `Autonomy: away` and `Brief requirements` are inactive. Read-bound subscriptions remain opt-in through the installer. SessionStart and `ro brief` print `publish gate not installed` and `install.py --project <checkout root>` only when a Git checkout lacks its registered pre-push gate; a registered gate handles the publication scan without a duplicate per-call scan, and the per-call advisory reads the checkout the push runs in. Wrappers resolve project hints separately from the command working directory and need no interpreter outside a project. Stop and edit checks skip Python without a job registry. PostToolUse reuses stable file stamps only after two seconds, and briefs invalidate cached checks when review receipts or artifacts change; a brief hashes at most 64 MiB of review evidence and lists the rest as unverified for `check_project.py` to verify. Saved Windows measurements cover 23–36 ms p95 for outside-project and job-free Stop/edit calls, and 48–125 ms for ordinary shell checks and unchanged PostToolUse; they do not establish new supervised-child timings.
+The Claude Code plugin subscribes to `AskUserQuestion` and `Agent`; their wrappers skip Python when `Autonomy: away` and `Brief requirements` are inactive. Read-bound subscriptions remain opt-in through the installer. SessionStart and `ro brief` print `publish gate not installed` and `install.py --project <checkout root>` only when a Git checkout lacks its registered pre-push gate; a registered gate handles the publication scan without a duplicate per-call scan, and the per-call advisory reads the checkout the push runs in. Wrappers resolve project hints separately from the command working directory and need no interpreter outside a project. Stop and edit checks skip Python without a job registry. PostToolUse reuses stable file stamps only after two seconds, and briefs invalidate cached checks when review receipts or artifacts change; a brief hashes at most 64 MiB of review evidence and lists the rest as unverified for `check_project.py` to verify. Saved Windows measurements cover 24–39 ms p95 for outside-project and job-free Stop/edit calls, and 52–123 ms for ordinary shell checks and unchanged PostToolUse; a full startup SessionStart that hashes a reviewed directory took about 157 ms, outside the fast-path budget. They do not establish new supervised-child timings.
 
 [Hooks, capability matrix, and trust](skills/research-orchestrator/references/hooks-capabilities.md), [publication gate](skills/research-orchestrator/references/publication-safety.md).
 
-## Migration from 5.1.0
+## Upgrading
 
-Updating the installed plugin does not rewrite existing projects: missing settings keep the 5.1.0 behaviour (classic workflow, short items, cross-host-once verification, guards off). For manual installations, replace the previous skill folder with `research-orchestrator` rather than keeping both; see the CHANGELOG rename note.
-
-Accepted 5.1.0 `multi`/`same-host` reviews remain valid. Reconfiguration preserves their fingerprints in `agents.md`; new reviews follow the current verification rules.
+Updating the installed plugin does not rewrite existing projects. Release 7.0 reads only projects whose `agents.md` carries a `<!-- ro-template: ... -->` marker (release 6.0 or later); upgrade an older project with release 6.0.x (`init_research_orchestrator.py . --reconfigure`) first, because 7.0 refuses it. For manual installations, replace the previous skill folder with `research-orchestrator` rather than keeping both.
 
 1. Save a recoverable copy of the four files and any `.ro/` state, run the checker, and fix structural errors.
 2. Move hand-written instructions from the generated part of `agents.md` into `## Project rules`; reconfiguration preserves that region verbatim.
-3. Refresh the generated settings and reading pointers. Add `--preset <preset>` and its answers to adopt a preset; the second command switches a classic project to the unified workflow:
+3. Refresh the generated settings, reading pointers and working rules; a template v3.4 project moves to v3.5. Add `--preset <preset>` and its answers to adopt a preset; the second command switches a classic project to the unified workflow:
 
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
@@ -401,7 +405,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --work
 4. A `Workflow` change also needs `--migrate`; release active slots first. Every settings transition validates the proposed records before writing. Compatible goal and review fields are normalized without losing evidence or effective queue order. Changes to coordination files use `*.pre-migrate` backups and a recovery journal, including when the workflow stays the same.
 5. Inspect the result, rerun the checker, and log the change as a handoff event.
 
-Read the [migration and rollback procedure](skills/research-orchestrator/references/migration-v2-to-v3.md) before changing workflows or using `--force`.
+Read the [upgrade, repair and rollback procedure](skills/research-orchestrator/references/migration.md) before changing workflows or using `--force`.
 
 ## Validation and CI
 

@@ -889,6 +889,17 @@
       "historical_pair": false
     },
     {
+      "name": "history-archive",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "New 7.0.0 case; behavior execution deferred by owner."
+    },
+    {
       "name": "hook-basename-dispatch",
       "attempted_configurations": [],
       "completed_configurations": [],
@@ -1223,17 +1234,6 @@
       "pass_rate": null,
       "status": "unattempted",
       "reason": "Round-7 repair case; execution deferred by owner.",
-      "attempted_configurations": [],
-      "attempted_runs": 0,
-      "historical_pair": false
-    },
-    {
-      "name": "legacy-same-host-preservation",
-      "completed_configurations": [],
-      "valid_pair": false,
-      "pass_rate": null,
-      "status": "unattempted",
-      "reason": "Round-10 repair case; execution deferred by owner.",
       "attempted_configurations": [],
       "attempted_runs": 0,
       "historical_pair": false
@@ -1943,6 +1943,17 @@
       "historical_pair": false
     },
     {
+      "name": "tool-registry",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "New 7.0.0 case; behavior execution deferred by owner."
+    },
+    {
       "name": "trigger-measurement-reasons",
       "attempted_configurations": [],
       "attempted_runs": 0,
@@ -1984,15 +1995,6 @@
     },
     {
       "name": "unreadable-subdirectory",
-      "attempted_configurations": [],
-      "attempted_runs": 0,
-      "completed_configurations": [],
-      "valid_pair": false,
-      "pass_rate": null,
-      "historical_pair": false
-    },
-    {
-      "name": "v2-rules-upgrade",
       "attempted_configurations": [],
       "attempted_runs": 0,
       "completed_configurations": [],

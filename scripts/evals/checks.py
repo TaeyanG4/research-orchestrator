@@ -184,6 +184,49 @@ def events(text: str, item: str | None = None) -> list[str]:
     return [record for record in records if item is None or re.search(rf"\b{re.escape(item)}\s*$", record.splitlines()[0])]
 
 
+def summary_counts(text: str) -> list[tuple[int, int, int]] | None:
+    """(errors, warnings, infos) for each CONSISTENCY summary, or None unless all are real checker results.
+
+    Only the checker's OK form and its count form qualify; a missing, unreadable, clipped or
+    invented summary such as `CONSISTENCY: PASS` or `cannot read the project files` does not.
+    """
+    summaries = re.findall(r"^CONSISTENCY:\s*(.*)$", "\n".join(str(text).splitlines()), re.M)
+    counts = []
+    for summary in summaries:
+        if ok := re.fullmatch(r"OK \([^\n]*?(?:; (\d+) info)?\)", summary):
+            counts.append((0, 0, int(ok.group(1) or 0)))
+        elif match := re.fullmatch(r"(\d+) error\(s\), (\d+) warning\(s\), (\d+) info \([^\n]+\)", summary):
+            counts.append(tuple(int(count) for count in match.groups()))
+        else:
+            return None
+    return counts or None
+
+
+def summary_complete(text: str) -> bool:
+    """One real summary whose ERROR/WARN/INFO counts the listed findings account for.
+
+    The checker prints each finding, grouping guard findings as `<check>: N issue(s)`, so a
+    clipped or partly copied report fails while legitimate findings remain acceptable.
+    """
+    counts = summary_counts(text)
+    if counts is None or len(counts) != 1:
+        return False
+    listed = {"ERROR": 0, "WARN": 0, "INFO": 0}
+    for line in str(text).splitlines():
+        if match := re.match(r"^- (ERROR|WARN|INFO) [\w.-]+(?:: (\d+) issue\(s\); examples:)?", line):
+            listed[match.group(1)] += int(match.group(2) or 1)
+    return (listed["ERROR"], listed["WARN"], listed["INFO"]) == counts[0]
+
+
+def summary_clean(text: str, info: bool = False) -> bool:
+    """True only for real checker output without ERROR or WARN (or INFO when `info`)."""
+    counts = summary_counts(text)
+    levels = "ERROR|WARN|INFO" if info else "ERROR|WARN"
+    if counts is None or re.search(rf"(?m)^\s*(?:-\s*)?(?:{levels})\b", "\n".join(str(text).splitlines())):
+        return False
+    return all(not errors and not warnings and not (info and infos) for errors, warnings, infos in counts)
+
+
 def checker_clean(ctx: CheckContext) -> tuple[bool, str]:
     result = subprocess.run(
         [ctx.python, str(ctx.checker_skill / "scripts" / "check_project.py"), str(ctx.outputs)],
@@ -267,41 +310,6 @@ def resume_closed(ctx: CheckContext) -> tuple[bool, str]:
         disc in sources for disc in re.findall(r"D-[A-Z]+-\d+", event.get("Discovery updates", ""))) for event in completion)
     valid = closed and "H-A-01" not in items and "H-A-02" in items and linked
     return valid, f"{details}; H-A-01 removed: {'H-A-01' not in items}; completion events: {completion}"
-
-
-def rules_region(data: bytes) -> bytes:
-    data = normalize_text(data)
-    match = re.search(rb"(?m)^## Project rules\r?$", data)
-    if not match:
-        raise ValueError("## Project rules region is absent")
-    following = re.search(rb"(?m)^## (?!#)", data[match.end():])
-    end = match.end() + following.start() if following else len(data)
-    return data[match.start():end]
-
-
-def rules_preserved(ctx: CheckContext) -> tuple[bool, str]:
-    before = rules_region((ctx.case_dir / "files" / "agents.md").read_bytes())
-    after = rules_region((ctx.outputs / "agents.md").read_bytes())
-    return before == after, f"Project rules bytes before/after: {len(before)}/{len(after)}; SHA256 {hashlib.sha256(before).hexdigest()}/{hashlib.sha256(after).hexdigest()}"
-
-
-def upgraded_queue(ctx: CheckContext) -> tuple[bool, str]:
-    agents = ctx.text("agents.md")
-    settings = fields(agents)
-    item = fields(blocks(ctx.text("plan.md"), "H").get("H-A-01", ""))
-    valid = ("ro-template: v3." in agents and settings.get("Profile") == "research"
-             and settings.get("Workflow") == "unified" and item.get("Claimed") == "none")
-    return valid, f"Template v3: {'ro-template: v3.' in agents}; Workflow {settings.get('Workflow')}; H-A-01: {item}"
-
-
-def history_preserved(ctx: CheckContext) -> tuple[bool, str]:
-    original_discoveries = (ctx.case_dir / "files" / "discoveries.md").read_text(encoding="utf-8")
-    before = blocks(original_discoveries, "D").get("D-A-001", "").strip()
-    after = blocks(ctx.text("discoveries.md"), "D").get("D-A-001", "").strip()
-    source_handoff = (ctx.case_dir / "files" / "handoff.md").read_text(encoding="utf-8")
-    events = re.findall(r"^### \d{4}-\d{2}-\d{2} .*?\n.*?(?=^#{1,3} |\Z)", source_handoff, re.M | re.S)
-    retained = bool(events) and all(event.strip() in ctx.text("handoff.md") for event in events)
-    return bool(before) and before == after and retained, f"D-A-001 unchanged: {bool(before) and before == after}; {len(events)} original events retained: {retained}"
 
 
 def preaction_ledger(ctx: CheckContext) -> tuple[bool, str]:
@@ -501,7 +509,6 @@ _CASE_CHECKS = {
     "project-language": {"02-language-preserved": project_language, "06-comparison": timing_comparison},
     "work-project-start": {"02-work-preset": work_preset, "03-staged-queue": staged_queue, "04-brief-preserved": brief_preserved},
     "unified-research-resume": {"02-claim-recorded": claim_recorded, "03-discovery-follow-up": discovery_followups, "04-closed-session": resume_closed},
-    "v2-rules-upgrade": {"02-rules-preserved": rules_preserved, "03-unified-upgrade": upgraded_queue, "04-records-preserved": history_preserved},
     "external-action-order": {"02-expectation-before-action": preaction_ledger, "03-ledger-reconciled": action_result, "04-single-execution": action_integrity},
     "owned-job-monitor": {"02-owned-job": owned_job, "03-monitored-job": monitored_job, "04-close-after-completion": closed_after_completion, "05-job-handoff": job_handoff},
     "competition-direction-review": {"02-direction-review": direction_review, "03-saturation-response": saturation_addressed, "04-decision-follow-up": decision_followup},

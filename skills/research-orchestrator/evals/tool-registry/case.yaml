@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: tool-registry
+expected_outcome: |
+  The agent searches the registry before writing code, extends the registered uploader in place with a version bump instead of adding a near-duplicate script, and leaves a registry the checker accepts.
+  A script added beside registered tools without an entry is reported as tools.unregistered.
+context:
+  scaffold_script: place-files.sh

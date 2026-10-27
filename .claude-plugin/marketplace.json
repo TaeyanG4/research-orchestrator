@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Research Orchestrator plugins for work projects, research, and competitions",
-    "version": "6.0.2"
+    "version": "7.0.0"
   },
   "plugins": [
     {

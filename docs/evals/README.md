@@ -1,6 +1,6 @@
 # Evidence index
 
-Historical scores below describe saved executions. Deterministic tests validate implementation, formats and examples; further behaviour runs and trigger reruns were deferred for 6.0.0 by the recorded owner decision; persisted Codex `/hooks` trust remains unverified. New repair cases are unexecuted.
+Historical scores below describe saved executions. Deterministic tests validate implementation, formats and examples; further behaviour runs and trigger reruns were deferred for 6.0.0 by the recorded owner decision; persisted Codex `/hooks` trust remains unverified. New repair cases are unexecuted, and so are the cases added in 7.0.0 (`history-archive`, `tool-registry` and the new `brief-review-cache` variants).
 
 | Measurement | Result | Runtime digest / identity | Grader / evidence |
 |---|---|---|---|
@@ -54,7 +54,7 @@ The coordinator fills this row after the final local run against the publication
 
 | Date | Interpreter | Pytest summary | validate_release result | Commit |
 |---|---|---|---|---|
-| 2026-10-27 | CPython 3.12 on GitHub Actions (windows-latest 3.12.10, ubuntu-latest 3.12.15, macos-latest 3.12.10) | windows 3,916 passed; ubuntu 3,797 passed and 118 skipped; macOS 3,797 passed and 118 skipped; 2 `latency` tests deselected and passed in the separate CI step on each runner | `VALIDATION: PASS` on all three runners | commit `c3a8f9c` (the evaluated 6.0.2 candidate; only this row and a duplicated inventory marker differ) |
+| 2026-10-28 | CPython 3.12 on GitHub Actions (windows-latest 3.12.10, ubuntu-latest 3.12.15, macos-latest 3.12.10) | windows 3,931 passed; ubuntu 3,812 passed and 118 skipped; macOS 3,812 passed and 118 skipped; 2 `latency` tests deselected and passed in the separate CI step on each runner (CI run 40558638530); local Windows Python 3.12.6 3,931 passed and both `latency` tests passed | `VALIDATION: PASS` on all three runners and locally | commit `84b9178` (the 7.0.0 candidate; only this row differs) |
 
 ## Dated host scope and interpretation
 

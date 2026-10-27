@@ -59,6 +59,15 @@ def parser(hooks_only: bool = False) -> argparse.ArgumentParser:
     duplicate.add_argument("terms", nargs="+")
     index = commands.add_parser("index")
     index.add_argument("identifier", nargs="?", default="")
+    index.add_argument("--full", action="store_true", help="whole Finding lines and archived stubs")
+    tools = commands.add_parser("tools", help="search the docs/tools.md registry before writing a script")
+    tools.add_argument("terms", nargs="*")
+    tools.add_argument("--init", action="store_true", help="create docs/tools.md with its usage rules")
+    archive = commands.add_parser("archive", help="move settled discoveries or older events to docs/archive/")
+    archive.add_argument("kind", choices=("discoveries", "events", "restore"))
+    archive.add_argument("identifier", nargs="?", default="", help="the discovery ID to restore")
+    archive.add_argument("--before", default="", help="archive eligible records dated before YYYY-MM-DD")
+    archive.add_argument("--dry-run", action="store_true")
     for command in ("claim", "release"):
         sub = commands.add_parser(command)
         sub.add_argument("item")
@@ -199,9 +208,8 @@ def hook_main(args, data: bytes | None = None) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    for stream in (sys.stdout, sys.stderr):
-        if hasattr(stream, "reconfigure"):
-            stream.reconfigure(errors="backslashreplace")
+    from ro_console import utf8_output
+    utf8_output()
     arguments = list(sys.argv[1:] if argv is None else argv)
     args = hook_arguments(arguments)
     if args is None:
@@ -228,7 +236,16 @@ def main(argv: list[str] | None = None) -> int:
         elif name == "dupcheck":
             output = records.dupcheck(project, args.terms)
         elif name == "index":
-            output = records.discovery_index(project, args.identifier)
+            output = records.discovery_index(project, args.identifier, args.full)
+        elif name == "tools":
+            output = records.tools_init(project) if args.init else records.tools_listing(project, args.terms)
+        elif name == "archive":
+            import ro_archive
+            if args.kind == "restore":
+                output = ro_archive.restore_discovery(project, args.identifier, args.dry_run)
+            else:
+                archive = ro_archive.archive_discoveries if args.kind == "discoveries" else ro_archive.archive_events
+                output = archive(project, args.before, args.dry_run)
         elif name in ("claim", "release"):
             output = getattr(records, name)(project, args.item)
         elif name in ("launch", "monitor", "kill", "jobs"):

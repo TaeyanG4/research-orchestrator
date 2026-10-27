@@ -104,8 +104,9 @@ def test_examples_are_small_complete_and_cover_each_preset() -> None:
     for name in EXAMPLES:
         example = examples / name
         assert {path.name for path in example.iterdir()} == {*COORDINATION_FILES, "README.md", ".ro"}
+        # 7.0.0 adds about 2.4 KB of working rules to each generated agents.md.
         assert sum(len((example / file).read_bytes().replace(b"\r\n", b"\n"))
-                   for file in COORDINATION_FILES) <= 12_000, name
+                   for file in COORDINATION_FILES) <= 14_500, name
         checker = check(example)
         assert not checker.issues, [issue.render() for issue in checker.issues]
         assert checker.plan_items and checker.discoveries and checker.events, name

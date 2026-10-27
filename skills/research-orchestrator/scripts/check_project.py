@@ -6,7 +6,7 @@ Run at session start, after a take-over or migration, and before closing:
     python <skill-root>/scripts/check_project.py [project-dir] [--strict] [--baseline-update]
 
 Severity: ERROR = the files contradict each other or a required structure is missing; WARN = stale
-or non-canonical; INFO = v2 compatibility and advice. Exit 0 = no ERROR (with --strict: no WARN
+or non-canonical; INFO = compatibility notes and advice. Exit 0 = no ERROR (with --strict: no WARN
 either); 1 = ERROR (or WARN with --strict); 2 = the project could not be read.
 
 Every issue has a stable check id (e.g. plan.claim.stale) and a fingerprint: check id + record id +
@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 import datetime as dt
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import string
@@ -31,9 +32,12 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 try:  # hard imports: a broken installation is a structural error, never skipped
     from ro_ids import D_PATTERN, H_PATTERN, I_PATTERN, X_PATTERN
+    from ro_archive import agents_size_finding, size_findings
+    from ro_console import utf8_output
     from ro_markdown import unfenced
     from ro_time import FUTURE_TOLERANCE
-    from ro_records import HANDOFF_SECTIONS, PLAN_SECTIONS, SHARED_SECTION, _active_text
+    from ro_records import (HANDOFF_SECTIONS, PLAN_SECTIONS, SCRIPT_SUFFIXES, SHARED_SECTION, TOOLS, _active_text,
+                            tool_directories, tool_entries)
     import ro_settings as rs
     from ro_evidence import external_retry_checks
     import init_research_orchestrator as init
@@ -385,6 +389,7 @@ class Checker:
     def parse_discoveries(self, lines: list[str]) -> None:
         self.discoveries: dict[str, Block] = {}
         self.discovery_order: list[str] = []
+        self.archives: dict[Path, list[str] | None] = {}
         i = 0
         while i < len(lines):
             line = lines[i]
@@ -393,6 +398,8 @@ class Checker:
                 block = Block(key=disc_id.strip(), line=i + 1, title=title)
                 i = collect_fields(lines, i + 1, block)
                 block.owner = block.fields.get("Source", "")
+                if "Archived" in block.fields:
+                    block = self.archived_discovery(block)
                 if block.key in self.discoveries:
                     self.error("discovery.id.duplicate", f"discoveries.md:{block.line}",
                                f"duplicate discovery ID {block.key}", block.key, "", block.owner)
@@ -400,6 +407,74 @@ class Checker:
                 self.discovery_order.append(block.key)
                 continue
             i += 1
+
+    def archived_discovery(self, stub: Block) -> Block:
+        """A stub left by `ro archive discoveries` stands for its full entry under docs/."""
+        where, location = f"discoveries.md:{stub.line}", stub.fields["Archived"]
+        path = (self.root / location).resolve()
+        if path not in self.archives:
+            inside = path.is_relative_to((self.root / "docs").resolve()) and path.is_file()
+            self.archives[path] = unfenced(path.read_text(encoding="utf-8")) if inside else None
+        lines = self.archives[path]
+        starts = [n for n, line in enumerate(lines or []) if line.partition(" — ")[0] == f"## {stub.key}"]
+        if len(starts) != 1:
+            reason = "is not a file under docs/" if lines is None else "does not hold exactly one entry for it"
+            self.error("discovery.archive.missing", where, f"{stub.key} is archived in {location}, which {reason}; "
+                       "restore the full entry or fix the Archived path", stub.key, "Archived", stub.owner)
+            return stub
+        full = Block(key=stub.key, line=stub.line, title=lines[starts[0]].partition(" — ")[2])
+        collect_fields(lines, starts[0] + 1, full)
+        full.owner = full.fields.get("Source", "")
+        if stub.fields.get("Cross-check") != full.fields.get("Cross-check"):
+            self.warn("discovery.archive.mismatch", where, f"{stub.key} stub Cross-check differs from {location}; "
+                      "copy the archived state into the stub", stub.key, "Cross-check", full.owner)
+        return full
+
+    def check_tools(self) -> None:
+        """Registry consistency, and scripts beside registered tools that lack an entry."""
+        path = self.root / TOOLS
+        if not path.is_file():
+            return
+        entries = tool_entries(path.read_text(encoding="utf-8"))
+        key = lambda target: os.path.normcase(str(target.resolve()))
+        active: dict[str, str] = {}
+        covered: set[str] = set()
+        for entry in entries:
+            where, fields = f"{TOOLS}:{entry['line']}", entry["fields"]
+            name = entry["heading"].partition(" — ")[0].strip()
+            missing = [field for field in ("Path", "Usage", "Status") if not fields.get(field)]
+            if missing:
+                self.warn("tools.field", where, f"tool '{name}' lacks {', '.join(missing)}", name, missing[0])
+            status, location = fields.get("Status", ""), fields.get("Path", "")
+            if status and status not in ("active", "retired") and not status.startswith("superseded by "):
+                self.warn("tools.field", where, f"tool '{name}' Status must be active, retired or "
+                          "'superseded by <tool>'", name, "Status")
+            targets = [location] if location and location != "none" else []
+            covered.update(key(self.root / target) for target in
+                           [*targets, *(part.strip() for part in fields.get("Files", "").split(",") if part.strip())])
+            if status == "active" and targets:
+                target = self.root / location
+                if not target.exists():
+                    self.warn("tools.path.missing", where, f"active tool '{name}' names {location}, which does not "
+                              "exist; fix Path or mark the entry retired", name, "Path")
+                elif key(target) in active:
+                    self.warn("tools.path.duplicate", where, f"active tools '{active[key(target)]}' and '{name}' share "
+                              f"{location}; keep one entry and extend it", name, "Path")
+                else:
+                    active[key(target)] = name
+        for directory in tool_directories(self.root, entries):
+            try:
+                children = sorted(directory.iterdir())
+            except OSError:
+                continue
+            for child in children:
+                if (child.is_file() and child.suffix.lower() in SCRIPT_SUFFIXES
+                        and not child.name.startswith(("_", ".", "test_"))
+                        and not any(key(parent) in covered for parent in (child, *child.parents))):
+                    relative = child.relative_to(self.root.resolve()).as_posix()
+                    self.warn("tools.unregistered", relative, f"{relative} sits beside registered tools without a "
+                              f"{TOOLS} entry; register it, list it under its tool's Files, or reuse an existing "
+                              "tool", relative, "Path")
 
     def parse_handoff(self, lines: list[str]) -> None:
         text = "\n".join(lines) + "\n"
@@ -454,18 +529,6 @@ class Checker:
     # ---------- settings (agents.md) ----------
 
     def check_settings(self, text: str) -> None:
-        self.legacy_review_project = rs.read_settings(text, self.root).version == "v2"
-        _generated, region = rs.split_agents(text)
-        markers = [line.strip() for line in unfenced(region) if "ro-legacy-reviews:" in line]
-        self.legacy_reviews: set[str] = set()
-        if markers:
-            match = re.fullmatch(r"<!-- ro-legacy-reviews: v2 ([0-9a-f]{64}(?:,[0-9a-f]{64})*) -->",
-                                 markers[0]) if len(markers) == 1 else None
-            if match:
-                self.legacy_reviews = set(match[1].split(","))
-            else:
-                self.error("discovery.legacy.invalid", "agents.md", "invalid legacy review preservation record; "
-                           "restore it from the pre-upgrade copy instead of broadening review eligibility", "settings")
         self.agents_text = text
         stored = rs.read_settings(text, None if self.proposed_settings is not None else self.root)
         if self.proposed_settings is not None:
@@ -473,7 +536,6 @@ class Checker:
         self.stored = stored
         values: dict[str, str] = {}
         settings_errors = 0
-        p3_keys = {"environment", "block", "external_actions", "publish_scan", "brief_requirements"}
         if not {"platform_mode", "platforms", "git"} <= set(stored.values):
             self.error("settings.missing", "agents.md", "missing '## Project settings' (Platform mode, Platforms, "
                        "Git sync); regenerate it with init_research_orchestrator.py --reconfigure --force", "settings")
@@ -481,9 +543,15 @@ class Checker:
             self.platforms = []
             self.files_workflow = self.values["workflow"]
             return
-        if stored.version == "v2":
-            self.info("agents.settings.v2", "agents.md", "v2 settings; run init_research_orchestrator.py . --reconfigure "
-                      "to add the v3 lines (no --force needed while the generated rules are untouched)", "settings")
+        if not stored.version:
+            # Releases before 6.0 wrote no template marker; 7.0 reads only the v3 layout.
+            self.error("agents.settings.unsupported", "agents.md", "agents.md has no '<!-- ro-template: ... -->' "
+                       "marker, so it predates release 6.0; upgrade it with research-orchestrator 6.0.x "
+                       "(init_research_orchestrator.py . --reconfigure), then check again", "settings")
+            self.values = rs.resolve({}, None, {"platforms": rs.DEFAULT_PLATFORMS})
+            self.platforms = []
+            self.files_workflow = self.values["workflow"]
+            return
         for label, value in stored.unknown.items():
             self.info("settings.unknown", "agents.md", f"Project settings has an unknown line '{label}: {value}'",
                       "settings", label)
@@ -492,10 +560,6 @@ class Checker:
             if raw is None:
                 if setting.key in ("queue_freeze", "receipt_policy", "stale_slot_after"):
                     values[setting.key] = rs.default_value(setting.key, values)
-                    continue
-                if setting.v3 and stored.version == "v2":
-                    values[setting.key] = (rs.default_value(setting.key, values)
-                                           if setting.key in p3_keys else setting.default)
                     continue
                 settings_errors += 1
                 self.error("settings.missing", "agents.md", f"Project settings has no '{setting.label}' line"
@@ -539,12 +603,11 @@ class Checker:
             self.warn("agents.rules.stale", "agents.md", "the generated rules in agents.md do not match its settings "
                       f"({', '.join(rs.SETTING[key].label for key in rs.RULE_KEYS)}); if you edited those settings, "
                       "run init_research_orchestrator.py . --reconfigure", "rules")
-        if stored.version != "v2":
-            generated = rs.split_agents(text)[0]
-            summary = re.search(r"^Summary: .*$", generated, re.M)
-            if summary is None or summary.group(0) != rs.summary_line(values):
-                self.warn("agents.summary.stale", "agents.md", "the preset summary line does not "
-                          "match the settings; --reconfigure refreshes it", "summary")
+        generated = rs.split_agents(text)[0]
+        summary = re.search(r"^Summary: .*$", generated, re.M)
+        if summary is None or summary.group(0) != rs.summary_line(values):
+            self.warn("agents.summary.stale", "agents.md", "the preset summary line does not "
+                      "match the settings; --reconfigure refreshes it", "summary")
 
     def check_project_rules(self, text: str) -> None:
         """Validate dated exceptions and allow only their explicit process/ranking scope."""
@@ -953,46 +1016,9 @@ class Checker:
             return True, "", ""
         if mode == "adaptive" and self.values.get("fallback") == "same-host":
             return True, "", ""
-        if self.legacy_review_shape(disc, review):
-            if (getattr(self, "legacy_review_project", False) and
-                    disc.fields.get("Cross-check") in ("VERIFIED", "HOLD", "CHALLENGED")):
-                return True, "", ""
-            if self.review_fingerprint(disc, review) in getattr(self, "legacy_reviews", set()):
-                return True, "", ""
         why = ("an adaptive project counts a same-host review only with 'Cross-check fallback: same-host'"
                if mode == "adaptive" else "a multi project needs a review from a different host")
         return False, "discovery.review.ineligible", why
-
-    def legacy_review_shape(self, disc: Block, review: Review) -> bool:
-        """Only the 5.1.0 multi/same-host exception; v3 review records never qualify."""
-        return (self.values.get("platform_mode") == "multi" and self.values.get("fallback") == "same-host"
-                and not disc.fields.get("Session") and review.slot != disc.fields.get("Source")
-                and review.host == disc.fields.get("Host") and review.rest.startswith("same host —")
-                and not review.resolves and review.verdict in VERDICTS
-                and not any(part == "reviewed" or part.startswith("reviewed ")
-                            for part in review.rest.split(" — ")))
-
-    @staticmethod
-    def review_fingerprint(disc: Block, review: Review) -> str:
-        """Bind the preserved review to its original discovery identity and evidence."""
-        identity = [disc.key, *(disc.fields.get(key, "") for key in
-                    ("Source", "Host", "User", "Date", "Finding", "Evidence")),
-                    review.host, review.slot, review.verdict, review.resolves, review.rest]
-        return hashlib.sha256(json.dumps(identity, ensure_ascii=False).encode("utf-8")).hexdigest()
-
-    def legacy_review_manifest(self) -> str:
-        """Freeze accepted v2 exceptions before replacing its generated settings."""
-        fingerprints = set()
-        for disc in self.discoveries.values():
-            if disc.fields.get("Cross-check") not in ("VERIFIED", "HOLD", "CHALLENGED"):
-                continue
-            if any(issue.record == disc.key and issue.severity == "ERROR" for issue in self.issues):
-                continue
-            for review in self.parse_reviews(disc, f"discoveries.md:{disc.line}"):
-                if self.legacy_review_shape(disc, review) and not self.review_chronology(disc, review):
-                    fingerprints.add(self.review_fingerprint(disc, review))
-        return ("<!-- ro-legacy-reviews: v2 " + ",".join(sorted(fingerprints)) + " -->\n"
-                if fingerprints else "")
 
     def review_chronology(self, disc: Block, review: Review) -> tuple[str, str, str] | None:
         """Recorded identity and time cannot be made valid by another eligibility route."""
@@ -1907,6 +1933,10 @@ class Checker:
         self.parse_handoff(unfenced(texts["handoff.md"]))
         self.parse_plan(unfenced(texts["plan.md"]))
         self.parse_discoveries(unfenced(texts["discoveries.md"]))
+        for name, message in size_findings(texts["discoveries.md"], texts["handoff.md"]):
+            self.warn("history.size", name, message, name, "", "")
+        if message := agents_size_finding(texts["agents.md"]):
+            self.warn("agents.size", "agents.md", message, "agents.md", "", "")
         self.first_mention = self.discovery_first_mentions()
         self.check_plan_items()
         self.check_users_and_hosts()
@@ -1922,6 +1952,7 @@ class Checker:
         self.check_collection()
         self.check_open_issues()
         self.check_guards()
+        self.check_tools()
         if baseline_update:
             path = self.update_baseline()
             if not quiet:
@@ -1972,7 +2003,7 @@ class Checker:
 
 
 def main() -> int:
-    sys.stdout.reconfigure(errors="backslashreplace")
+    utf8_output()
     parser = argparse.ArgumentParser(description="Check that the four Research Orchestrator files agree.")
     parser.add_argument("target", nargs="?", default=".", help="Project directory")
     parser.add_argument("--strict", action="store_true", help="Fail (exit 1) on WARN as well as ERROR")

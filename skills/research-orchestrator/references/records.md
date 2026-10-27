@@ -25,7 +25,14 @@ Use `D-<Agent>-<NNN>`, such as `D-A-001`, numbered sequentially by the creating 
 
 Prefer this field order for readability. `Source`, `Host`, `User`, and first-recorded `Date` retain the original attribution; use `unknown` only when migrating older notes. An optional `Session:` after `Date` records the source session identity. Review syntax, required identities, eligible reviewers, states, and revisions have their single home in [verification.md](verification.md).
 
-Write findings in the configured language, preserving the claim and conditions so the startup index supports duplicate checks. For applicable non-operational decisions add `Outcome: supported | rejected | inconclusive`; [decision-guards.md](decision-guards.md) defines rejection evidence. Open matching entries' evidence on demand. Merge duplicate discoveries instead of archiving them as the file grows.
+Write findings in the configured language, preserving the claim and conditions so the startup index supports duplicate checks. For applicable non-operational decisions add `Outcome: supported | rejected | inconclusive`; [decision-guards.md](decision-guards.md) defines rejection evidence. Open matching entries' evidence on demand. Merge duplicate discoveries.
+
+## Archiving history
+
+Startup reads the discovery index and parts of the handoff, so both must stay small as a project grows. The checker reports `history.size` when the index of live discoveries passes 48 KiB or `handoff.md` passes 192 KiB, and `ro brief` names the command to run. Without `--before`, each command moves the earliest eligible records, in file order, until the read is back under half its limit; `--before YYYY-MM-DD` moves eligible records dated earlier, and `--dry-run` lists the moves without writing. Log each run as an event with heading `none`.
+
+- `ro archive discoveries` moves settled entries (`VERIFIED`, or unreviewed under `Verification: self`) that no live plan item, Shared state or slot section cites to `docs/archive/discoveries-<YYYY-MM>.md`. Each leaves a stub with its heading, `Archived:` path, `Cross-check` and clipped `Finding`, so the ID still resolves. The checker reads the archived entry, `ro index <ID>` opens it and `ro dupcheck` searches it; the startup index counts archived entries instead of listing them. Entries awaiting review or a challenge answer stay listed until they settle. To revise an archived discovery, run `ro archive restore <ID>` first: it moves the full entry back over its stub and then removes the archived copy, so the entry can be archived again; a rerun after an interruption only removes the leftover copy.
+- `ro archive events` moves older dated events to `docs/archive/handoff-<YYYY-MM>.md` and keeps one summary line per archive file under `## Archived history`. Shared state, slot sections, instruments, external actions, events that name a live plan item (stage events gate its launches), each slot's latest event, and the events that finish, take over or remove an item a kept event queued stay. Archived events leave the checker's event checks, so this suits finished history.
 
 In the `work` profile, discoveries are for results worth reusing: a decision changed, a dead end others should not retry, or a verified fact others depend on. Routine completions and inconclusive probes with no reusable result belong in the session event. Research and competition retain one discovery per experiment. Reusable work findings keep the usual evidence and verification fields so brevity does not weaken a claim others rely on.
 
@@ -78,7 +85,7 @@ Record each decision-changing stage in its own immutable dated event alongside t
 
 Session events keep this compact shape and their completed IDs when switching to a research or competition preset. Leave history intact; bring unfinished queue items into the new profile's shape for future work.
 
-When the handoff log becomes hard to scan, move older events to `docs/<focused-name>.md` and leave a summary and link. Keep current resume state, shared values, and changed-stage events for items with dependent launches in place; the launcher reads those review obligations from `handoff.md`.
+When the handoff log becomes hard to scan, run `ro archive events` (see [Archiving history](#archiving-history)) or move older events to `docs/<focused-name>.md` and leave a summary and link. Keep current resume state, shared values, and changed-stage events for items with dependent launches in place; the launcher reads those review obligations from `handoff.md`.
 
 ## Shared-file edits
 

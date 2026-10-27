@@ -2,6 +2,8 @@
 
 A slot identifies a line of work, not the tool or model running it. Any host can continue a slot under the workflow's ownership rules.
 
+A session that never loads the skill still starts from `agents.md`: its `## Working rules` restate the core's rules, setup and `--reconfigure` add `@agents.md` (Claude Code's import) to `CLAUDE.md` unless that file already names `agents.md` (`--no-claude-md` skips this), and SessionStart names the rules. Codex reads `AGENTS.md`, which is `agents.md` itself on case-insensitive file systems; on others, add a pointer there.
+
 ## Identity and assignment
 
 - Name slots `A` through `Z`, then `AA` through `ZZ` in spreadsheet-column order. Use `A` for single-agent work; reuse released slots before creating another. Host, product, model, and free-form role names are not slot names, so IDs remain stable when tools change.

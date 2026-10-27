@@ -1,6 +1,0 @@
-schema_version: "1.1"
-name: legacy-same-host-preservation
-expected_outcome: |
-  The v2 multi/same-host project preserves D-A-001 and its original evidence through reconfiguration. Its portable preservation record accepts only the historical review; D-A-002 remains pending under the current multi-host policy without changing settings.
-context:
-  scaffold_script: place-files.sh

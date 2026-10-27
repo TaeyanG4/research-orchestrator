@@ -20,6 +20,7 @@ import os
 from pathlib import Path
 import re
 import queue
+from stat import S_ISREG
 import subprocess
 import threading
 import time
@@ -87,14 +88,16 @@ def stat_artifact(project, artifact: str) -> dict:
         return {"kind": "file", "stat": [stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_ino]}
     if not path.is_dir():
         return {"kind": "missing"}
-    entries = []
-    for directory, names, files in os.walk(path, followlinks=False):
+    entries, members, failures = [], [], []
+    linked = False
+    for directory, names, files in os.walk(path, followlinks=False, onerror=failures.append):
         names[:] = sorted(name for name in names if name not in EXCLUDED)
         for name in names:
             # Full hashing refuses directory links; record them so adding one changes the stamp.
             entry = Path(directory) / name
             if entry.is_symlink() or (hasattr(entry, "is_junction") and entry.is_junction()):
                 entries.append([entry.relative_to(path).as_posix() + "/", 0, 0, 0, "link"])
+                linked = True
         for name in sorted(files):
             if name in EXCLUDED:
                 continue
@@ -112,10 +115,17 @@ def stat_artifact(project, artifact: str) -> dict:
             # ctime and inode also change when a member is replaced with preserved size and mtime.
             entries.append([entry.relative_to(path).as_posix(), stat.st_size, stat.st_mtime_ns,
                             stat.st_ctime_ns, stat.st_ino])
+            members.append((entry, stat.st_size, S_ISREG(stat.st_mode)))
+    if failures:
+        # An unreadable subdirectory hides its members from this stamp: never reuse a cached result.
+        return {"kind": "directory", "unstamped": True}
     entries.sort()
     if sum(entry[1] for entry in entries) <= STAMP_HASH_BYTES:
+        if linked:
+            raise ValueError("directory artifacts cannot contain links or junctions")
         try:
-            return {"kind": "directory", "sha256": hash_artifact(project, artifact)["sha256"]}
+            # Hash the members this walk found instead of enumerating the directory again.
+            return {"kind": "directory", "sha256": hash_artifact(project, artifact, members)["sha256"]}
         except HashBudgetExceeded:
             pass  # the brief's aggregate budget is spent: fall back to metadata
     digest = hashlib.sha256(json.dumps(entries, separators=(",", ":")).encode("utf-8")).hexdigest()
@@ -154,25 +164,30 @@ def _spend(size: int) -> None:
     budget[0] -= size
 
 
-def hash_artifact(project, artifact: str) -> dict:
-    """Hash in bounded memory, preserving the existing text/manifest digest format."""
+def hash_artifact(project, artifact: str, members: list | None = None) -> dict:
+    """Hash in bounded memory, preserving the existing text/manifest digest format.
+
+    `members` lists a directory's (path, size, regular) entries from a walk the caller
+    already made, so the directory is not enumerated twice.
+    """
     budget = _HASH_BUDGET.get()
     if budget is None:
-        return _hash_artifact(project, artifact)
+        return _hash_artifact(project, artifact, members)
     key = artifact_key(project, artifact)
     if key not in budget[1]:
-        budget[1][key] = _hash_artifact(project, artifact)
+        budget[1][key] = _hash_artifact(project, artifact, members)
     return json.loads(json.dumps(budget[1][key]))  # callers may annotate their copy
 
 
-def _hash_artifact(project, artifact: str) -> dict:
+def _hash_artifact(project, artifact: str, members: list | None = None) -> dict:
     path = artifact_path(project, artifact)
     if not path.exists():
         raise ValueError("artifact does not exist")
     base = {"artifact": artifact_key(project, artifact), "sha256": "unhashed", "kind": "file"}
     if path.is_file():
-        _spend(path.stat().st_size)
-        digest, size = _hash_file(path, normalize_text=True)
+        reserved = path.stat().st_size
+        _spend(reserved)
+        digest, size = _hash_file(path, normalize_text=True, expected_size=reserved)
         base.update(sha256=digest, bytes=size)
         return base
     if not path.is_dir():
@@ -187,24 +202,33 @@ def _hash_artifact(project, artifact: str) -> dict:
     # Enumerate before reading any content: an over-cap directory stays unhashed without
     # hashing its first MANIFEST_CAP files, and the byte budget is checked up front.
     entries = []
-    for directory, names, files in os.walk(path, followlinks=False, onerror=enumeration_failed):
-        names[:] = sorted(name for name in names if name not in EXCLUDED)
-        for name in names:
-            entry = Path(directory) / name
-            if entry.is_symlink() or (hasattr(entry, "is_junction") and entry.is_junction()):
-                raise ValueError("directory artifacts cannot contain links or junctions")
-        for name in sorted(files):
-            if name in EXCLUDED:
-                continue
-            entry = Path(directory) / name
-            if entry.is_symlink() or not entry.is_file():
+    if members is not None:
+        if len(members) > MANIFEST_CAP:
+            return base
+        for entry, size, regular in members:
+            if not regular:
                 raise ValueError("directory artifacts must contain ordinary files")
-            if len(entries) >= MANIFEST_CAP:
-                return base
-            entries.append(entry)
-    _spend(sum(entry.stat().st_size for entry in entries))
-    for entry in entries:
-        digest, size = _hash_file(entry)
+            entries.append((entry, size))
+    else:
+        for directory, names, files in os.walk(path, followlinks=False, onerror=enumeration_failed):
+            names[:] = sorted(name for name in names if name not in EXCLUDED)
+            for name in names:
+                entry = Path(directory) / name
+                if entry.is_symlink() or (hasattr(entry, "is_junction") and entry.is_junction()):
+                    raise ValueError("directory artifacts cannot contain links or junctions")
+            for name in sorted(files):
+                if name in EXCLUDED:
+                    continue
+                entry = Path(directory) / name
+                info = entry.lstat()
+                if not S_ISREG(info.st_mode):
+                    raise ValueError("directory artifacts must contain ordinary files")
+                if len(entries) >= MANIFEST_CAP:
+                    return base
+                entries.append((entry, info.st_size))
+    _spend(sum(size for _entry, size in entries))
+    for entry, reserved in entries:
+        digest, size = _hash_file(entry, expected_size=reserved)
         total += size
         manifest.append({"path": entry.relative_to(path).as_posix(), "sha256": digest})
     manifest.sort(key=lambda entry: entry["path"])
@@ -213,8 +237,12 @@ def _hash_artifact(project, artifact: str) -> dict:
     return base
 
 
-def _hash_file(path: Path, normalize_text: bool = False) -> tuple[str, int]:
-    """Compute raw and normalized candidates in one pass; late binary bytes select raw."""
+def _hash_file(path: Path, normalize_text: bool = False, expected_size: int | None = None) -> tuple[str, int]:
+    """Compute raw and normalized candidates in one pass; late binary bytes select raw.
+
+    With `expected_size` (the bytes reserved against a hash budget), a file that grew
+    since it was measured is refused before reading past the reservation.
+    """
     raw, normalized = hashlib.sha256(), hashlib.sha256()
     decoder = codecs.getincrementaldecoder("utf-8")("strict")
     text = normalize_text
@@ -222,9 +250,14 @@ def _hash_file(path: Path, normalize_text: bool = False) -> tuple[str, int]:
     pending = b""
     with path.open("rb") as source:
         initial = os.fstat(source.fileno())
-        while data := source.read(WINDOW):
+        if expected_size is not None and initial.st_size != expected_size:
+            raise ValueError("artifact changed while hashing")
+        # One byte past the reservation reveals growth while the file is being read.
+        while data := source.read(WINDOW if expected_size is None else min(WINDOW, expected_size + 1 - raw_size)):
             raw.update(data)
             raw_size += len(data)
+            if expected_size is not None and raw_size > expected_size:
+                raise ValueError("artifact changed while hashing")
             if not text:
                 continue
             try:

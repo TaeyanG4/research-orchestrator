@@ -310,3 +310,113 @@ def test_over_cap_directory_is_unhashed_before_reading_any_member(tmp_path, monk
     monkeypatch.setattr(ro_evidence, "MANIFEST_CAP", 5)
     monkeypatch.setattr(ro_evidence, "_hash_file", lambda *a, **k: pytest.fail("read a member of an over-cap directory"))
     assert ro_evidence.hash_artifact(project, "many")["sha256"] == "unhashed"
+
+
+def _reviewed_directory(tmp_path, compact_files=2):
+    from conftest import append_events, event, unified_project
+    import ro_evidence
+    from ro_state import Project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    project.register_slot()
+    run = project.root / "run"
+    (run / "nested").mkdir(parents=True)
+    for index in range(compact_files):
+        (run / "nested" / f"part-{index}.txt").write_text(f"verified {index}\n", encoding="utf-8")
+    append_events(project.root, event("2026-10-25 10:00", "A", "H-A-01/s1",
+                  extra="- Decision: changed\n- Review artifact: run\n"))
+    ro_evidence.receipt_add(project, "run", "independent-reviewer", "PASS", "H-A-01/s1:after")
+    return project, run
+
+
+def test_brief_walks_a_reviewed_directory_once(tmp_path, monkeypatch):
+    """The stamp's own walk supplies the members it hashes; the directory is not enumerated twice."""
+    import ro_evidence
+    import ro_records
+
+    project, run = _reviewed_directory(tmp_path)
+    walks = []
+    original = ro_evidence.os.walk
+    monkeypatch.setattr(ro_evidence.os, "walk", lambda top, *a, **k: walks.append(top) or original(top, *a, **k))
+    assert "event.stage.review" not in ro_records.brief(project)
+    assert [Path(top).resolve() for top in walks] == [run.resolve()]
+
+
+@pytest.mark.parametrize("failure", ["member", "directory"])
+def test_unreadable_review_member_is_never_served_from_the_cache(tmp_path, monkeypatch, failure):
+    """An unstampable directory reruns the checker on every compact brief and reads no member."""
+    import ro_evidence
+    import ro_records
+
+    project, run = _reviewed_directory(tmp_path)
+    assert "event.stage.review" not in ro_records.brief(project, compact=True)
+    if failure == "member":
+        original_lstat = Path.lstat
+        broken = run / "nested" / "part-1.txt"
+        monkeypatch.setattr(Path, "lstat", lambda self, *a, **k: (_ for _ in ()).throw(PermissionError(13, "denied"))
+                            if self == broken else original_lstat(self, *a, **k))
+    else:
+        original_walk = ro_evidence.os.walk
+
+        def walk(top, topdown=True, onerror=None, followlinks=False):
+            # The nested directory became unreadable after the clean review was cached.
+            for directory, names, files in original_walk(top, topdown, None, followlinks):
+                if Path(directory).name == "nested":
+                    if onerror is not None:
+                        onerror(PermissionError(13, "denied", directory))
+                    continue
+                yield directory, names, files
+        monkeypatch.setattr(ro_evidence.os, "walk", walk)
+    assert ro_evidence.stat_artifact(project, "run") == {"kind": "directory", "unstamped": True}
+    calls, read = [], []
+    original_checker, original_hash = ro_records._checker, ro_evidence._hash_file
+    monkeypatch.setattr(ro_records, "_checker", lambda p: calls.append(1) or original_checker(p))
+    monkeypatch.setattr(ro_evidence, "_hash_file", lambda path, *a, **k: read.append(path) or original_hash(path, *a, **k))
+    for _ in range(2):
+        assert "event.stage.review: 1" in ro_records.brief(project, compact=True)
+    assert len(calls) == 2
+    assert read == []  # an incomplete enumeration never hashes a partial manifest
+
+
+@pytest.mark.parametrize("moment", ["before-open", "while-reading"])
+def test_file_growth_cannot_exceed_the_reserved_hash_bytes(tmp_path, monkeypatch, moment):
+    """The budget reserves the measured size; a file that grows is refused, never read in full."""
+    import ro_evidence
+    from ro_state import Project
+    from conftest import unified_project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    artifact = project.root / "growing.log"
+    artifact.write_bytes(b"x")
+    real_open = Path.open
+    consumed = []
+
+    class Growing:
+        def __init__(self, handle):
+            self.handle = handle
+
+        def __enter__(self):
+            if moment == "before-open":
+                with real_open(artifact, "ab") as grow:
+                    grow.write(b"y" * 99)
+            return self
+
+        def __exit__(self, *exc):
+            self.handle.close()
+
+        def fileno(self):
+            return self.handle.fileno()
+
+        def read(self, size=-1):
+            data = self.handle.read(size)
+            consumed.append(len(data))
+            if moment == "while-reading" and sum(consumed) == 1:
+                with real_open(artifact, "ab") as grow:
+                    grow.write(b"y" * 99)
+            return data
+
+    monkeypatch.setattr(Path, "open", lambda self, mode="r", *a, **k: Growing(real_open(self, mode, *a, **k))
+                        if self == artifact and "b" in mode else real_open(self, mode, *a, **k))
+    with ro_evidence.hash_budget(2), pytest.raises(ValueError, match="changed while hashing"):
+        ro_evidence.hash_artifact(project, "growing.log")
+    assert sum(consumed) <= 2  # never more than the one reserved byte plus the growth probe

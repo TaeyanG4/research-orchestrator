@@ -1,6 +1,6 @@
 # Workflow: classic
 
-`Workflow: classic` is the v2 way of working: every slot owns one `## Agent: <name>` section in `plan.md`, and an item changes owner only through a take-over.
+`Workflow: classic` keeps one section per slot: every slot owns one `## Agent: <name>` section in `plan.md`, and an item changes owner only through a take-over.
 
 For the `work` profile, ranking scores are optional: select the first eligible item in queue order or the optional header `Next:` pointer, and collect completions in one session event as [records.md](records.md) describes. Research and competition can also use `Ordering: queue` in the plan header when dependencies make scores unhelpful, while retaining their per-item records. The ownership and duplicate checks still apply.
 

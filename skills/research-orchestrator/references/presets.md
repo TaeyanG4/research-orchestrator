@@ -11,7 +11,7 @@ Default and inactive settings collapse to keep everyday reading short. Their exp
 | `quick` | short personal work | work | classic | self | short | off | block | single | platforms, git |
 | `work-project` | multi-day migration, analysis or build | work | unified | independent-review | staged | light | block | single | platforms, git |
 | `solo-research` (recommended) | long research by one agent | research | unified | independent-review | staged | light | block | single | platforms, git |
-| `team-research` | parallel research (the v2 way) | research | classic | cross-host-once | short | light | block | multi | platforms, git |
+| `team-research` | parallel research, one section per slot | research | classic | cross-host-once | short | light | block | multi | platforms, git |
 | `competition-solo` | competition by one agent | competition | unified | independent-review | staged | light | block | single | platforms, competition, external actions if unmapped, phase clock, git |
 | `competition-team` | parallel competition | competition | classic | hybrid | short | light | block | multi | platforms, competition, external actions if unmapped, phase clock, git |
 
@@ -40,12 +40,12 @@ During a queue freeze, finish or correct existing items and keep possible follow
 ## Precedence
 
 - New project: flag > preset > default; without a preset, the work defaults above apply.
-- `--reconfigure` without `--preset`: flag > value stored in `agents.md` > v2 default.
-- `--reconfigure --preset X`: flag > X's values > stored values for omitted keys > v2 default. Built-ins omit language, environment, git and autonomy; saved presets include them.
+- `--reconfigure` without `--preset`: flag > value stored in `agents.md` > built-in default.
+- `--reconfigure --preset X`: flag > X's values > stored values for omitted keys > built-in default. Built-ins omit language, environment, git and autonomy; saved presets include them.
 
 The resolved values are stored in `agents.md`, so editing a preset later cannot silently change a project. Applying a different preset is an explicit reconfiguration.
 
-For missing-file repair and preservation checks, follow [the recovery procedure](migration-v2-to-v3.md#missing-file-repair) before applying new settings.
+For missing-file repair and preservation checks, follow [the recovery procedure](migration.md#missing-file-repair) before applying new settings.
 
 `.ro/template-render.json` tracks default versus explicit `External actions`: inherited defaults follow profile changes; custom patterns and `--external-actions none` persist. Older files without provenance keep their value. Init/reconfigure reports gating inactive for `none`; the checker warns `settings.external.inactive` when `external.gate` is in `Block`. Configure outward command prefixes and `Enforcement: block` before treating that gate as active.
 
@@ -61,11 +61,11 @@ Project identity, competition, phase clock and queue freeze are excluded because
 
 ## How `--reconfigure` treats `agents.md`
 
-- **Generated** — title, `<!-- ro-template: v3.4 -->`, summary, settings and reading pointers. Release 6.0.0 uses template v3.4, a separate format version.
+- **Generated** — title, `<!-- ro-template: v3.5 -->`, summary, settings, reading pointers and `## Working rules` for sessions that never load the skill. Release 7.0.0 uses template v3.5 (6.0.0–6.0.2 used v3.4), a separate format version.
 - **Project rules** — [project-rules.md](project-rules.md) describes its three scaffolded subsections; `--reconfigure` preserves this user-owned region verbatim, including legacy layouts.
 
-`--reconfigure` checks generated rules against the version marker (absent means v2) and `.ro/template-render.json`. The sidecar records the render key without cluttering instructions; single-host settings use one `Platforms: single — <host>` line. Keep the sidecar when moving a project to preserve pending settings changes. Move hand edits to `## Project rules` or save them before `--force`; settings edits are accepted. The checker reports `agents.rules.edited` for changed rules and `agents.rules.stale` for unapplied settings.
+`--reconfigure` checks generated rules against the version marker (a file without one predates 6.0 and is refused) and `.ro/template-render.json`. The sidecar records the render key outside the instructions; keep it when moving a project to preserve pending settings changes. Move hand edits to `## Project rules` or save them before `--force`; settings edits are accepted. The checker reports `agents.rules.edited` for changed rules and `agents.rules.stale` for unapplied settings.
 
-Release changes freeze the old template in `templates/<version>/` and bump the version for upgrades without force. Tests render frozen versions. `templates/v2/` stays byte-identical; unreleased snapshots have no compatibility version.
+A release that changes the template freezes the old one in `templates/<version>/` (now only v3.4, from 6.0.0–6.0.2) so upgrades need no force; tests render it.
 
-Every settings transition checks the proposed records before writing, preserves effective ordering and translates compatible goal fields, so a compact queue can move into research without invented scores even when its layout stays the same. Moving from self verification to a review policy adds missing pending-review fields; measured evidence and existing reviews stay intact. Changed records receive `.pre-migrate` backups, and incompatible transitions leave the project unchanged. A `Workflow` change also needs `--migrate`: see [migration-v2-to-v3.md](migration-v2-to-v3.md). Log settings changes as handoff events with heading `none` (workflow migration writes its own).
+Every settings transition checks the proposed records before writing, preserves effective ordering and translates compatible goal fields, so a compact queue can move into research without invented scores even when its layout stays the same. Moving from self verification to a review policy adds missing pending-review fields; measured evidence and existing reviews stay intact. Changed records receive `.pre-migrate` backups, and incompatible transitions leave the project unchanged. A `Workflow` change also needs `--migrate`: see [migration.md](migration.md). Log settings changes as handoff events with heading `none` (workflow migration writes its own).

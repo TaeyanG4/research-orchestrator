@@ -254,17 +254,7 @@ register('fenced-record-examples', '90-live-index', lambda c:
 def clean_check(c, filename=None):
     text = c.text(filename) if filename else '\n'.join(str(item.get('aggregated_output', '')) for item in c.executions
             if 'check_project.py' in item.get('command', ''))
-    text = '\n'.join(text.splitlines())
-    summaries = re.findall(r'^CONSISTENCY:\s*(.*)$', text, re.M)
-    if not summaries or re.search(r'(?m)^\s*(?:-\s*)?(?:ERROR|WARN)\b', text):
-        return False
-    for summary in summaries:
-        if re.fullmatch(r'OK \([^\n]+\)', summary):
-            continue
-        counts = re.fullmatch(r'(\d+) error\(s\), (\d+) warning\(s\), \d+ info \([^\n]+\)', summary)
-        if not counts or any(int(count) for count in counts.groups()):
-            return False
-    return True
+    return helper().summary_clean(text)
 
 
 register('fenced-record-examples', '90-checker-clean', clean_check)

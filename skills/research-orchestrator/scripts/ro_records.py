@@ -133,27 +133,95 @@ def next_id(project: Project, kind: str) -> str:
         return identifier
 
 
-def _discovery_entries(text: str) -> list[tuple[str, int, int, list[tuple[int, str]]]]:
-    """Index findings without exposing evidence; positions still refer to the full file."""
+FINDING_CLIP = 160  # characters of each Finding line once the startup index is clipped
+INDEX_LIMIT_BYTES = 48 * 1024  # the startup discovery index clips findings, and history.size warns, past this
+
+
+def _discovery_entries(text: str) -> list[tuple[str, int, int, list[tuple[int, str]], str]]:
+    """Index findings without exposing evidence; positions still refer to the full file.
+
+    Each entry is (ID, start, end, index lines, archive path); an archived stub names the
+    docs/ file that holds its full entry (`ro archive discoveries`).
+    """
     lines = _unfenced(text)
     entries = []
-    start, identifier, depth = -1, "", 0
+    start, identifier, depth, archived = -1, "", 0, ""
     index = []
     for number, line in enumerate([*lines, "#"]):
         heading = re.match(r"^(#+)(?: |$)", line)
         if start >= 0 and heading and len(heading.group(1)) <= depth:
-            entries.append((identifier, start, number, index))
+            entries.append((identifier, start, number, index, archived))
             start = -1
         match = HEAD.fullmatch(line)
         if match and match.group(2).startswith("D-"):
-            start, identifier, depth = number, match.group(2), len(match.group(1))
+            start, identifier, depth, archived = number, match.group(2), len(match.group(1)), ""
             index = [(number, line)]
         elif start >= 0 and line.startswith(("- Finding:", "- Status:", "- Cross-check:")):
             index.append((number, line))
+        elif start >= 0 and line.startswith("- Archived:"):
+            archived = line.split(":", 1)[1].strip()
     return entries
 
 
-def discovery_index(project: Project, identifier: str = "") -> str:
+def _clip(line: str) -> str:
+    return line if len(line) <= FINDING_CLIP else line[:FINDING_CLIP - 1].rstrip() + "…"
+
+
+def index_text(text: str, full: bool = False, entries: list | None = None, clip: bool | None = None) -> str:
+    """The startup index of live discoveries: headings, states and findings.
+
+    Findings stay whole while the index fits INDEX_LIMIT_BYTES, because their conditions
+    decide duplicates; only a larger index clips them. Archived stubs are left out and
+    counted, so a long history does not grow the startup read; `ro dupcheck` still searches
+    them and `ro index <ID>` opens one.
+    """
+    entries = _discovery_entries(text) if entries is None else entries
+    if not entries:
+        return "No discoveries recorded."
+    live = [entry for entry in entries if not entry[4]]
+    states = Counter(next((line.split(":", 1)[1].split()[0] for _n, line in entry[3]
+                           if line.startswith("- Cross-check:") and line.split(":", 1)[1].split()), "unreviewed")
+                     for entry in live)
+    summary = ", ".join(f"{state} {count}" for state, count in sorted(states.items()))
+
+    def render(clip: bool) -> str:
+        header = (f"Discovery index: {len(live)} live" + (f" ({summary})" if summary else "")
+                  + f", {len(entries) - len(live)} archived"
+                  + (f"; findings clipped to {FINDING_CLIP} characters because the whole index passes "
+                     f"{INDEX_LIMIT_BYTES // 1024} KiB" if clip else "")
+                  + ". `ro index <ID>` opens one entry, archived ones included; `ro dupcheck <terms>` searches"
+                  " archived entries too" + ("; `ro index --full` shows whole lines" if clip else "") + ".")
+        blocks = []
+        for _key, _start, _end, index, archived in entries:
+            if archived and not full:
+                continue
+            lines = [_clip(line) if clip and line.startswith("- Finding:") else line for _number, line in index]
+            if archived:
+                lines[0] += f" (archived: {archived})"
+            blocks.append("\n".join(lines))
+        return "\n\n".join([header, *blocks])
+
+    whole = render(clip=False)
+    if full or clip is False:
+        return whole
+    return render(clip=True) if clip or len(whole.encode("utf-8")) > INDEX_LIMIT_BYTES else whole
+
+
+def archived_entry(project: Project, identifier: str, location: str) -> str:
+    """The full entry of an archived discovery from its docs/ file."""
+    path = (project.root / location).resolve()
+    docs = (project.root / "docs").resolve()
+    if not path.is_relative_to(docs) or not path.is_file():
+        raise ValueError(f"{identifier} is archived in {location}, which is not a file under docs/")
+    text = path.read_text(encoding="utf-8")
+    selected = [entry for entry in _discovery_entries(text) if entry[0] == identifier]
+    if len(selected) != 1:
+        raise ValueError(f"{location} must hold exactly one {identifier} entry")
+    _, start, end, _index, _archived = selected[0]
+    return "\n".join(text.splitlines()[start:end]).rstrip()
+
+
+def discovery_index(project: Project, identifier: str = "", full: bool = False) -> str:
     """Return the startup index, or open one requested discovery in full."""
     text = _text(project, "discoveries.md")
     entries = _discovery_entries(text)
@@ -161,10 +229,70 @@ def discovery_index(project: Project, identifier: str = "") -> str:
         selected = [entry for entry in entries if entry[0] == identifier]
         if len(selected) != 1:
             raise ValueError(f"{identifier} must identify exactly one discovery")
-        _, start, end, _index = selected[0]
+        _, start, end, _index, archived = selected[0]
+        if archived:
+            return archived_entry(project, identifier, archived) + f"\n\n(archived in {archived})"
         return "\n".join(text.splitlines()[start:end]).rstrip()
-    return "\n\n".join("\n".join(line for _number, line in index)
-                       for _key, _start, _end, index in entries) or "No discoveries recorded."
+    return index_text(text, full, entries)
+
+
+TOOLS = "docs/tools.md"
+SCRIPT_SUFFIXES = {".py", ".sh", ".ps1", ".bat", ".cmd", ".js", ".mjs", ".ts", ".r", ".jl", ".rb", ".pl"}
+
+
+def tool_entries(text: str) -> list[dict]:
+    """Entries of the tool registry: `## <name> — <purpose>` headings with their fields."""
+    entries, current = [], None
+    for number, line in enumerate(_unfenced(text), 1):
+        if line.startswith("## "):
+            current = {"heading": line[3:].strip(), "line": number, "fields": {}}
+            entries.append(current)
+        elif line.startswith("#"):
+            current = None
+        elif current is not None and (match := re.match(r"^- ([A-Za-z][A-Za-z ]*):\s*(.*)$", line)):
+            current["fields"].setdefault(match.group(1), match.group(2).strip())
+    return entries
+
+
+def tool_directories(root: Path, entries: list[dict]) -> list[Path]:
+    """Directories below the project root that hold a registered tool path."""
+    base = Path(root).resolve()
+    found = set()
+    for entry in entries:
+        location = entry["fields"].get("Path", "")
+        if location and location != "none":
+            parent = (base / location).resolve().parent
+            if parent != base and parent.is_relative_to(base):
+                found.add(parent)
+    return sorted(found)
+
+
+def tools_init(project: Project) -> str:
+    """Create docs/tools.md from the template, with its usage rules; never overwrite."""
+    path = project.root / TOOLS
+    with project.lock():
+        if path.exists():
+            return f"{TOOLS} already exists; add entries to it."
+        path.parent.mkdir(parents=True, exist_ok=True)
+        template = Path(__file__).resolve().parent.parent / "templates" / "TOOLS.md.template"
+        project.atomic_text(path, template.read_text(encoding="utf-8"))
+    return f"Created {TOOLS}; add one entry per reusable script (references/tools.md)."
+
+
+def tools_listing(project: Project, terms: list[str] | tuple[str, ...] = ()) -> str:
+    """Registered tools matching every term, with path, version, status and usage."""
+    text = _text(project, TOOLS)
+    if not text:
+        return f"No tool registry yet: `ro tools --init` creates {TOOLS} with the first reusable script."
+    words = [term.casefold() for term in terms if term.strip()]
+    rows = []
+    for entry in tool_entries(text):
+        fields = entry["fields"]
+        if all(word in " ".join([entry["heading"], *fields.values()]).casefold() for word in words):
+            rows.append(f"{TOOLS}:{entry['line']}: {entry['heading']} | {fields.get('Path', '?')} | "
+                        f"{fields.get('Version', '-')} | {fields.get('Status', '?')}\n"
+                        f"    Usage: {fields.get('Usage', '?')}")
+    return "\n".join(rows) if rows else ("No matching tools." if words else f"{TOOLS} lists no tools.")
 
 
 def dupcheck(project: Project, terms: list[str] | tuple[str, ...]) -> str:
@@ -179,10 +307,20 @@ def dupcheck(project: Project, terms: list[str] | tuple[str, ...]) -> str:
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8")
+        if path == project.root / TOOLS:
+            # A tool matches on its name, purpose, path and usage together.
+            for entry in tool_entries(text):
+                fields = entry["fields"]
+                if all(word in " ".join([entry["heading"], fields.get("Path", ""), fields.get("Usage", "")])
+                       .casefold() for word in words):
+                    matches.append(f"{TOOLS}:{entry['line']}: ## {entry['heading']} | Path: {fields.get('Path', '?')}")
+            continue
         entries = _discovery_entries(text)
         indexed_lines = set()
-        for _key, start, end, index in entries:
+        for _key, start, end, index, archived in entries:
             indexed_lines.update(range(start, end))
+            if archived:
+                continue  # the docs/ archive holds the full entry, which is searched itself
             if all(word in "\n".join(line for _number, line in index).casefold() for word in words):
                 matches.extend(f"{path.relative_to(project.root).as_posix()}:{number + 1}: {line}"
                                for number, line in index)
@@ -378,8 +516,13 @@ def _bounded_checker_brief(project: Project, compact: bool) -> tuple[dict, int, 
                     project.state / "receipts.json",
                     project.root / rs.TRANSACTION,
                     *(root / "scripts" / name for name in ("check_project.py", "ro_settings.py", "ro_ids.py", "ro_markdown.py", "ro_records.py",
-                                                           "ro_stages.py", "ro_evidence.py", "init_research_orchestrator.py")),
-                    *sorted((root / "templates").rglob("*.template"))]
+                                                           "ro_stages.py", "ro_evidence.py", "ro_archive.py",
+                                                           "init_research_orchestrator.py")),
+                    *sorted((root / "templates").rglob("*.template")),
+                    # The checker also reads archived discoveries, the tool registry and the
+                    # directories it scans for unregistered scripts (their mtime tracks members).
+                    project.root / TOOLS, *sorted((project.root / "docs" / "archive").glob("*.md")),
+                    *tool_directories(project.root, tool_entries(_text(project, TOOLS)))]
     stamp = []
     for path in dependencies:
         stat = path.stat() if path.exists() else None
@@ -402,7 +545,8 @@ def _bounded_checker_brief(project: Project, compact: bool) -> tuple[dict, int, 
         stamp.append(["review", artifact, review_stamp])
     now = time.time()
     checks = ("guard.insight.overdue", "guard.direction.stale", "guard.phase.milestone",
-              "guard.override.recheck", "guard.family.saturated", "event.stage.review")
+              "guard.override.recheck", "guard.family.saturated", "event.stage.review",
+              "history.size", "tools.unregistered", "agents.size")
     try:
         saved = project.read_json("checker-brief.json", {})
         age = now - saved.get("at", 0)
@@ -450,7 +594,10 @@ def runtime_guidance(values: dict[str, str], project: Project | None = None) -> 
     """Give actionable local commands even before a multi-slot session selects a slot."""
     from ro_command import command_prefix, shim_install_command
     shell = "powershell" if values.get("environment", "").endswith("/powershell") else "sh"
-    lines = ["ro command prefix: " + command_prefix(shell=shell)]
+    # Sessions that never invoke the skill still learn where this project's rules live.
+    lines = ["Rules: follow agents.md (## Working rules) before editing the coordination files; "
+             "the research-orchestrator skill has the details.",
+             "ro command prefix: " + command_prefix(shell=shell)]
     if shutil.which("ro") is None:
         command = shim_install_command(shell)
         if command:
@@ -537,6 +684,16 @@ def brief(project: Project, max_chars: int = 8000, *, compact: bool = False) -> 
             ids = list(dict.fromkeys(_fact_id(record) for record in unverified))[:8]
             lines.append(f"event.stage.review unverified within the brief's hash budget: {len(unverified)}; "
                          f"IDs {', '.join(ids)}; verify with check_project.py or ro receipt check")
+        archive = {"discoveries.md": "ro archive discoveries", "handoff.md": "ro archive events"}
+        if large := [name for name in guards.get("history.size", []) if name in archive]:
+            lines.append("history.size: " + "; ".join(f"{name} past its startup-read limit, run {archive[name]}"
+                                                      for name in large))
+        if guards.get("agents.size"):
+            lines.append("agents.size: agents.md past its size limit; move older Lessons and expired overrides to docs/ "
+                         "(check_project.py names the size)")
+        if unregistered := guards.get("tools.unregistered", []):
+            lines.append(f"tools.unregistered: {len(unregistered)} script(s) beside registered tools lack a "
+                         f"{TOOLS} entry; register or reuse before adding more")
         if code == 2:
             lines.append("Checker unavailable: project files missing or unreadable")
     except (OSError, ValueError, KeyError, AttributeError):
@@ -547,6 +704,10 @@ def brief(project: Project, max_chars: int = 8000, *, compact: bool = False) -> 
         warning_ids = Counter()
     if warning_ids:
         lines.append("Hook warnings: " + "; ".join(f"{key} {count}" for key, count in sorted(warning_ids.items())))
+    if registry := tool_entries(_text(project, TOOLS)):
+        active = sum(entry["fields"].get("Status", "") == "active" for entry in registry)
+        lines.append(f"Tools: {len(registry)} registered ({active} active) in {TOOLS}; "
+                     "search `ro tools <terms>` before writing a script")
     result = "\n".join(lines)
     return result if len(result) <= limit else result[:max(0, limit - 1)] + ("…" if limit else "")
 

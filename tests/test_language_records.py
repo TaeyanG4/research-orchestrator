@@ -108,3 +108,40 @@ def test_supervised_hooks_accept_utf8_payload_and_check_localized_records(locali
     response, code = runner.run("PostToolUse", raw, project)
     assert code == 0 and "records.id" in json.dumps(response)
     assert project.read_json("records-hook.json")["discoveries.md"]["duplicate"] == [reserved]
+
+
+def test_redirected_output_is_utf8_without_an_encoding_override(localized_project, monkeypatch):
+    """Agents capture `ro` output through pipes; a locale code page must not garble it."""
+    import io
+    from ro_console import utf8_output
+
+    project, language, hypothesis, evidence, next_test = localized_project
+    for name in ("stdout", "stderr"):
+        buffer = io.BytesIO()
+        monkeypatch.setattr(sys, name, io.TextIOWrapper(buffer, encoding="cp1252", newline="\n"))
+        monkeypatch.delenv("PYTHONIOENCODING", raising=False)
+        utf8_output()
+        stream = getattr(sys, name)
+        stream.write(hypothesis + " — ok\n")
+        stream.flush()
+        assert buffer.getvalue().decode("utf-8") == hypothesis + " — ok\n"
+    monkeypatch.setenv("PYTHONIOENCODING", "cp1252")
+    buffer = io.BytesIO()
+    monkeypatch.setattr(sys, "stdout", io.TextIOWrapper(buffer, encoding="cp1252", newline="\n"))
+    utf8_output()
+    sys.stdout.write(hypothesis)
+    sys.stdout.flush()
+    assert buffer.getvalue() == hypothesis.encode("cp1252", errors="backslashreplace")
+
+    # The installed shim runs `python -E -S ro.py`; its captured bytes are strict UTF-8.
+    env = {key: value for key, value in os.environ.items() if key != "PYTHONIOENCODING"}
+    for script, arguments in [("ro.py", ["--project", str(project.root), "--session", project.session,
+                                         "dupcheck", hypothesis]),
+                              ("check_project.py", [str(project.root)])]:
+        result = subprocess.run([sys.executable, "-E", "-S", str(SCRIPTS / script), *arguments],
+                                capture_output=True, env=env, timeout=15)
+        assert result.returncode == 0, result.stderr
+        text = result.stdout.decode("utf-8")
+        assert "\\u" not in text
+        if script == "ro.py":
+            assert hypothesis in text

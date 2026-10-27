@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: history-archive
+expected_outcome: |
+  A long discovery and handoff history is reported by size, archived without changing any other checker finding, and stays searchable.
+  Only settled discoveries outside live plan items leave the startup index; live stage events and each slot's latest event stay in handoff.md.
+context:
+  scaffold_script: place-files.sh

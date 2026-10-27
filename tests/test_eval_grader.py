@@ -31,7 +31,7 @@ def test_unregistered_90_assertion_cannot_silently_become_a_quality_judgment(tmp
 
 def test_all_case_folders_match_skill_creator_format():
     cases = runner.load_cases(runner.DEFAULT_SKILL)
-    assert {"work-project-start", "work-project-session-history", "unified-research-resume", "v2-rules-upgrade",
+    assert {"work-project-start", "work-project-session-history", "unified-research-resume",
             "external-action-order", "owned-job-monitor", "competition-direction-review", "non-ml-replication", "project-language"} <= {
                 case.name for case in cases}
     modes = [mode for case in cases for mode in grade.assertion_modes(case).values()]
@@ -202,14 +202,6 @@ def test_service_outages_saved_as_executor_failures_are_not_graded(tmp_path, mon
     result = grade.grade_run(case, tmp_path)
     assert result["excluded"] and result["exclusion_reason"] == "transport failure"
     assert result["expectations"] == [] and result["summary"]["pass_rate"] is None
-
-
-def test_rule_region_normalizes_line_endings_and_excludes_next_section():
-    first = b"generated\r\n## Project rules\r\n  keep spacing  \r\n## Other\r\nold\r\n"
-    second = first.replace(b"generated", b"updated").replace(b"old", b"new")
-    assert checks.rules_region(first) == checks.rules_region(second)
-    assert checks.rules_region(first) == checks.rules_region(first.replace(b"\r\n", b"\n"))
-    assert checks.rules_region(first) != checks.rules_region(first.replace(b"keep spacing", b"changed"))
 
 
 def test_claim_requires_execution_evidence_not_a_prompt_mention(tmp_path):

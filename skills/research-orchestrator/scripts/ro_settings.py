@@ -5,8 +5,8 @@ Every setting is one '- <Heading>: <value>' line under '## Project settings' in 
 init_research_orchestrator.py (flags, presets, rendering) and check_project.py (validation)
 both import this module; no other file defines a setting, an allowed value, or a default.
 
-A v2 agents.md has no v3 lines (Preset ... Competition); each missing v3 line reads as its v2
-default. Settings marked inactive are stored and validated but change nothing yet.
+agents.md files without a template marker predate release 6.0; this release reads only the v3
+layout. Settings marked inactive are stored and validated but change nothing yet.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from ro_markdown import mask_fences, unfenced, visible_lines
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 PRESETS_DIR = SKILL_ROOT / "presets"
-CURRENT_TEMPLATE = "v3.4"
+CURRENT_TEMPLATE = "v3.5"
 FROZEN_TEMPLATES = tuple(sorted(path.name for path in (SKILL_ROOT / "templates").iterdir()
                                 if path.is_dir() and re.fullmatch(r"v\d+(?:\.\d+)*", path.name)))
 TEMPLATE_VERSIONS = (*FROZEN_TEMPLATES, CURRENT_TEMPLATE)
@@ -94,11 +94,10 @@ class _SettingFields:
     active: bool                      # False: stored and validated only
     condition: str                    # template condition name ({{#if <condition>=...}})
     effect: str                       # how an edit takes effect: immediate, reconfigure, migrate, record, stored
-    v3: bool                          # added in v3 (absent from v2 files)
 
 
 Setting = namedtuple("Setting", list(_SettingFields.__annotations__),
-                     defaults=((), False, True, "", "immediate", True))
+                     defaults=((), False, True, "", "immediate"))
 
 
 SETTINGS: tuple[Setting, ...] = (
@@ -147,19 +146,19 @@ SETTINGS: tuple[Setting, ...] = (
             "off, or <platform>/<slug> with optional deadline=YYYY-MM-DD suffix", "off"),
     Setting("platform_mode", "Platform mode", "--platform", "multi: several platforms at once; single: one "
             "platform; adaptive: changes over time (default)", "adaptive", ("multi", "single", "adaptive"),
-            preset=True, condition="mode", effect="reconfigure", v3=False),
+            preset=True, condition="mode", effect="reconfigure"),
     Setting("platforms", "Platforms", "--platforms", f"Comma-separated platforms (default: {DEFAULT_PLATFORMS}; "
-            "single needs exactly one)", DEFAULT_PLATFORMS, preset=True, v3=False),
+            "single needs exactly one)", DEFAULT_PLATFORMS, preset=True),
     Setting("git", "Git sync", "--git", "push: commit and push automatically; commit: local commits only; "
-            "off: no git (default)", "off", ("push", "commit", "off"), condition="git", effect="reconfigure", v3=False),
+            "off: no git (default)", "off", ("push", "commit", "off"), condition="git", effect="reconfigure"),
     Setting("collector", "Plan collector", "--collector", "Plan collector sub-agent: off (default) or "
-            "\"<platform>/<model>\", e.g. \"Claude Code/sonnet\"", "off", preset=True, v3=False),
+            "\"<platform>/<model>\", e.g. \"Claude Code/sonnet\"", "off", preset=True),
     Setting("queue_limits", "Plan queue limits", "--queue-limits", "Collector stop and resume counts, e.g. 50,5 "
-            "(default)", DEFAULT_LIMITS, preset=True, v3=False),
+            "(default)", DEFAULT_LIMITS, preset=True),
     Setting("reviewer", "Reviewer", "--reviewer", "Reviewer sub-agent: off (default) or \"<platform>/<model>\", "
-            "e.g. \"Codex/sol\"", "off", preset=True, v3=False),
+            "e.g. \"Codex/sol\"", "off", preset=True),
     Setting("fallback", "Cross-check fallback", "--fallback", "wait or same-host (default: wait for multi, "
-            "same-host otherwise)", "", ("wait", "same-host"), preset=True, v3=False),
+            "same-host otherwise)", "", ("wait", "same-host"), preset=True),
 )
 SETTING = {setting.key: setting for setting in SETTINGS}
 BY_LABEL = {setting.label: setting for setting in SETTINGS}
@@ -741,11 +740,11 @@ class StoredSettings:
 
     __slots__ = ("project", "version", "rendered", "values", "unknown", "has_section")
 
-    def __init__(self, project: str | None = None, version: str = "v2", rendered: dict[str, str] | None = None,
+    def __init__(self, project: str | None = None, version: str = "", rendered: dict[str, str] | None = None,
                  values: dict[str, str] | None = None, unknown: dict[str, str] | None = None,
                  has_section: bool = False):
         self.project = project
-        self.version = version                    # template version recorded in the file
+        self.version = version                    # template version recorded in the file ("": none)
         self.rendered = rendered or {}            # rule conditions the rules were generated for
         self.values = values or {}                # key -> value, for lines present
         self.unknown = unknown or {}              # unknown heading -> value
@@ -807,12 +806,10 @@ def read_settings(text: str, root: Path | None = None) -> StoredSettings:
 
 
 def files_workflow(stored: StoredSettings) -> str:
-    """The workflow the plan files are in: the one the generated part was made for (a v2 file: classic).
+    """The workflow the plan files are in: the one the generated part was made for.
 
     It differs from the Workflow line only when that line was edited and --reconfigure --migrate not run yet.
     """
-    if stored.version == "v2":
-        return "classic"
     return stored.rendered.get("workflow") or stored.values.get("workflow") or SETTING["workflow"].default
 
 
@@ -830,16 +827,13 @@ def conditions(values: dict[str, str]) -> dict[str, str]:
     return conditions
 
 
-def render_key(values: dict[str, str], version: str | None = None) -> str:
+def render_key(values: dict[str, str]) -> str:
     """What the template marker records: the rule conditions and the preset the generated part was made for."""
     rendered = conditions(values)
-    if version == "v3.0":
-        rendered.pop("collector", None)
     key = " ".join(f"{name}={value}" for name, value in rendered.items()) + f" preset={values['preset']}"
     if source := values.get("_external_actions_source"):
         key += f" external_actions_source={source}"
-    if version not in {"v3.0", "v3.1"}:
-        key += " pointers=" + ",".join(reading_pointer_ids(values))
+    key += " pointers=" + ",".join(reading_pointer_ids(values))
     return key
 
 
@@ -889,13 +883,13 @@ def reading_pointers(values: dict[str, str]) -> str:
             or "No additional references are active.")
 
 
-def settings_block(values: dict[str, str], version: str | None = None) -> str:
+def settings_block(values: dict[str, str]) -> str:
     """Keep common decisions visible and collapse inactive defaults without losing stored policy."""
     visible, defaults = [], []
     identity = {"preset", "profile", "workflow", "verification", "item_size", "guards", "environment",
                 "language", "platform_mode", "platforms"}
     for setting in SETTINGS:
-        compact_platform = version not in {"v3.0", "v3.1", "v3.2"} and values["platform_mode"] == "single"
+        compact_platform = values["platform_mode"] == "single"
         if compact_platform and setting.key == "platform_mode":
             continue
         value = values[setting.key]

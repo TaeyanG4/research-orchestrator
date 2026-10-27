@@ -10,7 +10,7 @@
 
 Claude Code、Codex、Google Antigravity 向けのプラグインで、業務プロジェクト・研究・コンペティションの作業を複数の AI セッションにわたって途切れさせずに進めます。スキル、ホストフック、`ro` コマンドラインツール、読み取り専用のレビュアーエージェントをまとめて提供します。4 つの Markdown ファイルが設定、作業キュー、再利用できる知見、永続的な引き継ぎ記録を保持します。プリセットは、セッションがキューを分け合う方法、知見をレビューする主体、適用する根拠チェックを決めます。
 
-**リリース 6.0.2。** 5.1.0 からの変更点は [CHANGELOG.md](CHANGELOG.md) にあります。既存プロジェクトはそのまま動作します。設定を変える前に、下の移行セクションを読んでください。
+**リリース 7.0.0。** 変更点は [CHANGELOG.md](CHANGELOG.md) にあります。このリリースは 6.0 以降で作成または更新したプロジェクトを読み込みます。それより古いプロジェクトは下のアップグレードの節を参照してください。
 
 ## なぜ使うのか
 
@@ -110,7 +110,7 @@ ro --session <host-session> --slot A close
 | [`quick`](examples/quick-script-cleanup/README.md) | 1 つのエージェントによる短い作業 | work | classic | short | off | self |
 | [`work-project`](examples/work-project-data-migration/README.md) | 数日にわたる移行・分析・構築 | work | unified | staged | light | independent-review |
 | [`solo-research`](examples/solo-research-literature-replication/README.md) | 1 つのエージェントによる長期研究(研究に推奨) | research | unified | staged | light | independent-review |
-| [`team-research`](examples/team-research-cv-leakage/README.md) | 複数のセッションやホストによる並行作業(5.1.0 の方式) | research | classic | short | light | cross-host-once |
+| [`team-research`](examples/team-research-cv-leakage/README.md) | 複数のセッションやホストによる並行作業(スロットごとに 1 セクション) | research | classic | short | light | cross-host-once |
 | [`competition-solo`](examples/competition-solo-tabular/README.md) | 主に 1 つのエージェントで進めるコンペティション | competition | unified | staged | light | independent-review |
 | [`competition-team`](examples/competition-team-forecasting/README.md) | 並行セッションやホストが参加するコンペティション | competition | classic | short | light | hybrid |
 
@@ -145,6 +145,8 @@ python <skill-root>/scripts/check_project.py .
 
 初期化ツールは 4 つの調整ファイルを書き、レンダリング情報を `.ro/` に保存します。`Language` は自由文だけに適用されます。見出し、フィールド名、ID、状態語、検査 ID、設定キーは、チェッカー、フック、`ro` が動作するよう英語を保ちます。
 
+セットアップは `agents.md` に `## Working rules` も書き込みます。スキルを読み込まないセッションでも、作業を追加する前の検索、結果の一元記録、きれいな終了をそのまま守れます。`CLAUDE.md` がまだ `agents.md` に触れていなければ `@agents.md`（Claude Code のインポート構文）の 1 行を追加します（`--no-claude-md` で省略）。`--reconfigure` は既存プロジェクトを同じ形に更新し、`## Project rules` はそのまま残します。`agents.md` は毎セッション読み込まれ、Codex は先頭 32 KiB しか読まないため、12 KiB を超えるとチェッカーが `agents.size` を報告します。
+
 ## ワークフロー
 
 スロット(`A`、`B`、… `AA`)はツールや人ではなく作業の系統の名前なので、どのホストでもスロットを引き継げます。
@@ -155,7 +157,7 @@ python <skill-root>/scripts/check_project.py .
 
 ### Classic
 
-各スロットは `plan.md` の `## Agent: <slot>` セクションを 1 つ所有し、自分のセクションの詳細だけを読みます。重複チェック、割り振り、引き継ぎでは限られたメタデータだけを読みます。項目の所有者は記録された引き継ぎでのみ変わり、別のホストがキューに入れた項目は通常そのホストに残ります。これが 5.1.0 の動作であり、`Workflow` 行がないプロジェクトの既定値です。[Classic ワークフロー](skills/research-orchestrator/references/workflow-classic.md)。[別ホストの1項目を引き継ぐ例外](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment)には、元ホストの待機状態、近い作業の消化、記載の適格条件が必要です。
+各スロットは `plan.md` の `## Agent: <slot>` セクションを 1 つ所有し、自分のセクションの詳細だけを読みます。重複チェック、割り振り、引き継ぎでは限られたメタデータだけを読みます。項目の所有者は記録された引き継ぎでのみ変わり、別のホストがキューに入れた項目は通常そのホストに残ります。これが `Workflow` 行がないプロジェクトの既定値です。[Classic ワークフロー](skills/research-orchestrator/references/workflow-classic.md)。[別ホストの1項目を引き継ぐ例外](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment)には、元ホストの待機状態、近い作業の消化、記載の適格条件が必要です。
 
 ### Unified
 
@@ -268,6 +270,8 @@ work プロファイルは代わりにセッションの要約を 1 つ持ち、
 
 **項目を追加する前に** `ro dupcheck <terms>` を実行し、知見の索引(`ro index`)を読んでください。同じ主張の `VERIFIED` の結果があれば `Improvement` を伴う実質的に異なる後続項目だけを追加でき、`CHALLENGED` は異議が解決するまで待ち、`PENDING` は繰り返すよりレビューする方が有益です。待機中の項目の見出しと `Hypothesis`/`Goal` 行にも目を通し、書く直前に `plan.md` を読み直してください。その間に同じ項目が現れていたら、先にあった方を残します。
 
+**スクリプトを書く前に**ツール登録簿を検索し（`ro tools <terms>`）、登録済みのツールはコピーせずにバージョンを上げて拡張します（[ツール登録簿](skills/research-orchestrator/references/tools.md)）。
+
 [項目のフィールド、優先度、後続項目](skills/research-orchestrator/references/plan-items.md)、[記録](skills/research-orchestrator/references/records.md)。
 
 ## 項目のライフサイクル
@@ -338,13 +342,15 @@ ro kill <job>
 
 ## `ro` CLI
 
-`ro` は `python <skill-root>/scripts/ro.py` を指します。コマンドが正であり、すべてのホストで動作します。フックはそれを早めに実行するだけです。グローバルオプションは `--project`、`--slot`、`--session` で、各コマンドに `--help` があります。
+`ro` は `python <skill-root>/scripts/ro.py` を指します。コマンドが正であり、すべてのホストで動作します。フックはそれを早めに実行するだけです。グローバルオプションは `--project`、`--slot`、`--session` で、各コマンドに `--help` があります。パイプやファイルへの出力はどの OS でも UTF-8 なので、どの言語の記録もそのまま読み戻せます。
 
 | コマンド | 用途 |
 | --- | --- |
 | `next-id {D,H,I,X,N}` | 次の知見、計画項目、測定手段、外部アクション、メモの ID を予約 |
 | `dupcheck <terms>` | 作業を追加する前に、保管済みの記録を含めて見出しと主要な行を検索 |
-| `index [ID]` | 知見の索引、または 1 件の全文を表示 |
+| `index [ID] [--full]` | Finding を切り詰めた現行の知見索引（`--full` で全文とアーカイブ済みスタブ）、またはアーカイブ済みを含む 1 件の全文を表示 |
+| `archive {discoveries,events,restore}` | チェッカーが `history.size` を報告したら、確定した知見や古いイベントを `docs/archive/` へ移動。`restore <ID>` はアーカイブ済みの知見を修正のために戻す。`--before`、`--dry-run` |
+| `tools [terms] [--init]` | スクリプトを書く前に `docs/tools.md` の登録簿を検索。`--init` は利用ルール付きで登録簿を作成 |
 | `claim <item>`、`release <item>` | プロジェクトのロック下で unified キューの項目を確保、または解放 |
 | `launch --item … --expect … -- <command>` | 拘束された入力と出力、エラーパターン、ハートビート、確認期間、任意の `--require-receipt` を持つ所有ジョブを開始 |
 | `monitor <job>`、`jobs [--prune]`、`kill <job>` | ジョブを結果まで追跡、ジョブと監視の状態を一覧、身元を確認した所有プロセスツリーを停止 |
@@ -379,19 +385,17 @@ Codex のフックを利用する前に `/hooks` で信頼を設定してくだ�
 - 呼び出しごとのフックは、クラッシュ、タイムアウト、不正な入力、インタープリター不在のときは通過させ、`ro brief` がフックの自己テストと警告件数を報告します。`ro external`、`ro launch`、Git pre-push ゲートは検証が失敗したか実行できないときに拒否し、pre-push はメッセージとパスを含む送信されるすべてのコミットを検査します。
 - フックは協調的なセッションでの事故を防ぐものであり、敵対的な攻撃に対するセキュリティ境界ではありません。入れ子のインタープリター本体、here-string の本体、エイリアス、動的なパス、エンコードされた秘密情報は、信頼できる解析の範囲外です。
 
-Claude Code プラグインは `AskUserQuestion` と `Agent` を購読し、`Autonomy: away` と `Brief requirements` が無効なら対応するラッパーは Python を起動しません。Read-bound の購読はインストーラーで選択します。SessionStart と `ro brief` は Git チェックアウトに登録済み pre-push ゲートがない場合だけ `publish gate not installed` と `install.py --project <チェックアウトのルート>` を表示します。登録済みゲートが公開スキャンを担当するため、呼び出しごとの重複スキャンは省きます。呼び出しごとの事前チェックは、プッシュを実行するチェックアウトを読みます。ラッパーはプロジェクトヒントとコマンドの作業ディレクトリを別々に解釈し、プロジェクト外ではインタープリターが不要です。ジョブ登録がなければ Stop と編集チェックも Python を省きます。PostToolUse は二秒以上安定したファイルスタンプだけを再利用し、ブリーフはレビューのレシートや成果物が変わるとキャッシュを更新し、レビュー証拠は最大 64 MiB までハッシュして残りを未検証として示し、`check_project.py` で検証します。保存済み Windows 測定の p95 は、プロジェクト外とジョブのない Stop・編集で 23–36 ms、通常のシェルチェックと変更のない PostToolUse で 48–125 ms です。新しい監督下子プロセスの測定を示すものではありません。
+Claude Code プラグインは `AskUserQuestion` と `Agent` を購読し、`Autonomy: away` と `Brief requirements` が無効なら対応するラッパーは Python を起動しません。Read-bound の購読はインストーラーで選択します。SessionStart と `ro brief` は Git チェックアウトに登録済み pre-push ゲートがない場合だけ `publish gate not installed` と `install.py --project <チェックアウトのルート>` を表示します。登録済みゲートが公開スキャンを担当するため、呼び出しごとの重複スキャンは省きます。呼び出しごとの事前チェックは、プッシュを実行するチェックアウトを読みます。ラッパーはプロジェクトヒントとコマンドの作業ディレクトリを別々に解釈し、プロジェクト外ではインタープリターが不要です。ジョブ登録がなければ Stop と編集チェックも Python を省きます。PostToolUse は二秒以上安定したファイルスタンプだけを再利用し、ブリーフはレビューのレシートや成果物が変わるとキャッシュを更新し、レビュー証拠は最大 64 MiB までハッシュして残りを未検証として示し、`check_project.py` で検証します。保存済み Windows 測定の p95 は、プロジェクト外とジョブのない Stop・編集で 24–39 ms、通常のシェルチェックと変更のない PostToolUse で 52–123 ms です。レビュー済みディレクトリをハッシュする起動時の完全な SessionStart は約 157 ms で、高速経路の予算には含まれません。新しい監督下子プロセスの測定を示すものではありません。
 
 [フック、機能表、信頼](skills/research-orchestrator/references/hooks-capabilities.md)、[公開ゲート](skills/research-orchestrator/references/publication-safety.md)。
 
-## 5.1.0 からの移行
+## アップグレード
 
-インストール済みプラグインを更新しても既存プロジェクトは書き換えられません。存在しない設定は 5.1.0 の動作(classic ワークフロー、short の項目、cross-host-once の検証、ガード無効)を保ちます。手動インストールでは両方を残さず以前のスキルフォルダーを `research-orchestrator` に置き換えてください。改名については CHANGELOG を参照してください。
-
-5.1.0 で認められた `multi`/`same-host` レビューは引き続き有効です。再設定時にそのフィンガープリントを `agents.md` に保存し、新しいレビューには現在の検証ルールを適用します。
+インストール済みプラグインを更新しても既存プロジェクトは書き換えられません。リリース 7.0 は `agents.md` に `<!-- ro-template: ... -->` マーカーがあるプロジェクト(6.0 以降)だけを読み込みます。それより古いプロジェクトは 7.0 が拒否するため、先に 6.0.x で更新してください(`init_research_orchestrator.py . --reconfigure`)。手動インストールでは両方を残さず以前のスキルフォルダーを `research-orchestrator` に置き換えてください。
 
 1. 4 つのファイルと `.ro/` の状態の復元可能なコピーを保存し、チェッカーを実行して構造エラーを直します。
 2. `agents.md` の生成部分に手書きした指示を `## Project rules` に移します。再構成はこの領域をそのまま保持します。
-3. 生成された設定と読み込み先の案内を更新します。プリセットを採用するには `--preset <preset>` とその回答を加えます。2 つ目のコマンドは classic のプロジェクトを unified ワークフローに切り替えます:
+3. 生成された設定、読み込み先の案内、作業ルールを更新します。テンプレート v3.4 のプロジェクトは v3.5 になります。プリセットを採用するには `--preset <preset>` とその回答を加えます。2 つ目のコマンドは classic のプロジェクトを unified ワークフローに切り替えます:
 
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
@@ -401,7 +405,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --work
 4. `Workflow` の変更には `--migrate` も必要です。先にアクティブなスロットを解放してください。すべての設定変更で書き込み前に変更後の記録を検証し、互換性のある目標・レビュー欄を整えながら証拠と実効キュー順を保持します。調整ファイルが変わる場合は、ワークフローが同じでも `*.pre-migrate` バックアップと復旧ジャーナルを使用します。
 5. 結果を確認し、チェッカーを再実行し、変更を引き継ぎイベントとして記録します。
 
-ワークフローを変える前や `--force` を使う前に、[移行とロールバックの手順](skills/research-orchestrator/references/migration-v2-to-v3.md)を読んでください。
+ワークフローを変える前や `--force` を使う前に、[アップグレード・修復・ロールバックの手順](skills/research-orchestrator/references/migration.md)を読んでください。
 
 ## 検証と CI
 

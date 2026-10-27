@@ -8,7 +8,7 @@ from conftest import FIXTURES, check, found, make_project, rs, run_init
 
 
 def test_default_and_legacy_settings_use_english():
-    legacy = rs.read_settings((FIXTURES / "v2" / "agents.md").read_text(encoding="utf-8"))
+    legacy = rs.read_settings((FIXTURES / "classic" / "agents.md").read_text(encoding="utf-8"))
     assert rs.resolve({}, None, {})["language"] == "en"
     assert rs.resolve({}, None, legacy.values)["language"] == "en"
 

@@ -27,7 +27,9 @@ Run `ro next-id D` to reserve a discovery ID so simultaneous sessions do not reu
 
 `N-<slot>-<number>` reserves an ID for a user-maintained note in an existing document. It adds no checker record kind or coordination file; use established kinds for findings, plan items, insights and external actions.
 
-`ro index` prints discovery headings and Finding/Status/Cross-check lines. Open an entry with `ro index D-A-001` before reusing its premise or repeating its experiment. Keep claims and material conditions in Finding so searches find them.
+`ro index` prints live discovery headings, Status/Cross-check lines and whole findings, clipping findings to 160 characters only once the whole index passes 48 KiB, and counts archived entries; `--full` keeps whole lines. Open an entry, archived ones included, with `ro index D-A-001` before reusing its premise or repeating its experiment.
+
+`ro archive` and `ro tools` are described in [records.md](records.md#archiving-history) and [tools.md](tools.md). Keep claims and material conditions in Finding so searches find them.
 
 PostToolUse warns about new headings or dates beyond now plus five minutes and duplicate IDs introduced by edits, including shell edits. The checker remains available on every host.
 

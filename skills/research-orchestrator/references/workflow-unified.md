@@ -39,4 +39,4 @@ Staged items (`Item size: staged`) are described in `references/staged-items.md`
 
 ## Migration between workflows
 
-Read [migration-v2-to-v3.md](migration-v2-to-v3.md) before changing `Workflow`. It owns the preflight, item movement, backups and journal recovery procedure.
+Read [migration.md](migration.md) before changing `Workflow`. It owns the preflight, item movement, backups and journal recovery procedure.

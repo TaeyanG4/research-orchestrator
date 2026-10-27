@@ -45,8 +45,7 @@ def test_domain_lexicon_remains_complete(tmp_path, term):
 @pytest.mark.parametrize("relative", [
     "skills/research-orchestrator/references/competition.md",
     "skills/research-orchestrator/references/adapters/kaggle.md",
-    "skills/research-orchestrator/templates/v2/AGENTS.md.template",
-    "skills/research-orchestrator/templates/v3.0/AGENTS.md.template",
+    "skills/research-orchestrator/templates/v3.4/AGENTS.md.template",
     "skills/research-orchestrator/scripts/check_project.py",
     "skills/research-orchestrator/scripts/ro_settings.py",
     "examples/team-research-cv-leakage/discoveries.md", "examples/competition-solo-tabular/plan.md",

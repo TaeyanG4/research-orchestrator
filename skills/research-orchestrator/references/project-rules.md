@@ -6,6 +6,8 @@ Everything from `## Project rules` to the end of `agents.md` belongs to the user
 
 Keep durable project-specific requirements within 4,096 UTF-8 bytes in this subsection, excluding comments and surrounding whitespace but including code content. The checker reports `rules.standing.budget` as WARN when the body exceeds that budget; it does not truncate or rewrite the text. Link to detailed project documents when a rule needs more explanation, so the always-read policy stays usable.
 
+The whole `agents.md` loads in every session (Claude Code imports it through `CLAUDE.md`), and Codex reads only the first 32 KiB of project instructions, which cuts this region first because it comes last. The checker reports `agents.size` past 12 KiB, and names the Codex cut past 32 KiB. Move older Lessons and expired overrides to `docs/` with a link, and remove rules that a later rule replaced.
+
 Include `Replaces: <rule or none>` with each new standing rule so superseded guidance does not accumulate or contradict its replacement. Name the old rule and remove its obsolete instruction; use `none` when the rule adds a distinct requirement. This is authoring guidance, not a new checker field.
 
 ## Active overrides

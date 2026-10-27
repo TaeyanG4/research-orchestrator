@@ -10,7 +10,7 @@
 
 Claude Code, Codex, Google Antigravity에서 쓰는 플러그인으로, 업무 프로젝트·연구·대회 작업이 여러 AI 세션에 걸쳐 끊기지 않고 이어지게 합니다. 스킬, 호스트 훅, `ro` 명령줄 도구, 읽기 전용 리뷰어 에이전트를 함께 제공합니다. 네 개의 Markdown 파일이 설정, 작업 큐, 재사용할 수 있는 발견, 지속되는 인계 기록을 담습니다. 프리셋은 세션이 큐를 나누는 방식, 발견을 검토할 주체, 적용할 근거 검사를 정합니다.
 
-**릴리스 6.0.2.** 5.1.0 이후 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 기존 프로젝트는 그대로 동작하며, 설정을 바꾸기 전에 아래의 마이그레이션 절을 읽으세요.
+**릴리스 7.0.0.** 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 이 릴리스는 6.0 이후 릴리스로 만들었거나 올린 프로젝트를 읽습니다. 그보다 오래된 프로젝트는 아래 업그레이드 섹션을 참고하세요.
 
 ## 왜 사용하나요
 
@@ -110,7 +110,7 @@ ro --session <host-session> --slot A close
 | [`quick`](examples/quick-script-cleanup/README.md) | 에이전트 하나의 짧은 작업 | work | classic | short | off | self |
 | [`work-project`](examples/work-project-data-migration/README.md) | 며칠에 걸친 이전·분석·구축 | work | unified | staged | light | independent-review |
 | [`solo-research`](examples/solo-research-literature-replication/README.md) | 에이전트 하나의 장기 연구 (연구에 권장) | research | unified | staged | light | independent-review |
-| [`team-research`](examples/team-research-cv-leakage/README.md) | 여러 세션이나 호스트의 병렬 작업 (5.1.0 방식) | research | classic | short | light | cross-host-once |
+| [`team-research`](examples/team-research-cv-leakage/README.md) | 여러 세션이나 호스트의 병렬 작업 (슬롯마다 섹션 하나) | research | classic | short | light | cross-host-once |
 | [`competition-solo`](examples/competition-solo-tabular/README.md) | 주로 에이전트 하나가 진행하는 대회 | competition | unified | staged | light | independent-review |
 | [`competition-team`](examples/competition-team-forecasting/README.md) | 병렬 세션이나 호스트가 참여하는 대회 | competition | classic | short | light | hybrid |
 
@@ -145,6 +145,8 @@ python <skill-root>/scripts/check_project.py .
 
 초기화 도구는 네 조정 파일을 쓰고 렌더링 메타데이터를 `.ro/`에 저장합니다. `Language`는 자유 텍스트에만 적용됩니다. 제목, 필드명, ID, 상태 단어, 검사 ID, 설정 키는 체커·훅·`ro`가 동작하도록 영어를 유지합니다.
 
+초기화는 `agents.md`에 `## Working rules`도 적습니다. 그래서 스킬을 불러오지 않은 세션도 작업 추가 전 검색, 결과는 한 곳에만 기록, 깔끔한 종료를 그대로 따릅니다. `CLAUDE.md`가 이미 `agents.md`를 언급하지 않으면 `@agents.md`(Claude Code의 가져오기 문법) 한 줄을 추가합니다(`--no-claude-md`로 생략). `--reconfigure`는 기존 프로젝트를 같은 형태로 올리고 `## Project rules`는 그대로 둡니다. `agents.md`는 매 세션 읽히고 Codex는 앞쪽 32 KiB만 읽으므로, 12 KiB를 넘으면 체커가 `agents.size`를 보고합니다.
+
 ## 워크플로
 
 슬롯(`A`, `B`, … `AA`)은 도구나 사람이 아니라 작업 줄기의 이름이므로, 어떤 호스트든 슬롯을 이어받을 수 있습니다.
@@ -155,7 +157,7 @@ python <skill-root>/scripts/check_project.py .
 
 ### Classic
 
-각 슬롯은 `plan.md`의 `## Agent: <slot>` 섹션 하나를 소유하고 자기 섹션의 세부 내용만 읽습니다. 중복 확인, 배분, 인수는 좁은 메타데이터만 읽습니다. 항목의 소유자는 기록된 인수로만 바뀌고, 다른 호스트가 큐에 넣은 항목은 보통 그 호스트에 남습니다. 이것이 5.1.0의 동작이며, `Workflow` 줄이 없는 프로젝트의 기본값입니다. [Classic 워크플로](skills/research-orchestrator/references/workflow-classic.md). [다른 호스트의 한 항목 인수 예외](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment)는 원래 호스트가 유휴 상태이고 가까운 작업을 소진했으며 문서의 적격 조건을 충족할 때 적용됩니다.
+각 슬롯은 `plan.md`의 `## Agent: <slot>` 섹션 하나를 소유하고 자기 섹션의 세부 내용만 읽습니다. 중복 확인, 배분, 인수는 좁은 메타데이터만 읽습니다. 항목의 소유자는 기록된 인수로만 바뀌고, 다른 호스트가 큐에 넣은 항목은 보통 그 호스트에 남습니다. 이것이 `Workflow` 줄이 없는 프로젝트의 기본값입니다. [Classic 워크플로](skills/research-orchestrator/references/workflow-classic.md). [다른 호스트의 한 항목 인수 예외](skills/research-orchestrator/references/workflow-classic.md#cross-host-take-over-by-judgment)는 원래 호스트가 유휴 상태이고 가까운 작업을 소진했으며 문서의 적격 조건을 충족할 때 적용됩니다.
 
 ### Unified
 
@@ -268,6 +270,8 @@ work 프로필은 대신 세션 요약 하나를 두고 항목이 끝날 때마�
 
 **항목을 추가하기 전에** `ro dupcheck <terms>`를 실행하고 발견 색인(`ro index`)을 읽으세요. 같은 주장의 `VERIFIED` 결과가 있으면 `Improvement`를 갖춘, 실질적으로 다른 후속 항목만 추가할 수 있고, `CHALLENGED`는 이의가 해결될 때까지 기다리며, `PENDING`은 반복하기보다 검토하는 편이 낫습니다. 대기 항목의 제목과 `Hypothesis`/`Goal` 줄도 훑어보고, 쓰기 직전에 `plan.md`를 다시 읽으세요. 그사이 같은 항목이 생겼다면 먼저 생긴 항목을 남깁니다.
 
+**스크립트를 작성하기 전에는** 도구 목록을 검색하고(`ro tools <terms>`), 목록에 있는 도구는 복사하지 말고 버전을 올려 고쳐 씁니다([도구 목록](skills/research-orchestrator/references/tools.md)).
+
 [항목 필드, 우선순위, 후속 항목](skills/research-orchestrator/references/plan-items.md), [기록](skills/research-orchestrator/references/records.md).
 
 ## 항목 수명 주기
@@ -338,13 +342,15 @@ ro kill <job>
 
 ## `ro` CLI
 
-`ro`는 `python <skill-root>/scripts/ro.py`를 뜻합니다. 명령이 기준이며 모든 호스트에서 동작하고, 훅은 그 명령을 더 일찍 실행할 뿐입니다. 전역 옵션은 `--project`, `--slot`, `--session`이고, 각 명령에는 `--help`가 있습니다.
+`ro`는 `python <skill-root>/scripts/ro.py`를 뜻합니다. 명령이 기준이며 모든 호스트에서 동작하고, 훅은 그 명령을 더 일찍 실행할 뿐입니다. 전역 옵션은 `--project`, `--slot`, `--session`이고, 각 명령에는 `--help`가 있습니다. 파이프나 파일로 내보내는 출력은 모든 OS에서 UTF-8이므로, 어떤 언어로 쓴 기록도 그대로 읽힙니다.
 
 | 명령 | 용도 |
 | --- | --- |
 | `next-id {D,H,I,X,N}` | 다음 발견, 계획 항목, 측정 도구, 외부 행동, 메모 ID 예약 |
 | `dupcheck <terms>` | 작업을 추가하기 전에 보관된 기록을 포함해 제목과 핵심 줄 검색 |
-| `index [ID]` | 발견 색인, 또는 항목 하나의 전체 내용 출력 |
+| `index [ID] [--full]` | Finding을 잘라 보여 주는 현재 발견 색인(`--full`: 전체 줄과 보관 요약 포함), 또는 보관된 것을 포함한 항목 하나의 전체 내용 출력 |
+| `archive {discoveries,events,restore}` | 체커가 `history.size`를 보고하면 정리된 발견이나 오래된 기록을 `docs/archive/`로 이동; `restore <ID>`는 보관된 발견을 고치려고 되돌림; `--before`, `--dry-run` |
+| `tools [terms] [--init]` | 스크립트를 작성하기 전에 `docs/tools.md` 도구 목록 검색; `--init`은 사용 원칙을 담아 목록 생성 |
 | `claim <item>`, `release <item>` | 프로젝트 잠금 아래 unified 큐 항목 점유, 또는 해제 |
 | `launch --item … --expect … -- <command>` | 묶인 입력과 출력, 오류 패턴, 하트비트, 확인 구간, 선택적 `--require-receipt`를 갖춘 소유 작업 시작 |
 | `monitor <job>`, `jobs [--prune]`, `kill <job>` | 작업을 결과까지 추적, 작업과 모니터 상태 나열, 신원을 확인한 소유 프로세스 트리 중지 |
@@ -379,19 +385,17 @@ Codex 훅에 의존하기 전에 `/hooks`에서 신뢰를 설정하세요. `ro` 
 - 호출별 훅은 충돌, 시간 초과, 잘못된 입력, 인터프리터 부재 시 통과시키며, `ro brief`가 훅 자체 시험과 경고 건수를 보고합니다. `ro external`, `ro launch`, Git pre-push 관문은 검증이 실패하거나 실행될 수 없으면 거부하며, pre-push는 메시지와 경로를 포함해 나가는 모든 커밋을 검사합니다.
 - 훅은 협조하는 세션의 사고를 막을 뿐, 적대적 공격에 대한 보안 경계가 아닙니다. 중첩된 인터프리터 본문, here-string 본문, 별칭, 동적 경로, 인코딩된 비밀은 신뢰할 수 있는 파싱 범위 밖입니다.
 
-Claude Code 플러그인은 `AskUserQuestion`과 `Agent`를 구독하며, `Autonomy: away`와 `Brief requirements`가 비활성이면 해당 래퍼는 Python을 생략합니다. Read-bound 구독은 설치 도구에서 선택합니다. SessionStart와 `ro brief`는 Git 체크아웃에 등록된 pre-push 관문이 없을 때만 `publish gate not installed`와 `install.py --project <체크아웃 루트>`를 출력합니다. 등록된 관문이 있으면 호출별 중복 게시 검사를 생략하며, 호출별 사전 검사는 푸시가 실행되는 체크아웃을 읽습니다. 래퍼는 프로젝트 힌트와 명령 작업 디렉터리를 별도로 해석하며 프로젝트 밖에서는 인터프리터가 필요 없습니다. 작업 레지스트리가 없으면 Stop과 편집 검사도 Python을 생략합니다. PostToolUse는 2초 이상 안정된 파일 스탬프만 재사용하고, 브리프는 검토 영수증이나 산출물이 바뀌면 캐시를 갱신하고, 검토 증거는 최대 64 MiB까지만 해시하며 나머지는 미검증으로 표시해 `check_project.py`가 확인하게 합니다. 저장된 Windows 측정의 p95는 프로젝트 밖과 작업 없는 Stop·편집에서 23–36 ms, 일반 셸 검사와 변경 없는 PostToolUse에서 48–125 ms입니다. 새 감독 하위 프로세스의 측정값을 뜻하지 않습니다.
+Claude Code 플러그인은 `AskUserQuestion`과 `Agent`를 구독하며, `Autonomy: away`와 `Brief requirements`가 비활성이면 해당 래퍼는 Python을 생략합니다. Read-bound 구독은 설치 도구에서 선택합니다. SessionStart와 `ro brief`는 Git 체크아웃에 등록된 pre-push 관문이 없을 때만 `publish gate not installed`와 `install.py --project <체크아웃 루트>`를 출력합니다. 등록된 관문이 있으면 호출별 중복 게시 검사를 생략하며, 호출별 사전 검사는 푸시가 실행되는 체크아웃을 읽습니다. 래퍼는 프로젝트 힌트와 명령 작업 디렉터리를 별도로 해석하며 프로젝트 밖에서는 인터프리터가 필요 없습니다. 작업 레지스트리가 없으면 Stop과 편집 검사도 Python을 생략합니다. PostToolUse는 2초 이상 안정된 파일 스탬프만 재사용하고, 브리프는 검토 영수증이나 산출물이 바뀌면 캐시를 갱신하고, 검토 증거는 최대 64 MiB까지만 해시하며 나머지는 미검증으로 표시해 `check_project.py`가 확인하게 합니다. 저장된 Windows 측정의 p95는 프로젝트 밖과 작업 없는 Stop·편집에서 24–39 ms, 일반 셸 검사와 변경 없는 PostToolUse에서 52–123 ms입니다. 검토 디렉터리를 해시하는 전체 시작 SessionStart는 약 157 ms로, 빠른 경로 예산에 속하지 않습니다. 새 감독 하위 프로세스의 측정값을 뜻하지 않습니다.
 
 [훅, 기능 표, 신뢰](skills/research-orchestrator/references/hooks-capabilities.md), [공개 관문](skills/research-orchestrator/references/publication-safety.md).
 
-## 5.1.0에서 마이그레이션
+## 업그레이드
 
-설치된 플러그인을 업데이트해도 기존 프로젝트는 다시 쓰이지 않습니다. 없는 설정은 5.1.0 동작(classic 워크플로, short 항목, cross-host-once 검증, 가드 끔)을 유지합니다. 수동 설치는 두 사본을 함께 두지 말고 이전 스킬 폴더를 `research-orchestrator`로 교체하세요. 이름 변경은 CHANGELOG를 참고하세요.
-
-5.1.0에서 인정된 `multi`/`same-host` 리뷰는 계속 유효합니다. 재설정은 해당 리뷰의 지문을 `agents.md`에 보존하며, 새 리뷰에는 현재 검증 규칙을 적용합니다.
+설치된 플러그인을 업데이트해도 기존 프로젝트는 다시 쓰이지 않습니다. 릴리스 7.0은 `agents.md`에 `<!-- ro-template: ... -->` 표식이 있는 프로젝트(6.0 이후)만 읽습니다. 그보다 오래된 프로젝트는 7.0이 거부하므로 먼저 6.0.x로 올리세요(`init_research_orchestrator.py . --reconfigure`). 수동 설치는 두 사본을 함께 두지 말고 이전 스킬 폴더를 `research-orchestrator`로 교체하세요.
 
 1. 네 파일과 `.ro/` 상태의 복구 가능한 사본을 저장하고, 체커를 실행해 구조 오류를 고치세요.
 2. `agents.md`의 생성된 부분에 직접 쓴 지침을 `## Project rules`로 옮기세요. 재구성은 이 영역을 그대로 보존합니다.
-3. 생성된 설정과 읽기 안내를 새로 고칩니다. 프리셋을 쓰려면 `--preset <preset>`과 그 답을 추가하세요. 두 번째 명령은 classic 프로젝트를 unified 워크플로로 바꿉니다.
+3. 생성된 설정, 읽기 안내, 작업 원칙을 새로 고칩니다. 템플릿 v3.4 프로젝트는 v3.5로 올라갑니다. 프리셋을 쓰려면 `--preset <preset>`과 그 답을 추가하세요. 두 번째 명령은 classic 프로젝트를 unified 워크플로로 바꿉니다.
 
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
@@ -401,7 +405,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --work
 4. `Workflow`를 바꾸려면 `--migrate`도 필요하며, 먼저 활성 슬롯을 해제하세요. 모든 설정 전환은 쓰기 전에 변경될 기록을 검증합니다. 호환되는 목표·검토 필드를 정규화하면서 증거와 실질적인 큐 순서를 보존합니다. 조율 파일이 바뀌면 워크플로가 같아도 `*.pre-migrate` 백업과 복구 저널을 사용합니다.
 5. 결과를 확인하고 체커를 다시 실행한 뒤 변경을 인계 이벤트로 기록하세요.
 
-워크플로를 바꾸거나 `--force`를 쓰기 전에 [마이그레이션과 롤백 절차](skills/research-orchestrator/references/migration-v2-to-v3.md)를 읽으세요.
+워크플로를 바꾸거나 `--force`를 쓰기 전에 [업그레이드·복구·롤백 절차](skills/research-orchestrator/references/migration.md)를 읽으세요.
 
 ## 검증과 CI
 

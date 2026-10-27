@@ -22,7 +22,7 @@ suite reject stale counts or rows. Assertions and expected outcomes live in each
 Post-snapshot additions and changed assertions are unexecuted. This inventory describes routing, not measured performance. Routing checks only load case schemas and render this inventory; they do not execute scenarios or graders.
 
 <!-- generated case inventory -->
-177 case folders; 960 assertions (524 scripted, 436 judged).
+177 case folders; 962 assertions (532 scripted, 430 judged).
 Counts and rows come from the case folders and explicit grader routing; direct artifact predicates are scripted, while judgments review qualitative or multi-step trace evidence.
 
 | Case | Scripted | Judged | Input files |
@@ -35,7 +35,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | automatic-session-registration | 6 | 0 | 1 |
 | away-slot-default | 0 | 8 | 6 |
 | brace-operand-boundary | 0 | 6 | 1 |
-| brief-review-cache | 0 | 7 | 1 |
+| brief-review-cache | 2 | 7 | 1 |
 | checker-broken-install | 0 | 4 | 1 |
 | checker-summary-integrity | 4 | 0 | 1 |
 | claim-contention | 8 | 0 | 1 |
@@ -84,6 +84,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | fenced-record-examples | 10 | 0 | 6 |
 | foreground-job-wait | 0 | 4 | 1 |
 | general-reference-vocabulary | 0 | 3 | 2 |
+| history-archive | 8 | 0 | 2 |
 | hook-basename-dispatch | 0 | 3 | 1 |
 | hook-edit-warning-fast-paths | 0 | 4 | 1 |
 | hook-effective-working-directory | 7 | 0 | 4 |
@@ -118,7 +119,6 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | launch-item-ownership | 0 | 8 | 4 |
 | launch-root-binding | 6 | 0 | 2 |
 | launch-target-validation | 1 | 4 | 7 |
-| legacy-same-host-preservation | 0 | 7 | 4 |
 | literal-cd-command-chain | 4 | 1 | 1 |
 | local-single-host-first-session | 0 | 3 | 1 |
 | milestone-state-validation | 3 | 0 | 1 |
@@ -189,12 +189,12 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | standing-rule-lineage | 0 | 5 | 1 |
 | stop-absent-job-registry | 0 | 3 | 1 |
 | stop-once-per-job | 5 | 1 | 1 |
+| tool-registry | 2 | 2 | 4 |
 | trigger-measurement-reasons | 9 | 0 | 1 |
 | unicode-job-errors | 2 | 2 | 1 |
 | unified-research-resume | 4 | 1 | 6 |
 | uninstall-flag-conflict | 3 | 0 | 1 |
 | unreadable-subdirectory | 7 | 0 | 3 |
-| v2-rules-upgrade | 4 | 1 | 5 |
 | v3-interface-scope | 2 | 1 | 1 |
 | work-brief-references | 2 | 2 | 1 |
 | work-migration-scheduling | 3 | 0 | 1 |

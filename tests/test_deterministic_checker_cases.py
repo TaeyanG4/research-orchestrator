@@ -96,10 +96,34 @@ def test_report_cleanliness_does_not_accept_empty_or_warning_report(context):
     assert not resumed(context)[0]
     assert not checks.clean_text("")
     assert not checks.clean_text("0 errors, 0 warnings")
-    assert checks.clean_text("CONSISTENCY: PASS\n")
+    real = "CONSISTENCY: OK (1 plan items, 0 discoveries, 1 events, workflow classic, verification self)\n"
+    assert checks.clean_text(real) and checks.clean_text(real, info=True)
+    with_info = real.replace("self)", "self; 1 info)") + "- INFO record.order: advice\n"
+    assert checks.clean_text(with_info) and not checks.clean_text(with_info, info=True)
+    # Invented, clipped and unreadable summaries are not checker results.
+    assert not checks.clean_text("CONSISTENCY: PASS\n")
+    assert not checks.clean_text("CONSISTENCY: 1 problem(s)\n")
+    assert not checks.clean_text("CONSISTENCY: 0 error(s), 2 warning(s), 0 info (1 plan items)\n")
+    assert not checks.clean_text("CONSISTENCY: cannot read the project files: denied\n")
     assert not checks.clean_text("CONSISTENCY: PASS\nWARN guard.direction.stale handoff.md: due\n")
     assert not checks.clean_text("CONSISTENCY: OK\n- INFO guard.control.missing discoveries.md: control\n", info=True)
-    assert not checks.clean_text("CONSISTENCY: PASS\nINFO guard.control.missing discoveries.md: control\n", info=True)
+
+
+def test_registered_clean_predicates_agree_with_the_labelled_checker_outputs(context):
+    """Every registered cleanliness predicate grades the summary-integrity samples as labelled."""
+    from scripts.evals import deterministic_artifacts
+    samples = json.loads((SKILL / "evals/checker-summary-integrity/files/checker-outputs.json")
+                         .read_text(encoding="utf-8"))
+    expected = {"clean": True, "info": True, "warning": False, "clipped-warning": False, "error": False,
+                "contradictory": False, "unreadable": False, "invented-pass": False}
+    assert set(samples) == set(expected)
+    clean_report = checks.CHECKS["quick-goal-routing", "90-checker-clean.md"]
+    for key, text in samples.items():
+        assert checks.clean_text(text) is expected[key], key
+        write(context, "check.txt", text)
+        assert deterministic_artifacts.clean_check(context, "check.txt") is expected[key], key
+        write(context, "checker.txt", text)
+        assert clean_report(context)[0] is expected[key], key
 
 
 def test_retry_defect_classification_uses_ledger_not_scenario_folder_names():
@@ -167,3 +191,131 @@ def test_no_review_wait_rejects_structured_agent_launch(context):
     assert checks.no_unavailable_review(context)[0]
     path.write_text(json.dumps({"type": "item.completed", "item": {"type": "collab_tool_call", "tool": "spawn_agent"}}), encoding="utf-8")
     assert not checks.no_unavailable_review(context)[0]
+
+
+SIZE = ("- WARN history.size discoveries.md: the startup discovery index is 70 KiB (limit 48 KiB); run `ro archive discoveries`\n"
+        "- WARN history.size handoff.md: handoff.md is 214 KiB (limit 192 KiB); run `ro archive events`\n")
+PENDING = "- INFO discovery.review.pending [A] discoveries.md:{}: D-A-301 awaits review\n"
+GUARD = "- INFO guard.direction.stale: 1 issue(s); examples: none; direction review is due\n"
+INVALID = {"unreadable": "CONSISTENCY: cannot read the project files: denied\n", "invented": "CONSISTENCY: PASS\n",
+           "clipped": "CONSISTENCY: 0 error(s), 1 warning(s), 0 info (1 plan items)\n", "missing": None}
+
+
+def report(warnings: str = "", infos: str = "") -> str:
+    """Checker output whose summary counts match its listed findings."""
+    w = warnings.count("\n- WARN ") + warnings.startswith("- WARN ")
+    i = sum(int(line.split(": ", 1)[1].split(" ")[0]) if " issue(s); examples:" in line else 1
+            for line in infos.splitlines() if line.startswith("- INFO "))
+    head = (f"CONSISTENCY: 0 error(s), {w} warning(s), {i} info (1 plan items)" if w else
+            "CONSISTENCY: OK (1 plan items" + (f"; {i} info" if i else "") + ")")
+    return head + "\n" + warnings + infos
+
+
+def capture(ctx, name, text):
+    path = ctx.outputs / name
+    if text is None:
+        path.unlink(missing_ok=True)
+    else:
+        write(ctx, name, text)
+
+
+def test_history_archive_predicates_separate_real_archiving_from_controls(context):
+    write(context, "history-checks/index.txt", "Discovery index: 1 live (VERIFIED 1), 0 archived.\n\n## D-A-001 — x\n- Finding: short\n")
+    assert checks.compact_index(context)[0]
+    write(context, "history-checks/index.txt", "## D-A-001 — x\n- Finding: " + "x" * 200 + "\n")
+    assert not checks.compact_index(context)[0]
+    write(context, "history-checks/check-before.txt", report(SIZE, PENDING.format(3922) + GUARD))
+    assert checks.size_warnings(context)[0]
+    write(context, "history-checks/check-after-discoveries.txt",
+          report(SIZE.splitlines(keepends=True)[1], PENDING.format(1200) + GUARD))
+    assert checks.findings_preserved(context)[0]  # moved line numbers are not changed findings
+    write(context, "history-checks/check-after-discoveries.txt", report(SIZE, GUARD))
+    assert not checks.findings_preserved(context)[0]
+    write(context, "history-checks/check-after.txt", report("", PENDING.format(1200) + GUARD))
+    assert checks.limits_restored(context)[0]
+    write(context, "history-checks/check-after.txt", report(SIZE))
+    assert not checks.limits_restored(context)[0]
+    full = "- Source: A\n- Cross-check: {}\n- Finding: f\n- Evidence: e\n"
+    entries = ["## D-A-001 — a\n- Archived: docs/archive/discoveries-2026-08.md\n- Cross-check: VERIFIED\n- Finding: f\n"]
+    entries += [f"## D-A-{n:03d} — x\n" + full.format("PENDING") for n in range(301, 332)]
+    write(context, "project/discoveries.md", "# Discoveries\n\n" + "\n".join(entries))
+    assert checks.settled_only(context)[0]
+    write(context, "project/discoveries.md", "# Discoveries\n\n" + "\n".join(entries).replace(
+        "## D-A-331 — x\n- Source: A", "## D-A-331 — x\n- Archived: docs/archive/x.md\n- Source: A"))
+    assert not checks.settled_only(context)[0]
+    write(context, "history-checks/opened.txt", "## D-A-001 — a\n- Evidence: e\n\n(archived in docs/archive/discoveries-2026-08.md)\n")
+    write(context, "history-checks/dupcheck.txt", "docs/archive/discoveries-2026-08.md:5: ## D-A-001 — a\n")
+    assert checks.archived_findable(context)[0]
+    write(context, "history-checks/dupcheck.txt", "discoveries.md:5: ## D-A-001 — a\n")
+    assert not checks.archived_findable(context)[0]
+    kept = ("### 2026-09-24 13:00 — A — H-A-01/s1\n### 2026-09-28 13:00 — A — none\n### 2026-09-28 15:00 — B — none\n\n"
+            "## Archived history\n- [docs/archive/handoff-2026-08.md](docs/archive/handoff-2026-08.md): 300 events, x\n")
+    write(context, "project/handoff.md", kept)
+    assert checks.event_archive(context)[0]
+    write(context, "project/handoff.md", kept.replace("### 2026-09-24 13:00 — A — H-A-01/s1\n", ""))
+    assert not checks.event_archive(context)[0]
+
+
+def test_tool_registry_predicates_need_real_checker_output(context):
+    write(context, "check.txt", report("", "- INFO handoff.shared.missing handoff.md: x\n"))
+    assert checks.no_tool_findings(context)[0]
+    write(context, "check.txt", report("- WARN tools.field docs/tools.md:3: x\n"))
+    assert not checks.no_tool_findings(context)[0]
+    write(context, "control-check.txt", report("- WARN tools.unregistered tools/submit_v2.py: tools/submit_v2.py sits beside\n"))
+    assert checks.unregistered_control(context)[0]
+    write(context, "control-check.txt", report())
+    assert not checks.unregistered_control(context)[0]
+
+
+@pytest.mark.parametrize("kind", sorted(INVALID))
+def test_checker_predicates_reject_unreadable_invented_clipped_and_missing_output(context, kind):
+    """Each registered 7.0.0 checker predicate first requires a complete, real checker report."""
+    valid = {"history-checks/check-before.txt": report(SIZE), "history-checks/check-after-discoveries.txt": report(SIZE),
+             "history-checks/check-after.txt": report(), "check.txt": report(),
+             "control-check.txt": report("- WARN tools.unregistered tools/submit_v2.py: x\n")}
+    routes = {("history-archive", "02-size-warning.md"): ["history-checks/check-before.txt"],
+              ("history-archive", "04-findings-preserved.md"): ["history-checks/check-before.txt",
+                                                                "history-checks/check-after-discoveries.txt"],
+              ("history-archive", "07-limits-restored.md"): ["history-checks/check-after.txt"],
+              ("tool-registry", "03-clean-registry.md"): ["check.txt"],
+              ("tool-registry", "04-unregistered-control.md"): ["control-check.txt"]}
+    for key, names in routes.items():
+        for name, text in valid.items():
+            write(context, name, text)
+        predicate = checks.CHECKS[key]
+        assert predicate(context)[0], key
+        for name in names:
+            capture(context, name, INVALID[kind])
+            assert not predicate(context)[0], (key, name)
+            write(context, name, valid[name])
+
+
+def test_review_cache_variant_predicates_need_both_briefs_and_bounded_growth(context):
+    review = "Checker: ERROR 0; WARN 1; INFO 0\nevent.stage.review: 1; IDs H-A-01\n"
+    for n in (1, 2):
+        write(context, f"cache-checks/unreadable-brief-{n}.txt", review)
+    assert checks.unreadable_briefs(context)[0]
+    write(context, "cache-checks/unreadable-brief-2.txt", "Checker: ERROR 0; WARN 0; INFO 0\n")  # cached clean result
+    assert not checks.unreadable_briefs(context)[0]
+    runs = [{"moment": "before-open", "error": "artifact changed while hashing", "bytes_read": 0},
+            {"moment": "while-reading", "error": "artifact changed while hashing", "bytes_read": 2}]
+    write(context, "cache-checks/growth.json", runs)
+    assert checks.growth_bound(context)[0]
+    for broken in ([runs[0]], [runs[0], {**runs[1], "error": ""}], [runs[0], {**runs[1], "bytes_read": 100}],
+                   [runs[0], {**runs[1], "bytes_read": "2"}]):
+        write(context, "cache-checks/growth.json", broken)
+        assert not checks.growth_bound(context)[0], broken
+    write(context, "cache-checks/growth.json", "not json")
+    assert not checks.growth_bound(context)[0]
+
+
+def test_restore_rearchive_predicate_needs_the_revision_and_one_archived_copy(context):
+    opened = "## D-A-002 — x\n- Finding: base. Revised after a second run.\n\n(archived in docs/archive/discoveries-2026-08.md)\n"
+    write(context, "history-checks/rearchived.txt", opened)
+    write(context, "project/docs/archive/discoveries-2026-08.md", "# Archived\n\n## D-A-002 — x\n- Finding: revised\n")
+    assert checks.restore_rearchive(context)[0]
+    write(context, "project/docs/archive/discoveries-2026-09.md", "# Archived\n\n## D-A-002 — old copy\n- Finding: base\n")
+    assert not checks.restore_rearchive(context)[0]  # a leftover second copy
+    (context.outputs / "project/docs/archive/discoveries-2026-09.md").unlink()
+    write(context, "history-checks/rearchived.txt", opened.replace(" Revised after a second run.", ""))
+    assert not checks.restore_rearchive(context)[0]

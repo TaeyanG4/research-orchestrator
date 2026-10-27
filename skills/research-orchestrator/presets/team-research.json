@@ -1,6 +1,6 @@
 {
   "name": "team-research",
-  "summary": "several sessions or hosts in parallel (the v2 way)",
+  "summary": "several sessions or hosts in parallel, one section per slot",
   "profile": "research",
   "workflow": "classic",
   "verification": "cross-host-once",

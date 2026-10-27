@@ -190,8 +190,8 @@ def test_legacy_discovery_reviews_by_another_slot_still_count(tmp_path) -> None:
     assert errors_by_record(check(target)) == [("discovery.state.unbacked", "D-A-003")]
 
 
-def test_v2_project_switched_to_independent_review_keeps_verified_discoveries(tmp_path) -> None:
-    target = copy_fixture("v2", tmp_path / "v2")
+def test_older_project_switched_to_independent_review_keeps_verified_discoveries(tmp_path) -> None:
+    target = copy_fixture("classic", tmp_path / "classic")
     (target / ".git").mkdir()
     result = run_init(target, "--reconfigure", "--verification", "independent-review")
     assert result.returncode == 0, result.stderr

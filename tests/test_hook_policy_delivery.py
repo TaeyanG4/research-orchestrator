@@ -278,6 +278,8 @@ def test_push_precheck_uses_the_command_checkout_not_the_policy_root(tmp_path, m
 @pytest.mark.parametrize("command", ["git -C ../other push origin main", "git --git-dir=../other/.git push",
                                      "git --work-tree ../other push", "cd ../other && git push origin main",
                                      "env -C ../other git push", "env -C../other git push", "git -C../other push",
+                                     "env --chdir=../other git push", "sudo -D ../other git push",
+                                     "sudo --chdir=../other git push",
                                      "GIT_DIR=../other/.git git push", "export GIT_WORK_TREE=../other; git push"])
 def test_push_that_selects_its_checkout_in_the_command_keeps_the_advisory(tmp_path, monkeypatch, command):
     project = configured(tmp_path / "policy")
@@ -292,7 +294,8 @@ def test_push_that_selects_its_checkout_in_the_command_keeps_the_advisory(tmp_pa
     assert "selects its checkout inside the command" in result
 
 
-@pytest.mark.parametrize("command", ["git -c core.pager=cat push", "git status && git push", "time git push"])
+@pytest.mark.parametrize("command", ["git -c core.pager=cat push", "git status && git push", "time git push",
+                                     "sudo -C 3 git push", "sudo -C3 git push", "nice -n 5 git push"])
 def test_push_in_the_hook_directory_is_not_reported_as_moved(command):
     import ro_checks
     parsed = ro_checks.command_parts(ro_checks.Call("shell", "bash", command), {"environment": "linux/bash"})

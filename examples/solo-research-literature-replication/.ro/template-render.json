@@ -1,4 +1,4 @@
 {
-  "version": "v3.4",
-  "render_key": "profile=research workflow=unified verification=independent-review itemsize=staged guards=light guardset=auto mode=single git=off instruments=on externalactions=on collector=off preset=solo-research external_actions_source=default pointers=workflow-unified,verification,staged-items,research-guards,decision-guards,hooks"
+  "version": "v3.5",
+  "render_key": "profile=research workflow=unified verification=independent-review itemsize=staged guards=light guardset=auto mode=single git=off instruments=on externalactions=on collector=off phaseclock=off preset=solo-research external_actions_source=default pointers=workflow-unified,verification,staged-items,research-guards,decision-guards,hooks"
 }

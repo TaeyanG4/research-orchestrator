@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: neutral-new-decision-records
 expected_outcome: |
-  New research and competition discoveries use neutral decision-class names, shipped examples use the same vocabulary, and an existing v2 archival record retains its legacy spelling unchanged.
+  New research and competition discoveries use neutral decision-class names, shipped examples use the same vocabulary, and an existing archival record retains its legacy spelling unchanged.
 context:
   scaffold_script: place-files.sh

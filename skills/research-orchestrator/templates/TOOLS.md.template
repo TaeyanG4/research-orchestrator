@@ -1,0 +1,13 @@
+# Tools
+
+Reusable scripts and commands for this project, one entry per tool, so every session finds and extends the same code instead of rebuilding it. Search here first (`ro tools <terms>`). When a listed tool nearly does the job, change it in place, bump its `Version` and update `Usage` and `Tests`. Copy only when a running job or a cited result depends on the old bytes, then mark the old entry `superseded by <name>`. Register a new reusable script in the same change that adds it. Details: `<skill-root>/references/tools.md`.
+
+```markdown
+## <name> — <purpose>
+- Path: <file or directory, or none for an external command>
+- Version: 1.0.0
+- Usage: <command line>
+- Tests: <test file or recorded check> / none
+- Status: active | superseded by <name> | retired
+- Updated: YYYY-MM-DD
+```

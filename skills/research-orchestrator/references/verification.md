@@ -1,6 +1,6 @@
 # Verification
 
-Read "Common rules", then the `Verification` policy in `agents.md`; v2 defaults to `cross-host-once`.
+Read "Common rules", then the `Verification` policy in `agents.md`; the built-in default is `cross-host-once`.
 
 ## Common rules
 
@@ -48,7 +48,6 @@ Verification is per **host**: a discovery made on one host is checked once by a 
 
 `Cross-check fallback` matters only in `adaptive` projects. A same-host review without `same host —` does not count (`discovery.review.same-host`); one the mode does not allow, or one from the source slot, does not count either (`discovery.review.ineligible`).
 
-**Legacy evidence.** Accepted, undated v2 `multi`/`same-host` reviews retain their eligibility. [Migration](migration-v2-to-v3.md#what-changes) preserves exact reviews; new reviews use the rules above.
 
 ## independent-review
 
@@ -61,7 +60,7 @@ Give the independent session the bundled [reviewer instructions](reviewer.md); t
 - The review line names the reviewer and actual review time separately: `Claude Code (A): CLOSED — reviewer subagent:fable@2026-10-24T15:02 — reviewed 2026-10-25T09:30 — reproduced ...`. A session may begin before the discovery exists; its start identifies the reviewer, not when the review happened.
 - A review counts when its reviewer is a session identity that differs from the discovery's `Session:`. Its namespace is lowercase letters and hyphens (including `subagent`), its name is nonempty without whitespace or `@`, and its ISO start timestamp is valid and no later than now. Invalid dates, future starts, bare names, partial identities, and the source reviewing itself do not count.
 - Record `reviewed <ISO date and time>` after the identity so chronology can be checked: the review is no earlier than the discovery `Date` or reviewer session start, and no later than now. Offset timestamps compare instants; `Date` starts at local midnight. Older review lines without this field remain compatible; their review time is unrecorded, never inferred from the session identity.
-- A discovery without `Session:` (written before this setting, for example in a v2 project) keeps the v2 meaning: a review from a different slot counts, with or without a reviewer identity, and a review from its own slot does not (INFO `discovery.review.legacy-session`). Switching a v2 project to this setting therefore keeps its verified discoveries verified.
+- A discovery without `Session:` (written before this setting existed) keeps its original meaning: a review from a different slot counts, with or without a reviewer identity, and a review from its own slot does not (INFO `discovery.review.legacy-session`). Switching an older project to this setting therefore keeps its verified discoveries verified.
 - Give the reviewer the discovery, its evidence and artifacts, and this file's "Common rules" — not your conclusion or the conversation that produced it.
 - Unreviewed `PENDING` discoveries produce INFO, never an error; follow the unavailable-review path in Common rules when no independent session can run.
 

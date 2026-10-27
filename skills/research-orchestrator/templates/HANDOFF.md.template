@@ -87,4 +87,4 @@ Append an event per completed item. Event format:
 
 ## Archived history
 
-When this file becomes hard to scan, move older completed-log detail to `docs/<focused-name>.md` and leave a short summary and link here.
+When this file becomes hard to scan (the checker reports `history.size`), run `ro archive events`: older events move to `docs/archive/` and each archive file is listed here. Hand-moved detail in `docs/<focused-name>.md` also leaves a short summary and link here.

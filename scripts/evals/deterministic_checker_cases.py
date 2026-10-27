@@ -39,9 +39,13 @@ def read(ctx, name):
 
 
 def clean_text(text, info=False):
-    levels = "ERROR|WARN|INFO" if info else "ERROR|WARN"
-    # A missing/empty report or a summary-only fabricated zero is not a checker result.
-    return "CONSISTENCY:" in text and not re.search(rf"^(?:- )?(?:{levels}) ", text, re.M)
+    # One strict parser for every grader: clipped, unreadable or invented summaries are not clean.
+    return helpers().summary_clean(text, info)
+
+
+def checker_result(text):
+    """A real checker summary, possibly with findings; unreadable or invented output is not one."""
+    return helpers().summary_counts(text) is not None
 
 
 def issue(text, check, severity=None, contains=()):
@@ -70,7 +74,7 @@ def milestone_complete(ctx):
     text = read(ctx, "complete.txt")
     state = fields(read(ctx, "completed-control/handoff.md")).get("Milestones", "")
     complete = all(re.search(rf"(?:^|;)\s*{share}%?\s+complete\s*(?:;|$)", state) for share in (10, 25, 75))
-    return result(complete and "CONSISTENCY:" in text and not issue(text, "guard.phase.milestone")
+    return result(complete and checker_result(text) and not issue(text, "guard.phase.milestone")
                   and not issue(text, "guard.phase.state"), {"milestones": state, "checker": text})
 
 
@@ -179,7 +183,7 @@ def fresh_grace(ctx):
 def paused_cadence(ctx):
     text = read(ctx, "paused-check.txt")
     return result(fields(read(ctx, "paused/handoff.md")).get("Paused") == "2020-01-03"
-                  and "CONSISTENCY:" in text and not issue(text, "guard.direction.stale"), text)
+                  and checker_result(text) and not issue(text, "guard.direction.stale"), text)
 
 
 def project_roots(ctx):
@@ -210,7 +214,7 @@ def project_checks(ctx):
 def check_scenarios(selector, check, modes=(), severity=None, absent=False, detail=()):
     def run(ctx):
         selected = [case for case in project_checks(ctx) if selector(case)]
-        ok = bool(selected) and all("CONSISTENCY:" in case["output"] and
+        ok = bool(selected) and all(checker_result(case["output"]) and
                                    ((not issue(case["output"], check)) if absent else
                                     issue(case["output"], check, severity, detail)) for case in selected)
         if modes:
@@ -1153,4 +1157,131 @@ CHECKS.update({
     ("selection-family-source", "03-required-family.md"): check_scenarios(lambda c: any(row and not row.get("Family") and active(c, row, "G11") for _, row in selection_rows(c)) and "families:" in c["shared"].get("Final picks", ""), "guard.selection.family", severity="ERROR"),
     ("selection-family-source", "04-missing-action.md"): check_scenarios(lambda c: any(row is None for _, row in selection_rows(c)), "guard.selection.family", severity="ERROR"),
     ("selection-family-source", "05-inline-cannot-mask.md"): check_scenarios(lambda c: same_family(c) and "parser-b" in c["shared"].get("Final picks", "") and "rationale:" not in c["shared"].get("Final picks", ""), "guard.selection.rationale"),
+})
+
+
+# 7.0.0: archived history and the tool registry. Captures that are missing read as empty.
+def complete_result(text):
+    """A real, unclipped checker report: its listed findings account for the summary counts."""
+    return helpers().summary_complete(text)
+
+
+def saved(ctx, name):
+    path = ctx.outputs / name
+    return path.read_text(encoding="utf-8") if path.is_file() else ""
+
+
+def checker_lines(text, exclude=()):
+    """The checker's issue lines without excluded checks; archive stubs shift line numbers, not findings."""
+    return sorted(re.sub(r"(\.md):\d+", r"\1", line) for line in text.splitlines()
+                  if re.match(r"^- (?:ERROR|WARN|INFO) ", line) and not any(f" {key}" in line for key in exclude))
+
+
+def compact_index(ctx):
+    text = saved(ctx, "history-checks/index.txt")
+    findings = [line for line in text.splitlines() if line.startswith("- Finding:")]
+    return result(text.startswith("Discovery index:") and findings and all(len(line) <= 160 for line in findings),
+                  {"head": text[:200], "longest": max(map(len, findings), default=0)})
+
+
+def size_warnings(ctx):
+    text = saved(ctx, "history-checks/check-before.txt")
+    return result(complete_result(text) and issue(text, "history.size", "WARN", ("discoveries.md", "ro archive discoveries"))
+                  and issue(text, "history.size", "WARN", ("handoff.md", "ro archive events")), text[:4000])
+
+
+def settled_only(ctx):
+    """make_history.py: D-A-001..300 VERIFIED, 301..320 PENDING, 321..330 HOLD, 331 VERIFIED and cited."""
+    text = saved(ctx, "project/discoveries.md")
+    entries = records(text, "D")
+    stubs = {key for key, values in entries.items() if "Archived" in values}
+    numbers = {int(key.rsplit("-", 1)[1]) for key in stubs}
+    full = all(key in entries and "Archived" not in entries[key] and "Evidence" in entries[key]
+               for key in (f"D-A-{n:03d}" for n in range(301, 332)))
+    return result(bool(stubs) and numbers <= set(range(1, 301)) and full, {"stubs": len(stubs), "unsettled_full": full})
+
+
+def findings_preserved(ctx):
+    before = saved(ctx, "history-checks/check-before.txt")
+    after = saved(ctx, "history-checks/check-after-discoveries.txt")
+    return result(complete_result(before) and complete_result(after) and
+                  checker_lines(before, ("history.size",)) == checker_lines(after, ("history.size",)),
+                  {"before": checker_lines(before, ("history.size",))[:20], "after": checker_lines(after, ("history.size",))[:20]})
+
+
+def archived_findable(ctx):
+    opened, found = saved(ctx, "history-checks/opened.txt"), saved(ctx, "history-checks/dupcheck.txt")
+    match = re.match(r"^## (D-A-\d{3}) — ", opened)
+    return result(bool(match) and "- Evidence:" in opened and "(archived in docs/archive/" in opened
+                  and bool(match and re.search(rf"^docs/archive/[^:]+:\d+: ## {match.group(1)} ", found, re.M)),
+                  {"opened": opened[:300], "dupcheck": found[:300]})
+
+
+def event_archive(ctx):
+    handoff = saved(ctx, "project/handoff.md")
+    history = handoff.split("## Archived history", 1)[1] if "## Archived history" in handoff else ""
+    # make_history.py: event 650 is the live stage event; 698 (A) and 699 (B) are each slot's latest.
+    kept = all(re.search(rf"^### {stamp} — {slot} — {key}\s*$", handoff, re.M) for stamp, slot, key in
+               [("2026-09-24 13:00", "A", "H-A-01/s1"), ("2026-09-28 13:00", "A", "none"),
+                ("2026-09-28 15:00", "B", "none")])
+    listed = re.search(r"^- \[docs/archive/handoff-\d{4}-\d{2}\.md\]\(docs/archive/handoff-\d{4}-\d{2}\.md\): \d+ events, ",
+                       history, re.M)
+    return result(kept and bool(listed), {"kept": kept, "history": history[:500]})
+
+
+def limits_restored(ctx):
+    text = saved(ctx, "history-checks/check-after.txt")
+    return result(complete_result(text) and not issue(text, "history.size"), text[:4000])
+
+
+def restore_rearchive(ctx):
+    text = saved(ctx, "history-checks/rearchived.txt")
+    archives = sorted((ctx.outputs / "project/docs/archive").glob("*.md"))
+    copies = sum(len(re.findall(r"(?m)^## D-A-002(?: — .*)?$", path.read_text(encoding="utf-8"))) for path in archives)
+    revised = any(line.startswith("- Finding:") and "Revised after a second run." in line for line in text.splitlines())
+    return result(text.startswith("## D-A-002 ") and revised and "(archived in docs/archive/" in text and copies == 1,
+                  {"rearchived": text[:400], "archived_copies": copies})
+
+
+def no_tool_findings(ctx):
+    text = saved(ctx, "check.txt")
+    return result(complete_result(text) and not re.search(r"^(?:- )?(?:ERROR|WARN|INFO) tools\.", text, re.M), text[:4000])
+
+
+def unregistered_control(ctx):
+    text = saved(ctx, "control-check.txt")
+    return result(complete_result(text) and issue(text, "tools.unregistered", "WARN", ("tools/submit_v2.py",)), text[:4000])
+
+
+def unreadable_briefs(ctx):
+    """Both compact briefs after the reviewed member became unreadable report the review, not a cached pass."""
+    briefs = [saved(ctx, f"cache-checks/unreadable-brief-{n}.txt") for n in (1, 2)]
+    return result(all(re.search(r"^event\.stage\.review: [1-9]", text, re.M) for text in briefs), briefs)
+
+
+def growth_bound(ctx):
+    try:
+        runs = json.loads(saved(ctx, "cache-checks/growth.json") or "null")
+    except ValueError:
+        runs = None
+    rows = {row.get("moment"): row for row in runs or [] if isinstance(row, dict)}
+    ok = set(rows) == {"before-open", "while-reading"} and all(
+        "changed while hashing" in str(row.get("error", "")) and type(row.get("bytes_read")) is int
+        and 0 <= row["bytes_read"] <= 2 for row in rows.values())
+    return result(ok, runs)
+
+
+CHECKS.update({
+    ("brief-review-cache", "08-unreadable-member.md"): unreadable_briefs,
+    ("brief-review-cache", "09-growth-bound.md"): growth_bound,
+    ("history-archive", "01-compact-index.md"): compact_index,
+    ("history-archive", "02-size-warning.md"): size_warnings,
+    ("history-archive", "03-settled-only.md"): settled_only,
+    ("history-archive", "04-findings-preserved.md"): findings_preserved,
+    ("history-archive", "05-archived-findable.md"): archived_findable,
+    ("history-archive", "06-event-archive.md"): event_archive,
+    ("history-archive", "07-limits-restored.md"): limits_restored,
+    ("history-archive", "08-restore-rearchive.md"): restore_rearchive,
+    ("tool-registry", "03-clean-registry.md"): no_tool_findings,
+    ("tool-registry", "04-unregistered-control.md"): unregistered_control,
 })

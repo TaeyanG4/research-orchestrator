@@ -258,3 +258,7 @@ These decisions reconcile §3.2 and §7 with the shipped P1 settings table ([P1 
 - Reduce §6's per-column-probe setting to task-specific Project rules prose; `Per-column probes:` is not a validated setting. Record the actual scope and limits when a task needs probes. Code-competition runtime checks remain an operator decision from dated source limits and measured runtime, now explicit in the adapter; no live platform request or runtime-limit checker is added.
 
 Reconciled 2026-10-27: the shipped initializer has six built-in presets; future timestamps share a five-minute tolerance. The current local wrapper fast-path measurement restores 150 ms p95; historical timings remain scoped to their recorded runtimes.
+
+## Owner decision for 7.0.0 (2026-10-28)
+
+The owner, the only user, decided that projects from before release 6.0 no longer need support. Release 7.0.0 therefore withdraws the §8 promise that "v2 projects stay readable": a file without a template marker is refused with the 6.0.x upgrade route (`agents.settings.unsupported`), accepted 5.1.0 reviews are no longer preserved, and only frozen template v3.4 remains for upgrades from 6.0.0–6.0.2. Template, workflow and repair procedures for v3 projects are unchanged and live in `references/migration.md`. The same release adds generated `## Working rules`, a `CLAUDE.md` import of `agents.md`, history archiving, a tool registry and size warnings, so sessions that never load the skill keep the files consistent and startup reads bounded.

@@ -1,5 +1,46 @@
 # Changelog
 
+## 7.0.0
+
+This release reads only the v3 layout. Projects from releases before 6.0 (no `<!-- ro-template: ... -->` marker in `agents.md`) are refused with the upgrade route: run `init_research_orchestrator.py . --reconfigure` with release 6.0.x first.
+
+### Added
+
+- `agents.md` gains generated `## Working rules` (template v3.5) so sessions that never load the skill still search before adding work, record each result once, register and reuse scripts, archive when told and close cleanly; each rule says why. Setup and `--reconfigure` add `@agents.md` (Claude Code's import) to `CLAUDE.md` unless that file already names `agents.md` (`--no-claude-md` skips it), and the SessionStart brief names the rules. `--reconfigure` upgrades v3.4 projects and keeps `## Project rules`.
+- `ro archive discoveries` and `ro archive events` keep startup reads bounded as a project grows. Settled discoveries that no live item or handoff state cites move whole to `docs/archive/discoveries-<YYYY-MM>.md` and leave a stub (heading, `Archived:` path, state, clipped finding) that keeps the ID resolvable; the checker reads the archived entry, `ro index <ID>` opens it and `ro dupcheck` searches it. Older events move to `docs/archive/handoff-<YYYY-MM>.md` with one summary line per archive file, while events naming a live item, each slot's latest event and the events that resolve an item a kept event queued stay. `--before YYYY-MM-DD` and `--dry-run` select and preview the moves; a rerun after an interrupted move completes it without duplicating entries. `ro archive restore <ID>` moves an archived discovery back so it can be revised and archived again.
+- The checker reports `history.size` when the live discovery index passes 48 KiB or `handoff.md` passes 192 KiB, and `ro brief` names the archive command to run.
+- The checker reports `agents.size` when `agents.md` passes 12 KiB, because it loads in every session, and says when it passes 32 KiB, where Codex stops reading project instructions and cuts the user-owned rules at the end; `ro brief` repeats it.
+- A tool registry in `docs/tools.md` ([references/tools.md](skills/research-orchestrator/references/tools.md)): `ro tools <terms>` and `ro dupcheck` search it before a script is written, the checker warns about incomplete entries, missing or shared paths and scripts beside registered tools without an entry (`tools.*`), and `ro brief` reports how many tools are registered. `ro tools --init` creates the registry with its usage rules as the header.
+- Eval cases `history-archive` and `tool-registry`, and `brief-review-cache` variants for an unreadable member and a file that grows while it is hashed.
+- `scripts/measure_hook_fast_paths.py` measures a full startup SessionStart that hashes a reviewed directory.
+
+### Changed
+
+- `ro index` lists live discoveries with a summary line and counts archived entries instead of listing them. Findings stay whole while the index fits 48 KiB, because their conditions decide duplicates; a larger index clips them to 160 characters and says so; `--full` keeps whole lines and archived stubs. In one maintainer measurement on a private 1.4 MB history of 391 discoveries, not retained in this repository, the startup index fell from 474 KB to 167 KB, and to 91 KB after archiving its settled entries.
+- Discoveries are merged when they duplicate each other and archived when settled and the index grows, instead of never being archived.
+- Every checker-summary eval grader uses one strict parser, so clipped, unreadable or invented summaries never earn credit; the positive control is real checker output. Checker predicates of the new cases also require a complete report whose findings match its counts, and objective outcomes of the new cases are graded by script.
+- Research and competition discovery headers state the one-discovery-per-experiment rule; hook messages that name `ro launch` or `ro external` point at their `--help`.
+- The fixed startup read grows by about 2.4 KB for the working rules; its test budget is now 17,500 bytes.
+- Saved hook timings were re-measured on 2026-10-28; the compact-summary figure now reflects content stamps.
+
+### Removed
+
+- Reading, checking and upgrading v2 (5.1.0) projects: the v2 template and settings defaults, the v2 rule comparison and the `agents.settings.v2` notice. The checker now reports `agents.settings.unsupported` and `--reconfigure` refuses such files.
+- Preservation of accepted 5.1.0 `multi`/`same-host` reviews (the `ro-legacy-reviews` record and `discovery.legacy.invalid`); reviews follow the current verification rules only.
+- Frozen templates v3.0–v3.3, which no release shipped; v3.4 (6.0.0–6.0.2) remains so those projects upgrade without `--force`.
+- The eval cases `legacy-same-host-preservation` and `v2-rules-upgrade` and their 5.1.0 fixtures; historical analyses that mention them stay as records of past runs.
+- `references/migration-v2-to-v3.md`, replaced by `references/migration.md` for template upgrades, repairs and workflow changes; the README section is now Upgrading.
+
+### Fixed
+
+- Output written to a pipe or file is UTF-8 on every OS. Windows previously used the locale code page, which garbled non-English records for agents reading `ro` and checker output; an explicit `PYTHONIOENCODING` still wins.
+- `sudo -C <descriptor> git push` no longer counts as a push that picks its own checkout, so it keeps the staged pre-check; `sudo -D`/`--chdir` and `env --chdir=` do count.
+- Brief stamps walk a reviewed directory once and hash the members that walk found.
+- An unreadable member or subdirectory of a reviewed directory makes its stamp unusable, so the checker reruns instead of reusing a cached clean review.
+- Hashing under a brief's budget refuses a file that grew after it was measured instead of reading past its reservation.
+- Archiving refuses a second archived copy of a discovery by ID, not only when its heading text is unchanged.
+- A job-runner test injected its failure through the shared `time.sleep`, which also broke the macOS process-identity lookup; the injection now reaches only the runner's poll.
+
 ## 6.0.2
 
 ### Added
@@ -140,4 +181,4 @@ A major release after 5.1.0. "v3" names the skill design generation; the install
 5. For `cross-host-once` in multi mode, arrange a different-host review for new findings; only qualifying legacy 5.1.0 same-host reviews remain accepted. If another host is unavailable, choose adaptive mode with the same-host fallback.
 6. If you copied the skill folder by hand under its old name, replace that copy with `research-orchestrator` rather than keeping both. Marketplace installs need no rename step: the marketplace and plugin were always named research-orchestrator; marketplaces added from TaeyanG4/research-orchestrator-skill follow GitHub's rename redirect, or re-add TaeyanG4/research-orchestrator.
 
-Read the [complete migration and rollback procedure](skills/research-orchestrator/references/migration-v2-to-v3.md) before changing workflows or using `--force`.
+Read the [complete migration and rollback procedure](skills/research-orchestrator/references/migration.md) before changing workflows or using `--force`.

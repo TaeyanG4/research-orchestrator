@@ -23,7 +23,7 @@ def records(plan_text: str) -> dict[str, dict[str, str]]:
 
 
 def quiescent_v3_project(tmp_path):
-    target = copy_fixture("v2", tmp_path / "proj")
+    target = copy_fixture("classic", tmp_path / "proj")
     (target / ".git").mkdir()
     assert run_init(target, "--reconfigure").returncode == 0
     set_slot(target, "A", "released", "none")
@@ -75,7 +75,7 @@ def test_round_trip_classic_unified_classic(tmp_path) -> None:
 
 
 def test_preflight_refuses_with_a_taken_slot(tmp_path) -> None:
-    target = copy_fixture("v2", tmp_path / "proj")
+    target = copy_fixture("classic", tmp_path / "proj")
     (target / ".git").mkdir()
     assert run_init(target, "--reconfigure").returncode == 0
     before = {path.relative_to(target): path.read_bytes() for path in target.rglob("*") if path.is_file()}

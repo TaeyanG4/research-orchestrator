@@ -471,7 +471,7 @@ def statements(parts: list[Token]) -> list[list[Token]]:
 WRAPPER_OPTIONS = {
     "command": ({"-p"}, set()),
     "env": ({"-i", "--ignore-environment"}, {"-u", "--unset", "-C", "--chdir"}),
-    "sudo": ({"-n", "--non-interactive", "-E", "-H"}, {"-u", "--user", "-g", "--group", "-C"}),
+    "sudo": ({"-n", "--non-interactive", "-E", "-H"}, {"-u", "--user", "-g", "--group", "-C", "-D", "--chdir"}),
     "nice": (set(), {"-n", "--adjustment"}),
     "timeout": ({"--foreground", "--preserve-status", "-v", "--verbose"}, {"-s", "--signal", "-k", "--kill-after"}),
     "xargs": ({"-r", "--no-run-if-empty", "-t", "--verbose", "-0", "--null"},
@@ -485,7 +485,8 @@ WRAPPER_OPTIONS = {
                       {"-filepath", "-argumentlist", "-workingdirectory", "-credential", "-verb", "-windowstyle",
                        "-redirectstandardinput", "-redirectstandardoutput", "-redirectstandarderror"}),
 }
-DIRECTORY_OPTIONS = {"env": {"-C", "--chdir"}, "git": {"-C"}, "make": {"-C", "--directory"},
+DIRECTORY_OPTIONS = {"env": {"-C", "--chdir"}, "sudo": {"-D", "--chdir"}, "git": {"-C"},
+                     "make": {"-C", "--directory"},
                      "start-process": {"-workingdirectory"}}
 
 
@@ -553,11 +554,29 @@ GIT_CHECKOUT_OPTIONS = ("-C", "--git-dir", "--work-tree")
 GIT_CHECKOUT_VARIABLE = re.compile(r"(?:\$env:)?GIT_(?:DIR|WORK_TREE)(?:=|$)", re.I)
 
 
-def _moves_checkout(token: Token) -> bool:
-    """A wrapper's -C/--chdir (also attached, as getopt allows) or a GIT_DIR/GIT_WORK_TREE assignment."""
-    value = token.value
-    return (value in ("-C", "--chdir") or value.startswith(("--chdir=", "-C"))
-            or bool(GIT_CHECKOUT_VARIABLE.match(value)))
+# Wrappers whose own option changes the directory; sudo's -C is a close-from descriptor.
+WRAPPER_CHDIR = {"env": ("-C", "--chdir"), "sudo": ("-D", "--chdir")}
+
+
+def _prefix_moves_checkout(prefix: list[Token], os_family: str | None = None) -> bool:
+    """A wrapper's directory option (also attached, as getopt allows) or a GIT_DIR/GIT_WORK_TREE assignment."""
+    os_family = os_family or settings.detect_environment().split("/")[0]
+    paths = ntpath if os_family == "windows" else posixpath
+    options: tuple[str, ...] = ()
+    for token in prefix:
+        value = token.value
+        if GIT_CHECKOUT_VARIABLE.match(value):
+            return True
+        if not value.startswith("-"):
+            name = paths.basename(value).lower().removesuffix(".exe")
+            if name in WRAPPER_OPTIONS:
+                options = WRAPPER_CHDIR.get(name, ())
+            continue
+        for option in options:
+            attached = option + "=" if option.startswith("--") else option
+            if value == option or value.startswith(attached):
+                return True
+    return False
 
 
 def push_target_moved(parts: list[Token], os_family: str | None = None) -> bool:
@@ -576,7 +595,7 @@ def push_target_moved(parts: list[Token], os_family: str | None = None) -> bool:
             continue
         useful = [t for t in group if t.value not in ("(", ")")]
         prefix = useful[:max(len(useful) - len(args) - 1, 0)]
-        here = moved or any(_moves_checkout(t) for t in prefix)
+        here = moved or _prefix_moves_checkout(prefix, os_family)
         index = 0
         while index < len(args) and args[index].value.startswith("-"):
             option = args[index].value
@@ -812,7 +831,7 @@ def shell_checks(call: Call, root: Path | str, jobs: list[dict], values: dict[st
                                                   and following in (";", "}"))
                 waited = waited_at is not None and index < waited_at and part.depth == 0
                 if background and not waited:
-                    found.append(Finding("shell.background", "Use ro launch and a host background monitor for detached work."))
+                    found.append(Finding("shell.background", "Use ro launch and a host background monitor for detached work (`ro launch --help`)."))
         for _, body, quoted in bodies:
             if not quoted and "`" in body:
                 found.append(Finding("shell.heredoc", "Quote the heredoc delimiter before writing executable text."))
@@ -830,9 +849,9 @@ def shell_checks(call: Call, root: Path | str, jobs: list[dict], values: dict[st
                 continue
             name, args, _ = verb(clean, os_family)
             if shell == "bash" and name == "disown" and not call.background:
-                found.append(Finding("shell.background", "Use ro launch and a host background monitor for detached work."))
+                found.append(Finding("shell.background", "Use ro launch and a host background monitor for detached work (`ro launch --help`)."))
             if name == "start-job" or any(t.value in ("nohup", "setsid") for t in clean[:2]) or (name == "start-process" and not any(t.value.lower() == "-wait" for t in args)):
-                found.append(Finding("shell.detach", "Use ro launch to retain process identity and a monitor."))
+                found.append(Finding("shell.detach", "Use ro launch to retain process identity and a monitor (`ro launch --help`)."))
             top_level = next((t.depth == 0 for t in clean if t.value not in ("(", ")")), False)
             if (name in CD_VERBS and top_level and group_index == len(groups) - 1 and not call.background
                     and following in ("", ";") and preceding not in ("|", "|&", "&")):
@@ -862,7 +881,7 @@ def shell_checks(call: Call, root: Path | str, jobs: list[dict], values: dict[st
                     cwd_uncertain = True
     direct = [t for group in statements(parts) if not opaque(group, os_family) for t in group + [Token(";", 0)]]
     if external_direct(direct, values.get("external_actions", "none"), os_family):
-        found.append(Finding("external.gate", "Run this action through ro external with a current PASS receipt and prepared ledger entry."))
+        found.append(Finding("external.gate", "Run this action through ro external with a current PASS receipt and prepared ledger entry (`ro external --help`)."))
     return found
 
 

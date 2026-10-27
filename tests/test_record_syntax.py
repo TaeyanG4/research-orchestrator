@@ -143,7 +143,7 @@ def test_settings_ignore_fenced_sections_markers_and_user_region(opening, closin
     region = "## Project rules\nKeep this region verbatim.\n"
     assert settings.split_agents(generated + region) == (generated, region)
     parsed = settings.read_settings(generated + region)
-    assert parsed.values["workflow"] == "unified" and parsed.version == "v2"
+    assert parsed.values["workflow"] == "unified" and parsed.version == ""
     assert fake.rstrip() in init.comparable(generated)
 
 

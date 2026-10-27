@@ -33,8 +33,8 @@ def test_prose_anywhere_above_project_rules_needs_force(tmp_path, anchor: str, t
     assert forced.returncode == 0 and text.strip() not in (target / "agents.md").read_text(encoding="utf-8")
 
 
-def test_v2_prose_before_the_settings_needs_force(tmp_path) -> None:
-    target = copy_fixture("v2", tmp_path / "v2")
+def test_prose_before_the_settings_needs_force(tmp_path) -> None:
+    target = copy_fixture("classic", tmp_path / "classic")
     insert(target, "— Agent Rules\n", "\nOur team note.\n")
     refused = run_init(target, "--reconfigure")
     assert refused.returncode == 1 and "edited by hand" in refused.stderr

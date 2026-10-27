@@ -27,7 +27,7 @@ Defaults below preserve missing values in older projects; `research` retains the
 | `Phase clock` | `off`, or `start YYYY-MM-DD, deadline YYYY-MM-DD` | `off` | immediately; enables phase milestones when G8 is selected |
 | `Competition` | `off`, or `<platform>/<slug>` | `off` | selects competition guidance and its adapter |
 | `Platform mode` | `multi`, `single`, `adaptive` | `adaptive` | `--reconfigure` |
-| `Platforms` | comma-separated hosts (`single`: exactly one; `multi`: two or more) | built-in host pair in `scripts/ro_settings.py` | immediately |
+| `Platforms` | comma-separated hosts (`single`: exactly one, written `Platforms: single — <host>`; `multi`: two or more) | built-in host pair in `scripts/ro_settings.py` | immediately |
 | `Git sync` | `push`, `commit`, `off` | `off` | `--reconfigure` |
 | `Plan collector` | `off`, or `on — <platform> / <model>` | `off` | immediately |
 | `Plan queue limits` | `stop at <N>, resume at <M>` | `stop at 50, resume at 5` | immediately |
