@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: host-detection-isolation
+expected_outcome: |
+  Quick setup detects Claude Code and Codex independently of the launching terminal.
+  A collector outside the detected platform fails before writing project files;
+  an explicit platform allows it and survives reconfiguration under the other host.
+  The supported shell is detected and the project language defaults to English.
+context:
+  scaffold_script: place-files.sh

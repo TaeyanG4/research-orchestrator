@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hooks-tool-dialect
+expected_outcome: |
+  A PowerShell tool in a windows/bash project denies a literal mutation of a live bound file without changing the project shell setting.
+context:
+  scaffold_script: place-files.sh

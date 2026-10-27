@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: evaluation-trace-code-operands
+expected_outcome: |
+  Recover proven program-operand and array-delimiter false positives using recorded evidence while preserving exclusions for embedded protected access, present ancestor instructions, literal filename commas, and missing traces.
+  A reusable stdlib script reproduces the classifications without executing recorded commands or treating scenario names as answers.
+context:
+  scaffold_script: place-files.sh

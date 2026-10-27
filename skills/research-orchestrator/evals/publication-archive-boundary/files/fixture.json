@@ -1,0 +1,1 @@
+{"case":"synthetic","passed":false,"path_examples":["Path(rX:/private/task)","Path(rX:\\private\\task)","/home/synthetic/private"],"available_skills":["fixture-only"]}

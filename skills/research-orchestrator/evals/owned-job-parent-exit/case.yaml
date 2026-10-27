@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: owned-job-parent-exit
+expected_outcome: |
+  A worker outliving its launcher retains supervision, path bindings and session ownership until the owned tree is stopped and the terminal monitor outcome is recorded.
+context:
+  scaffold_script: place-files.sh

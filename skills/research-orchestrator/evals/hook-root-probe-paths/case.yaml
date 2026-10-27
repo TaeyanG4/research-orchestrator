@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hook-root-probe-paths
+expected_outcome: |
+  Recorded probes from the shipped wrappers or their actual join helpers never introduce a network prefix for local roots or drive and POSIX inputs. Root probes contain one separator, genuine UNC shares and extended Windows prefixes remain intact, native unrelated-directory calls finish in less than one second without an interpreter, and real ancestor markers still dispatch. Evidence distinguishes native execution, injected paths, helper tests and unavailable coverage.
+context:
+  scaffold_script: place-files.sh

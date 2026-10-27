@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: publish-deadline-recovery
+expected_outcome: |
+  The outgoing scan uses a default deadline scaled by its object count, reports that
+  count and an exact deadline setting on timeout, and permits a normal clean retry
+  after that setting is applied. The secret policy remains enabled throughout.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hook-edit-warning-fast-paths
+expected_outcome: |
+  Quiet edits avoid an interpreter only with no primary or recovery registry; new warning bytes still deliver and acknowledged warnings resume the quiet path.
+context:
+  scaffold_script: place-files.sh

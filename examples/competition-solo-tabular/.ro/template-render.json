@@ -1,0 +1,4 @@
+{
+  "version": "v3.4",
+  "render_key": "profile=competition workflow=unified verification=independent-review itemsize=staged guards=light guardset=auto mode=single git=off instruments=on externalactions=on collector=off preset=competition-solo external_actions_source=explicit pointers=workflow-unified,verification,staged-items,research-guards,decision-guards,competition,external-actions,hooks"
+}

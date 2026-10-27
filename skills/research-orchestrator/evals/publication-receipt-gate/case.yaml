@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: publication-receipt-gate
+expected_outcome: |
+  Development validation permits a pending receipt; publication requires the receipt and all five completed fields, while accepting a complete synthetic fixture without presenting it as real evidence.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: installer-edit-policy-routing
+expected_outcome: |
+  Project policies add only missing tool subscriptions through the ordinary pre-tool runner, preserving the edit shortcut and NotebookEdit post-tool coverage. Plugin and manual registrations combine without duplicates, independent of declaration order, and reruns preserve unrelated hooks.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: directory-change-binding-certainty
+expected_outcome: |
+  A directory change preserves absolute-path protection and earlier relative-path protection, while a later relative target produces an uncertainty warning.
+context:
+  scaffold_script: place-files.sh

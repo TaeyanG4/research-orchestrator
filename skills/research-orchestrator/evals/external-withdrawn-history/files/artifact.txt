@@ -1,0 +1,1 @@
+Release fixture: reviewed immutable local payload.

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: uninstall-flag-conflict
+expected_outcome: |
+  Contradictory uninstall flags fail before any mutation, while ordinary uninstall still reconciles owned hooks and preserves unrelated registrations.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,48 @@
+name: Validate release
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest
+      - run: python scripts/validate_release.py
+      - name: Measure installed hook p95 on this OS
+        if: always()
+        run: python -m pytest -q -m latency tests/test_ro_cli.py tests/test_ro_hooks.py
+        env:
+          RO_LATENCY_REPORT: hook-latency.json
+      - name: Retain measured hook latency
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hook-latency-${{ matrix.os }}
+          path: hook-latency.json
+          if-no-files-found: warn
+      - name: Summarize measured hook latency
+        if: always()
+        shell: python
+        run: |
+          import json, os
+          from pathlib import Path
+          path = Path("hook-latency.json")
+          if path.exists():
+              result = json.loads(path.read_text(encoding="utf-8"))
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as output:
+                  output.write(f"{result['os']} installed hook p95: {result['p95_ms']:.1f} ms; common budget < {result['budget_ms']} ms; passed: {result['passed']}\n")

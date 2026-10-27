@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: reviewer-identity-validation
+expected_outcome: |
+  Malformed and future reviewer identities cannot verify findings; a missing Cross-check produces only its missing-field diagnostic and unavailable independent review leaves honest PENDING records.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,13 @@
+## D-A-001 ? selected gain is below control noise
+- Source: A
+- Host: Claude Code
+- User: operator
+- Date: 2026-10-24
+- Cross-check: PENDING
+- Finding: selected gain 0.004 remains provisional
+- Evidence: selecting among 50 candidates used I-A-01; no control was attached
+- Implication: repeat the selection budget with a negative control
+- Reviews:
+- Decision class: model-change
+- Instrument: I-A-01
+- Outcome: inconclusive

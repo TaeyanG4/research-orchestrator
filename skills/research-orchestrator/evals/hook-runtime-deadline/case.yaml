@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hook-runtime-deadline
+expected_outcome: |
+  The saved-observation audit accepts the one-interpreter watchdog and supervised fallback, rejects a missing watchdog and a fail-open authoritative gate, keeps the common latency budget, and distinguishes unknown CI measurements from passes.
+context:
+  scaffold_script: place-files.sh

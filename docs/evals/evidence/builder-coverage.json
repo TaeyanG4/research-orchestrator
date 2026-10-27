@@ -1,0 +1,2471 @@
+{
+  "schema_version": 1,
+  "finding": 1,
+  "status": "NOT DONE",
+  "archive": "builder-native-attempts.zip",
+  "archive_sha256": "5d9844f41ad23fb9ec80440dd9720a9e9a07778e0622bfe37d768b5fe88f042f",
+  "reviewer": "independent builder evidence auditor",
+  "summary": {
+    "available_cases": 166,
+    "attempted_cases": 2,
+    "attempted_runs": 12,
+    "completed_cases": 0,
+    "completed_runs": 0,
+    "valid_paired_cases": 0,
+    "valid_behavioral_runs": 0,
+    "pass_rate": null,
+    "pass_rate_delta": null,
+    "token_delta": null,
+    "duration_delta": null,
+    "native_completed_turns": 2
+  },
+  "paired_aggregate": {
+    "metadata": {
+      "skill_name": "<historical-skill-name>",
+      "skill_path": "skills/<historical-skill-name>",
+      "executor_model": null,
+      "timestamp": "2026-10-26T00:42:10.401862+00:00",
+      "evals_run": [],
+      "runs_per_configuration": 0,
+      "included_runs": 0,
+      "excluded_runs": 2,
+      "comparison": {
+        "matched_cases": 0,
+        "total_cases": 1
+      }
+    },
+    "runs": [],
+    "excluded_runs": [
+      {
+        "eval_id": "work-project-session-history",
+        "eval_name": "work-project-session-history",
+        "configuration": "old_skill",
+        "run_number": 1,
+        "run_dir": "work-project-session-history/old_skill",
+        "reason": "Infrastructure preflight excluded: native events contain no returned tool result or completed turn; the timeout left no task artifacts beyond unchanged input fixtures and an empty final message. The traces do not establish the exact cause; no skill-performance verdict is assigned."
+      },
+      {
+        "eval_id": "work-project-session-history",
+        "eval_name": "work-project-session-history",
+        "configuration": "with_skill",
+        "run_number": 1,
+        "run_dir": "work-project-session-history/with_skill",
+        "reason": "Infrastructure preflight excluded: native events contain no returned tool result or completed turn; the timeout left no task artifacts beyond unchanged input fixtures and an empty final message. The traces do not establish the exact cause; no skill-performance verdict is assigned."
+      }
+    ],
+    "run_summary": {
+      "delta": {
+        "pass_rate": null,
+        "time_seconds": null,
+        "tokens": null
+      }
+    },
+    "notes": [
+      "with_skill - old_skill comparison: 0 / 1 cases matched. Delta unavailable (no matched cases).",
+      "Excluded 2 runs; see excluded_runs for reasons.",
+      "All four native preflights timed out before a returned tool result or completed turn appeared in the retained event stream.",
+      "All four output directories contain only unchanged brief.md and trial.md fixtures plus an empty final.md; there is no substantive result to grade.",
+      "Distinct thread.started IDs establish fresh native threads, not fresh user or Codex homes; the harness explicitly records shared host homes and residual access risks.",
+      "The paired current/baseline attempts used the same final case prompt; the two earlier baseline-only attempts used earlier prompt revisions and are separate preflights.",
+      "The three baseline attempts pin revision 713088d79745589b053ae02996670dc7147a8ee1 and identical runtime digest b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4.",
+      "Executor commentary reports pending initial reads; native events do not identify the exact cause. The startup feature warning alone does not establish causation.",
+      "No skill winner, assertion pass rate, instruction-following score, token comparison or execution-performance delta can be inferred from these excluded preflights.",
+      "The earlier seven-case benchmark remains historical evidence with shared executor context and executor-written summarized transcripts; it is not upgraded by these attempts."
+    ]
+  },
+  "attempts": [
+    {
+      "id": "paired-old_skill",
+      "case": "work-project-session-history",
+      "configuration": "old_skill",
+      "archive_run": "paired/work-project-session-history/old_skill/run.json",
+      "archive_events": "paired/work-project-session-history/old_skill/events.jsonl",
+      "archive_grade": "paired/work-project-session-history/old_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+      "baseline_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "runtime_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 180.111
+    },
+    {
+      "id": "paired-with_skill",
+      "case": "work-project-session-history",
+      "configuration": "with_skill",
+      "archive_run": "paired/work-project-session-history/with_skill/run.json",
+      "archive_events": "paired/work-project-session-history/with_skill/events.jsonl",
+      "archive_grade": "paired/work-project-session-history/with_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": null,
+      "baseline_content_sha256": null,
+      "runtime_content_sha256": "ede7164c6af09b238b05e6229389c603516a72b4cb89ccab0952b7607b30c27d",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 180.371
+    },
+    {
+      "id": "preflight-one-old_skill",
+      "case": "work-project-session-history",
+      "configuration": "old_skill",
+      "archive_run": "preflight-one/work-project-session-history/old_skill/run.json",
+      "archive_events": "preflight-one/work-project-session-history/old_skill/events.jsonl",
+      "archive_grade": "preflight-one/work-project-session-history/old_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+      "baseline_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "runtime_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 60.111
+    },
+    {
+      "id": "preflight-two-old_skill",
+      "case": "work-project-session-history",
+      "configuration": "old_skill",
+      "archive_run": "preflight-two/work-project-session-history/old_skill/run.json",
+      "archive_events": "preflight-two/work-project-session-history/old_skill/events.jsonl",
+      "archive_grade": "preflight-two/work-project-session-history/old_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+      "baseline_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "runtime_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 180.136
+    },
+    {
+      "id": "repair-with_skill",
+      "case": "work-project-start",
+      "configuration": "with_skill",
+      "archive": "builder-repair-attempts.zip",
+      "archive_run": "repair/work-project-start/with_skill/run.json",
+      "archive_events": "repair/work-project-start/with_skill/events.jsonl",
+      "archive_grade": "repair/work-project-start/with_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": null,
+      "baseline_content_sha256": null,
+      "runtime_content_sha256": "89c3803f41f7b83d9d4ec57a69779e7b9f9abcd73ab40c2f3085e188fcd92de2",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 90.336
+    },
+    {
+      "id": "repair-old_skill",
+      "case": "work-project-start",
+      "configuration": "old_skill",
+      "archive": "builder-repair-attempts.zip",
+      "archive_run": "repair/work-project-start/old_skill/run.json",
+      "archive_events": "repair/work-project-start/old_skill/events.jsonl",
+      "archive_grade": "repair/work-project-start/old_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+      "baseline_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "runtime_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 90.115
+    },
+    {
+      "id": "current-with_skill",
+      "case": "work-project-start",
+      "configuration": "with_skill",
+      "archive": "builder-final-preflight.zip",
+      "archive_run": "current/work-project-start/with_skill/run.json",
+      "archive_events": "current/work-project-start/with_skill/events.jsonl",
+      "archive_grade": "current/work-project-start/with_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": null,
+      "baseline_content_sha256": null,
+      "runtime_content_sha256": "731856ea58881a221ed50e5dd303cb72bcee7276973e8179207c5f975b0a57fb",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 90.363
+    },
+    {
+      "id": "current-old_skill",
+      "case": "work-project-start",
+      "configuration": "old_skill",
+      "archive": "builder-final-preflight.zip",
+      "archive_run": "current/work-project-start/old_skill/run.json",
+      "archive_events": "current/work-project-start/old_skill/events.jsonl",
+      "archive_grade": "current/work-project-start/old_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+      "baseline_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "runtime_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 90.105
+    },
+    {
+      "id": "recheck-with_skill",
+      "case": "work-project-start",
+      "configuration": "with_skill",
+      "archive": "builder-recheck-preflight.zip",
+      "archive_run": "recheck/work-project-start/with_skill/run.json",
+      "archive_events": "recheck/work-project-start/with_skill/events.jsonl",
+      "archive_grade": "recheck/work-project-start/with_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": null,
+      "baseline_content_sha256": null,
+      "runtime_content_sha256": "731856ea58881a221ed50e5dd303cb72bcee7276973e8179207c5f975b0a57fb",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 60.362
+    },
+    {
+      "id": "recheck-old_skill",
+      "case": "work-project-start",
+      "configuration": "old_skill",
+      "archive": "builder-recheck-preflight.zip",
+      "archive_run": "recheck/work-project-start/old_skill/run.json",
+      "archive_events": "recheck/work-project-start/old_skill/events.jsonl",
+      "archive_grade": "recheck/work-project-start/old_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+      "baseline_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "runtime_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "excluded": true,
+      "completed": false,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": null,
+      "observed_attempt_seconds": 60.105
+    },
+    {
+      "id": "full-with_skill",
+      "case": "work-project-start",
+      "configuration": "with_skill",
+      "archive": "builder-full-duration.zip",
+      "archive_run": "full/work-project-start/with_skill/run.json",
+      "archive_events": "full/work-project-start/with_skill/events.jsonl",
+      "archive_grade": "full/work-project-start/with_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": null,
+      "baseline_content_sha256": null,
+      "runtime_content_sha256": "03e48eb0110b5feccdb13ad699ecd9610dd4eb1c115dc67914d085c39a9b4d85",
+      "excluded": true,
+      "completed": false,
+      "native_turn_completed": true,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": 265639,
+      "observed_attempt_seconds": 600.357
+    },
+    {
+      "id": "full-old_skill",
+      "case": "work-project-start",
+      "configuration": "old_skill",
+      "archive": "builder-full-duration.zip",
+      "archive_run": "full/work-project-start/old_skill/run.json",
+      "archive_events": "full/work-project-start/old_skill/events.jsonl",
+      "archive_grade": "full/work-project-start/old_skill/grading.json",
+      "status": "timeout",
+      "failure_category": "timeout",
+      "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+      "baseline_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "runtime_content_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+      "excluded": true,
+      "completed": false,
+      "native_turn_completed": true,
+      "valid_behavioral_result": false,
+      "pass_rate": null,
+      "total_tokens": 341244,
+      "observed_attempt_seconds": 600.116
+    }
+  ],
+  "historical": {
+    "artifact": "final-benchmark.json",
+    "matched_cases": 7,
+    "available_cases_at_measurement": 37,
+    "case_names": [
+      "external-malformed-ledger",
+      "external-result-reconciliation",
+      "fenced-record-examples",
+      "identifier-rollover",
+      "non-ml-replication",
+      "work-brief-references",
+      "work-project-start"
+    ],
+    "current_validation": false,
+    "limitations": [
+      "Seven cases share one executor per configuration.",
+      "Transcripts are executor-written command logs with summarized initial reads, not native access audits.",
+      "Per-case token and exclusive timing measurements are unavailable."
+    ]
+  },
+  "cases": [
+    {
+      "name": "active-record-history",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "active-setting-pointers",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "analytic-complete-coverage",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "ancestor-rename-protection",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "atomic-compute-reservation",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "automatic-session-registration",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "away-slot-default",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "New-session slot-choice case; execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "brace-operand-boundary",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "checker-broken-install",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "checker-summary-integrity",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "claim-contention",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "cli-hook-literal",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "close-recorded-scope",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "codex-enforcement-evidence",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "codex-host-capabilities",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "codex-moved-registration",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "compact-checker-summary-cache",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "compact-preset-settings",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "compact-render-metadata",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "competition-direction-review",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "competition-external-pattern-setup",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "competition-platform-defaults",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "competition-preset-transition",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "competition-runtime-observations",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "conditional-project-hook-matchers",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "control-noise-floor",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "credential-storage-redaction",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "custom-work-defaults",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "dangling-instrument-evidence",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "decision-changing-draft",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "decision-class-integrity",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "default-cli-shim",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "direct-install-reviewer",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "direction-review-grace",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "directory-change-binding-certainty",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "evaluation-grade-integrity",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "evaluation-trace-audit",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "evaluation-trace-code-operands",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "evaluation-transport-evidence",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "exclusive-license-routing",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "explicit-multislot-selection",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "external-action-order",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "external-descendant-deadline",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "external-generated-prefix",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "external-historical-duplicate-id",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "external-malformed-ledger",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": true
+    },
+    {
+      "name": "external-result-reconciliation",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": true
+    },
+    {
+      "name": "external-retry-chain",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "external-withdrawn-history",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "external-wrapper-options",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "failed-runner-protection",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "failed-runner-slot-ownership",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "fenced-record-examples",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": true
+    },
+    {
+      "name": "foreground-job-wait",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "general-reference-vocabulary",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-basename-dispatch",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-edit-warning-fast-paths",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-effective-working-directory",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-interpreter-override",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-latency-budget",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-portability",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-project-discovery",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-root-probe-paths",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Deterministic wrapper regression covered by pytest; paired model evaluation not run.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-root-termination",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Windows wrapper repair has deterministic regressions; model-based evaluation has not run.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-runtime-deadline",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "hook-runtime-shortcuts",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hooks-clear-resume",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hooks-post-cache",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "hooks-tool-dialect",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "host-detection-isolation",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "host-lifecycle-probe-evidence",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "host-name-detection",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "host-runner-diagnostics",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "host-scratch-inheritance",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "host-trust-scope-handoff",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "identifier-rollover",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": true
+    },
+    {
+      "name": "idle-direction-cadence",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "important-stage-review",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "installed-capability-matrix",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "installer-edit-policy-routing",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "installer-host-survival",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "installer-plugin-deduplication",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "installer-repository-root",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "installer-runtime-selection",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "job-monitor-recovery",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "launch-free-slot",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "launch-item-ownership",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-10 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "launch-root-binding",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "launch-target-validation",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "legacy-same-host-preservation",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-10 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "literal-cd-command-chain",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "local-single-host-first-session",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "milestone-state-validation",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "minimal-quick-self-guidance",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "native-session-slots",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "neutral-interface-and-hook-guide",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "neutral-new-decision-records",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "non-compute-exclusive-routing",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "non-ml-replication",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": true
+    },
+    {
+      "name": "note-id-kind",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "owned-job-monitor",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "owned-job-parent-exit",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "owned-job-supervisor-crash",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "phase-clock-scaffold",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "plugin-policy-subscription-notice",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "plugin-project-policy-supplements",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-10 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "plugin-shim-availability",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "post-close-review",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "posttool-unchanged-fast-path",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "pre-push-interpreter-recovery",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "project-language",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "public-snapshot-reconstruction",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "publication-archive-boundary",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "publication-destination-history",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "publication-receipt-gate",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "publish-deadline-recovery",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "publish-gate-startup-notice",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "publish-hook-timeout-recovery",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "queue-freeze-delivery",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "queue-ordering-validation",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "quick-detected-setup",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "quick-goal-routing",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "quick-to-solo-preserves-live-queue",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "read-hook-opt-in",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "receipt-policy-boundaries",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "record-clock-tolerance",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "release-ci-matrix",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "release-structural-mode",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-10 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "repair-missing-coordination",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "repair-snapshot-scope",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "replication-coherent-controls",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "research-direction-scope",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "research-queue-optional-summaries",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "retained-output-export",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "review-session-chronology",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "reviewer-identity-validation",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "reviewer-read-only",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "saved-policy-roundtrip",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "scoreless-cross-host-takeover",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-10 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "selection-family-source",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "session-resource-resume",
+      "attempted_configurations": [],
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "not run",
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "session-slot-reminder",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-8 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "setup-json-answers",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "shared-git-hook-ownership",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "shared-resource-routing",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "shipped-example-health",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "slot-reclaim-choice",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "New-session slot-choice case; execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "solo-queue-exclusive-resource",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "stage-decision-review",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "stale-slot-question",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "New-session slot-choice case; execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "standing-rule-lineage",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "stop-absent-job-registry",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Coverage specification only; scenario execution prohibited by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "stop-once-per-job",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-7 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "trigger-measurement-reasons",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "unicode-job-errors",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "unified-research-resume",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "uninstall-flag-conflict",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "unreadable-subdirectory",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "v2-rules-upgrade",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "v3-interface-scope",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "work-brief-references",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": true
+    },
+    {
+      "name": "work-migration-scheduling",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "work-multiple-stage-decisions",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-9 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    },
+    {
+      "name": "work-project-session-history",
+      "attempted_configurations": [
+        "old_skill",
+        "with_skill"
+      ],
+      "attempted_runs": 4,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false
+    },
+    {
+      "name": "work-project-start",
+      "attempted_configurations": [
+        "old_skill",
+        "with_skill"
+      ],
+      "attempted_runs": 8,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": true
+    },
+    {
+      "name": "work-summary-omission",
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "status": "unattempted",
+      "reason": "Round-6 repair case; execution deferred by owner.",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "historical_pair": false
+    }
+  ],
+  "analysis_notes": [
+    "All four native preflights timed out before a returned tool result or completed turn appeared in the retained event stream.",
+    "All four output directories contain only unchanged brief.md and trial.md fixtures plus an empty final.md; there is no substantive result to grade.",
+    "Distinct thread.started IDs establish fresh native threads, not fresh user or Codex homes; the harness explicitly records shared host homes and residual access risks.",
+    "The paired current/baseline attempts used the same final case prompt; the two earlier baseline-only attempts used earlier prompt revisions and are separate preflights.",
+    "The three baseline attempts pin revision 713088d79745589b053ae02996670dc7147a8ee1 and identical runtime digest b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4.",
+    "Executor commentary reports pending initial reads; native events do not identify the exact cause. The startup feature warning alone does not establish causation.",
+    "No skill winner, assertion pass rate, instruction-following score, token comparison or execution-performance delta can be inferred from these excluded preflights.",
+    "The earlier seven-case benchmark remains historical evidence with shared executor context and executor-written summarized transcripts; it is not upgraded by these attempts."
+  ],
+  "inventory_note": "Current case inventory includes unexecuted round-5 through round-8 repairs. Historical snapshot only: saved attempts, grades, runtime digests and exclusions are unchanged; no new behaviour runs or grades.",
+  "additional_archives": [
+    {
+      "archive": "builder-repair-attempts.zip",
+      "archive_sha256": "68148dd464690de48f509fece69518c20db47378c65781cf4522f1e755c7c7d0"
+    },
+    {
+      "archive": "builder-final-preflight.zip",
+      "archive_sha256": "cd0230e528086487ba01dcf6f9c5f8f5776c751c90d4436d4913dfce13fcd70b"
+    },
+    {
+      "archive": "builder-recheck-preflight.zip",
+      "archive_sha256": "08bc00b8852f9d8de7a708820c435590963e737cf301248a78523642054119d2"
+    },
+    {
+      "archive": "builder-full-duration.zip",
+      "archive_sha256": "de9b44ee4ffeb02b188ac0b69b96ffde6e618f3aacc19e289e8a7015c59bd7f9"
+    }
+  ],
+  "followup_aggregate": {
+    "metadata": {
+      "skill_name": "<historical-skill-name>",
+      "skill_path": "skills/<historical-skill-name>",
+      "executor_model": null,
+      "timestamp": "2026-10-26T01:17:13.916205+00:00",
+      "evals_run": [],
+      "runs_per_configuration": 0,
+      "included_runs": 0,
+      "excluded_runs": 2,
+      "comparison": {
+        "matched_cases": 0,
+        "total_cases": 1
+      }
+    },
+    "runs": [],
+    "excluded_runs": [
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "old_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/old_skill",
+        "reason": "Preflight infrastructure exclusion: 90-second timeout before any recorded tool execution or task work; native event 5 reports the initial skill-file read/command runner stalled; outputs retain only unchanged brief.md and empty final.md. Exact infrastructure root cause is unconfirmed."
+      },
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "with_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/with_skill",
+        "reason": "Preflight infrastructure exclusion: 90-second timeout before any recorded tool execution or task work; native event 5 reports the initial skill-file read/command runner stalled; outputs retain only unchanged brief.md and empty final.md. Exact infrastructure root cause is unconfirmed."
+      }
+    ],
+    "run_summary": {
+      "delta": {
+        "pass_rate": null,
+        "time_seconds": null,
+        "tokens": null
+      }
+    },
+    "notes": [
+      "with_skill - old_skill comparison: 0 / 1 cases matched. Delta unavailable (no matched cases).",
+      "Excluded 2 runs; see excluded_runs for reasons."
+    ]
+  },
+  "followup_analysis": {
+    "case": "work-project-start",
+    "reviewer": "independent-builder-subagent-receipts-install",
+    "method": "Read complete native events, transcripts, stderr, timing, run metadata, and every output file; compare output bytes with case inputs; independently recompute available source runtime digests.",
+    "disposition": "exclude both preflight attempts; zero gradeable paired cases",
+    "notes": [
+      "Both attempts timed out at the 90-second preflight cap after reporting that the first local file read or command runner had stalled.",
+      "Neither native stream records a tool invocation, command execution, file-read result, file edit, checker run, completed turn, or final response.",
+      "The exact infrastructure root cause is unconfirmed: stalled file reading is reported by the executor; no-task-work is independently supported by complete native events and unchanged outputs.",
+      "The unstable-feature warning is present in both streams but does not establish that it caused the stall.",
+      "Timeouts and wall-clock timing are retained as diagnostic evidence; assertion pass rates, skill effect, tokens, and trigger results remain unmeasured.",
+      "The current source digest no longer matches the preflight digest. Baseline source still matches its pin. These attempts cannot demonstrate coverage of the subsequently changed current runtime."
+    ],
+    "runs": [
+      {
+        "configuration": "with_skill",
+        "original_status": "timeout",
+        "original_error": "Codex exceeded 90 seconds",
+        "failure_category": "timeout",
+        "native_event_count": 5,
+        "recorded_tool_executions": 0,
+        "stall_evidence": {
+          "file": "with_skill/events.jsonl",
+          "line": 5,
+          "text": "The local file-reading tool is taking longer than expected to return. I’m waiting for the skill instructions before creating any project files."
+        },
+        "input_sha256": {
+          "brief.md": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757"
+        },
+        "output_files_sha256": {
+          "brief.md": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757",
+          "final.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "new_task_artifacts": [],
+        "changed_inputs": [],
+        "final_response_bytes": 0,
+        "timing": {
+          "duration_ms": 90336,
+          "total_duration_seconds": 90.336,
+          "total_tokens": null
+        },
+        "reported_runtime_integrity": {
+          "before_sha256": "89c3803f41f7b83d9d4ec57a69779e7b9f9abcd73ab40c2f3085e188fcd92de2",
+          "after_sha256": "89c3803f41f7b83d9d4ec57a69779e7b9f9abcd73ab40c2f3085e188fcd92de2",
+          "unchanged": true
+        },
+        "independent_source_runtime_sha256": "731856ea58881a221ed50e5dd303cb72bcee7276973e8179207c5f975b0a57fb",
+        "source_digest_matches_recorded_runtime": false,
+        "retained_execution_runtime_present": false,
+        "runtime_verification_limit": "Runner cleaned execution staging directories. Independent source digests verify only currently available source snapshots.",
+        "baseline_revision": null,
+        "native_events_sha256": "188ee1a492f564bf84668fddb10b55c60fd925170f5a749b7b8871ae642e857a",
+        "transcript_sha256": "a894af3fe84bb9e82a0a4a84619e597a3b3d8967b15b17d8fbeae6ed45b1a307",
+        "excluded": true,
+        "exclusion_reason": "Preflight infrastructure exclusion: 90-second timeout before any recorded tool execution or task work; native event 5 reports the initial skill-file read/command runner stalled; outputs retain only unchanged brief.md and empty final.md. Exact infrastructure root cause is unconfirmed.",
+        "assertion_pass_rate": null,
+        "original_run_fields_preserved": true
+      },
+      {
+        "configuration": "old_skill",
+        "original_status": "timeout",
+        "original_error": "Codex exceeded 90 seconds",
+        "failure_category": "timeout",
+        "native_event_count": 5,
+        "recorded_tool_executions": 0,
+        "stall_evidence": {
+          "file": "old_skill/events.jsonl",
+          "line": 5,
+          "text": "The local command runner is taking longer than expected to return the skill file. No project files have been changed yet."
+        },
+        "input_sha256": {
+          "brief.md": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757"
+        },
+        "output_files_sha256": {
+          "brief.md": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757",
+          "final.md": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "new_task_artifacts": [],
+        "changed_inputs": [],
+        "final_response_bytes": 0,
+        "timing": {
+          "duration_ms": 90115,
+          "total_duration_seconds": 90.115,
+          "total_tokens": null
+        },
+        "reported_runtime_integrity": {
+          "before_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+          "after_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+          "unchanged": true
+        },
+        "independent_source_runtime_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+        "source_digest_matches_recorded_runtime": true,
+        "retained_execution_runtime_present": false,
+        "runtime_verification_limit": "Runner cleaned execution staging directories. Independent source digests verify only currently available source snapshots.",
+        "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+        "native_events_sha256": "1680aa13e772f635b2107ecc37853cd2976f4b4f58301061396ff7fcf2582443",
+        "transcript_sha256": "c02c8f91c020292db68f62193441bfa1649b7c0f69a1fe3b819e44bdcd1590aa",
+        "excluded": true,
+        "exclusion_reason": "Preflight infrastructure exclusion: 90-second timeout before any recorded tool execution or task work; native event 5 reports the initial skill-file read/command runner stalled; outputs retain only unchanged brief.md and empty final.md. Exact infrastructure root cause is unconfirmed.",
+        "assertion_pass_rate": null,
+        "original_run_fields_preserved": true
+      }
+    ],
+    "distinct_native_thread_ids": true
+  },
+  "current_aggregate": {
+    "metadata": {
+      "skill_name": "<historical-skill-name>",
+      "skill_path": "skills/<historical-skill-name>",
+      "executor_model": null,
+      "timestamp": "2026-10-26T01:53:30.666263+00:00",
+      "evals_run": [],
+      "runs_per_configuration": 0,
+      "included_runs": 0,
+      "excluded_runs": 2,
+      "comparison": {
+        "matched_cases": 0,
+        "total_cases": 1
+      }
+    },
+    "runs": [],
+    "excluded_runs": [
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "old_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/old_skill",
+        "reason": "Grading error: Unavailable preflight: timeout before any recorded tool result or substantive project output; exclude from behavioral scoring."
+      },
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "with_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/with_skill",
+        "reason": "Grading error: Unavailable preflight: timeout before any recorded tool result or substantive project output; exclude from behavioral scoring."
+      }
+    ],
+    "run_summary": {
+      "delta": {
+        "pass_rate": null,
+        "time_seconds": null,
+        "tokens": null
+      }
+    },
+    "notes": [
+      "with_skill - old_skill comparison: 0 / 1 cases matched. Delta unavailable (no matched cases).",
+      "Excluded 2 runs; see excluded_runs for reasons."
+    ]
+  },
+  "current_analysis": {
+    "status": "unavailable_comparison",
+    "comparison_summary": {
+      "winner": null,
+      "winner_skill": null,
+      "loser_skill": null,
+      "comparator_reasoning": "Both independent native sessions stalled before producing substantive task artifacts. No behavioral win, loss, tie, score, or improvement can be inferred."
+    },
+    "runs": [
+      {
+        "run_dir": "work-project-start/with_skill",
+        "configuration": "with_skill",
+        "status": "timeout",
+        "native_thread_id": "<withheld-id>",
+        "failure_category": "timeout",
+        "error": "Codex exceeded 90 seconds",
+        "duration_seconds": 90.363,
+        "total_tokens": null,
+        "recorded_event_count": 5,
+        "recorded_tool_event_count": 0,
+        "agent_messages": [
+          "I’ll read the skill, then set up the project from `brief.md`, prioritize the staged work, and check the handoff before closing this setup session. I’ll leave the conversion for a later session.",
+          "The local file-read command is taking longer than expected. I’m waiting for the skill instructions before making any project changes."
+        ],
+        "output_manifest": {
+          "brief.md": {
+            "bytes": 796,
+            "sha256": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757"
+          },
+          "final.md": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "input_brief_sha256": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757",
+        "runtime_integrity": {
+          "before_sha256": "731856ea58881a221ed50e5dd303cb72bcee7276973e8179207c5f975b0a57fb",
+          "after_sha256": "731856ea58881a221ed50e5dd303cb72bcee7276973e8179207c5f975b0a57fb",
+          "unchanged": true
+        },
+        "runtime_digest_recomputed": null,
+        "runtime_retained_for_rehash": false,
+        "baseline_revision": null,
+        "exclusion_reason": "Unavailable preflight: timeout before any recorded tool result or substantive project output; exclude from behavioral scoring.",
+        "evidence": [
+          "run.json records status timeout, failure_category timeout, error Codex exceeded 90 seconds, and no completed return code.",
+          "events.jsonl contains five events: thread.started, an unstable-feature warning, turn.started, and two progress messages. It contains no command execution or tool result and no turn.completed event.",
+          "The second agent message reports that the first local file read is taking longer than expected and that project changes are waiting for it.",
+          "outputs/final.md has zero bytes; outputs/brief.md is byte-identical to the case input. No agents.md, plan.md, handoff.md, discoveries.md, or checker results were produced.",
+          "run.json preserves matching before/after runtime digests. Native events do not establish the exact reason for the local-read stall."
+        ],
+        "retained_source_hashes": {
+          "run.json": "14b13a8fdadd2d4a24b4218ae894ab0a778d02279637c9d02eeff562d9f60f31",
+          "timing.json": "6580db1d31cd8bf8775e385ae010fcc550f94a5ed01e3264a462f0124a430a15",
+          "events.jsonl": "a8ae1fb449dd57867cd6fe9a976e88c9bf41e9625978b8cd55e5929fea8687ed",
+          "stderr.txt": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+          "transcript.md": "8eb18d4b644c2e8bc090775ba26eeba5c90cb404e0bc669f7a0bfc6dffde3e3d"
+        }
+      },
+      {
+        "run_dir": "work-project-start/old_skill",
+        "configuration": "old_skill",
+        "status": "timeout",
+        "native_thread_id": "<withheld-id>",
+        "failure_category": "timeout",
+        "error": "Codex exceeded 90 seconds",
+        "duration_seconds": 90.105,
+        "total_tokens": null,
+        "recorded_event_count": 5,
+        "recorded_tool_event_count": 0,
+        "agent_messages": [
+          "I’ll read the skill first, then set up the work-project plan from `brief.md`, check consistency, and close the session with a clear handoff. I’ll leave the conversion for a later session.",
+          "The first local file read is taking longer than expected. I’m waiting for it before creating any project files."
+        ],
+        "output_manifest": {
+          "brief.md": {
+            "bytes": 796,
+            "sha256": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757"
+          },
+          "final.md": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "input_brief_sha256": "bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757",
+        "runtime_integrity": {
+          "before_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+          "after_sha256": "b2c01f24428b04d8a31225e0f7a3aaed0cc819b52715292c165a264a943588c4",
+          "unchanged": true
+        },
+        "runtime_digest_recomputed": null,
+        "runtime_retained_for_rehash": false,
+        "baseline_revision": "713088d79745589b053ae02996670dc7147a8ee1",
+        "exclusion_reason": "Unavailable preflight: timeout before any recorded tool result or substantive project output; exclude from behavioral scoring.",
+        "evidence": [
+          "run.json records status timeout, failure_category timeout, error Codex exceeded 90 seconds, and no completed return code.",
+          "events.jsonl contains five events: thread.started, an unstable-feature warning, turn.started, and two progress messages. It contains no command execution or tool result and no turn.completed event.",
+          "The second agent message reports that the first local file read is taking longer than expected and that project changes are waiting for it.",
+          "outputs/final.md has zero bytes; outputs/brief.md is byte-identical to the case input. No agents.md, plan.md, handoff.md, discoveries.md, or checker results were produced.",
+          "run.json preserves matching before/after runtime digests. Native events do not establish the exact reason for the local-read stall."
+        ],
+        "retained_source_hashes": {
+          "run.json": "6c3018ec59975645fffc60290e9fd73c44cc261fbee07e923382749268a9314f",
+          "timing.json": "f71d6a9f0515f537ad543596dbbe31029a71f51d6f4ff93e165b05e4b307934e",
+          "events.jsonl": "18a7d044e98bec15956e50a263314be6b120dd4fd77b9e111a2e821775f02b50",
+          "stderr.txt": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+          "transcript.md": "ba499b08b4acd35aee43785866885b87a9319ae59e90774f262376a7b2e72fb0"
+        }
+      }
+    ],
+    "instruction_following": {
+      "with_skill": {
+        "score": null,
+        "issues": [
+          "No completed skill read or substantive task execution is observable."
+        ]
+      },
+      "old_skill": {
+        "score": null,
+        "issues": [
+          "No completed skill read or substantive task execution is observable."
+        ]
+      }
+    },
+    "winner_strengths": [],
+    "loser_weaknesses": [],
+    "improvement_suggestions": [],
+    "metrics": {
+      "attempted_runs": 2,
+      "included_behavioral_runs": 0,
+      "excluded_runs": 2,
+      "valid_paired_cases": 0,
+      "pass_rate": null,
+      "delta": null,
+      "total_tokens": null
+    },
+    "limits": [
+      "These were 90-second native preflights; the case settings retain a 600-second maximum. The attempts cannot establish completed-case success or failure.",
+      "The file-read stall is reported in agent messages; no native tool result identifies its cause. Do not infer a transport, permission, model, or skill defect.",
+      "A timeout alone is not automatically an infrastructure exclusion. These exclusions additionally rely on no recorded tool completion, no substantive artifacts, empty final output, unchanged scaffold input, and matching early-read reports in both separate native threads.",
+      "No native usage event was retained, so token and effective model metrics remain null. Observed zero tool events does not prove no tool was ever invoked.",
+      "The existing contamination audit reports zero visible operations checked. Its lack of findings does not establish isolation beyond the retained trace.",
+      "Runtime before/after digests are retained as provenance; they do not demonstrate successful execution of the runtime.",
+      "No comparator winner exists. Analyzer skill-causation judgments and assertion-discrimination conclusions are unavailable from these attempts."
+    ],
+    "method": {
+      "applied": [
+        "skill-creator grader transcript inspection",
+        "artifact inspection and byte comparison",
+        "claims and timing verification",
+        "benchmark analyzer evidence and limits audit"
+      ],
+      "skipped": {
+        "behavioral_pass_fail_grading": "Both runs unavailable before substantive execution.",
+        "blind_winner_and_skill_causation_analysis": "No comparable task outputs or comparator winner.",
+        "skill_improvement_recommendations": "No observed behavioral evidence supports a skill change."
+      }
+    }
+  },
+  "recheck_aggregate": {
+    "metadata": {
+      "skill_name": "<historical-skill-name>",
+      "skill_path": "",
+      "executor_model": null,
+      "timestamp": "2026-10-26T02:23:03.686357+00:00",
+      "evals_run": [],
+      "runs_per_configuration": 0,
+      "included_runs": 0,
+      "excluded_runs": 2,
+      "comparison": {
+        "matched_cases": 0,
+        "total_cases": 1
+      }
+    },
+    "runs": [],
+    "excluded_runs": [
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "old_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/old_skill",
+        "reason": "Grading error: Infrastructure preflight stopped at its 60-second cap before any task tool operation or completed result; excluded from behavioral scoring."
+      },
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "with_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/with_skill",
+        "reason": "Grading error: Infrastructure preflight stopped at its 60-second cap before any task tool operation or completed result; excluded from behavioral scoring."
+      }
+    ],
+    "run_summary": {
+      "delta": {
+        "pass_rate": null,
+        "time_seconds": null,
+        "tokens": null
+      }
+    },
+    "notes": [
+      "with_skill - old_skill comparison: 0 / 1 cases matched. Delta unavailable (no matched cases).",
+      "Excluded 2 runs; see excluded_runs for reasons."
+    ]
+  },
+  "recheck_analysis": {
+    "archive_member": "recheck/analysis-data.json",
+    "reviewer": "/root/audit_evidence",
+    "original_retained_files_unchanged": true,
+    "valid_behavioral_pairs": 0,
+    "current_runtime_matches_recorded_runtime": false,
+    "limitation": "The preflight predates the hook record-parser correction and establishes no final-runtime behavior."
+  },
+  "full_duration_aggregate": {
+    "metadata": {
+      "skill_name": "<historical-skill-name>",
+      "skill_path": "",
+      "executor_model": null,
+      "timestamp": "2026-10-26T02:41:43.888197+00:00",
+      "evals_run": [],
+      "runs_per_configuration": 0,
+      "included_runs": 0,
+      "excluded_runs": 2,
+      "comparison": {
+        "matched_cases": 0,
+        "total_cases": 1
+      }
+    },
+    "runs": [],
+    "excluded_runs": [
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "old_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/old_skill",
+        "reason": "Grading error: Infrastructure-blocked full-duration attempt: native terminal response reports stalled local reads, no task tool items or setup artifacts were retained, and the harness records a 600-second timeout. Excluded from behavioral scoring; precise execution failure cause is unverified."
+      },
+      {
+        "eval_id": "work-project-start",
+        "eval_name": "work-project-start",
+        "configuration": "with_skill",
+        "run_number": 1,
+        "run_dir": "work-project-start/with_skill",
+        "reason": "Grading error: Infrastructure-blocked full-duration attempt: native terminal response reports stalled local reads, no task tool items or setup artifacts were retained, and the harness records a 600-second timeout. Excluded from behavioral scoring; precise execution failure cause is unverified."
+      }
+    ],
+    "run_summary": {
+      "delta": {
+        "pass_rate": null,
+        "time_seconds": null,
+        "tokens": null
+      }
+    },
+    "notes": [
+      "with_skill - old_skill comparison: 0 / 1 cases matched. Delta unavailable (no matched cases).",
+      "Excluded 2 runs; see excluded_runs for reasons."
+    ]
+  },
+  "full_duration_analysis": {
+    "archive_member": "full/analysis-data.json",
+    "reviewer": "/root/audit_evidence",
+    "original_retained_files_unchanged": true,
+    "valid_behavioral_pairs": 0,
+    "current_runtime_matches_recorded_runtime": true,
+    "limitation": "Completed native turns report blocked setup; the harness timed out at 600 seconds without task tool items or setup artifacts."
+  }
+}

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: fenced-record-examples
+expected_outcome: |
+  Runtime policy and checker agree on live block settings despite tilde and longer enclosing fences with embedded shorter markers. Migration moves only the live plan item; delimiter-aware parsing excludes fenced examples from records, discovery indexing and allocation while preserving source examples. Native record hooks reparse legacy snapshots and ignore fenced examples without consuming identifier reservations, while detecting real duplicate records and future dates.
+context:
+  scaffold_script: place-files.sh

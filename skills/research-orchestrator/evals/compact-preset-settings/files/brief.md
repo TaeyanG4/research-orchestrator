@@ -1,0 +1,1 @@
+Create a local Git repository for this project. One operator uses local for a short script cleanup. Use English, linux/bash, git off initially. Add the project rule: Keep the compatibility flag until the next release. After initial setup, set Git sync to commit without changing the other settings.

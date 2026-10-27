@@ -1,0 +1,2 @@
+Archive conversion guidance revision 1
+Every source identifier must occur exactly once.

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: competition-preset-transition
+expected_outcome: |
+  A known inherited none becomes the competition adapter patterns. Explicit custom patterns and deliberate none survive the preset transition. Legacy none without provenance stays unchanged with an explicit inactive-gate report. Hook evidence confirms configured matches are blocked while the opted-out gate remains inactive.
+context:
+  scaffold_script: place-files.sh

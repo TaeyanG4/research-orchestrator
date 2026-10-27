@@ -1,0 +1,12 @@
+## D-A-001 — validation covers the fitted observations
+- Source: A
+- Host: Claude Code
+- User: kim
+- Date: 2026-10-24
+- Cross-check: PENDING
+- Finding: the candidate quality is 0.94
+- Evidence: the measurement reuses the observations used to fit the candidate
+- Implication: retain the candidate pending an outside check
+- Reviews:
+- Decision class: model-change
+- Instrument: I-A-01

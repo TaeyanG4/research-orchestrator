@@ -1,0 +1,7 @@
+{
+  "preset": "quick",
+  "user": "operator",
+  "language": "en",
+  "git": "off",
+  "collector": "off"
+}

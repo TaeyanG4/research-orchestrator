@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: credential-storage-redaction
+expected_outcome: |
+  Local outgoing scanning catches nested annotated-tag credentials and accepts clean controls without printing secret content.
+  The operational runtime removes synthetic GitHub fine-grained and AWS temporary credentials from stored job commands and external stdout/stderr while retaining useful remote IDs, exit codes and a terminal worker outcome.
+  Long PEM bodies and split tokens leave no distinctive secret-body fragments in either stream when chunks or head/tail retention cut through their delimiters.
+context:
+  scaffold_script: place-files.sh

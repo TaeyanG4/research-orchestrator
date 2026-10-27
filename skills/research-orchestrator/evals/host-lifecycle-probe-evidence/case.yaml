@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: host-lifecycle-probe-evidence
+expected_outcome: |
+  Only observations with the target event and check ID substantiate a lifecycle-hook warning; PostToolUse also requires the timestamp mutation, and absent or mismatched evidence stays inconclusive.
+context:
+  scaffold_script: place-files.sh

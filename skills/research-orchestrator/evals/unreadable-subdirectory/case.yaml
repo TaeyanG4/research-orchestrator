@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: unreadable-subdirectory
+expected_outcome: |
+  Receipt creation, validation and dependent execution propagate a directory enumeration failure. Existing receipt and prepared ledger bytes remain unchanged, and the local execution marker is absent. The readable 65 MiB positive control receives its correct SHA256 instead of an unhashed marker.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,738 @@
+{
+  "metadata": {
+    "skill_name": "<historical-skill-name>",
+    "skill_path": "skills/<historical-skill-name>",
+    "executor_model": "inherited host model",
+    "timestamp": "2026-10-25T23:47:51.517188+00:00",
+    "evals_run": [
+      "external-malformed-ledger",
+      "external-result-reconciliation",
+      "fenced-record-examples",
+      "identifier-rollover",
+      "non-ml-replication",
+      "work-brief-references",
+      "work-project-start"
+    ],
+    "runs_per_configuration": 1,
+    "included_runs": 14,
+    "excluded_runs": 0,
+    "comparison": {
+      "matched_cases": 7,
+      "total_cases": 7
+    },
+    "available_case_count": 37,
+    "selected_case_count": 7
+  },
+  "runs": [
+    {
+      "eval_id": "external-malformed-ledger",
+      "eval_name": "external-malformed-ledger",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "run_dir": "external-malformed-ledger/old_skill",
+      "result": {
+        "passed": 0,
+        "failed": 3,
+        "total": 3,
+        "pass_rate": 0.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "handoff.md is byte-for-byte unchanged from the supplied fixture after both wrapper attempts.",
+          "passed": false,
+          "evidence": "No wrapper is available and no wrapper attempts occurred. Unchanged ledger and absent log do not demonstrate the requested validation behavior."
+        },
+        {
+          "text": "validation-report.md includes both failed wrapper responses identifying duplicate Status fields in X-A-001.",
+          "passed": false,
+          "evidence": "No wrapper is available and no wrapper attempts occurred. Unchanged ledger and absent log do not demonstrate the requested validation behavior."
+        },
+        {
+          "text": "Neither of the two wrapper attempts executes mock_archive.py: executions.log is absent and the trace shows no direct or bypassed invocation of the mock.",
+          "passed": false,
+          "evidence": "No wrapper is available and no wrapper attempts occurred. Unchanged ledger and absent log do not demonstrate the requested validation behavior."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "external-malformed-ledger",
+      "eval_name": "external-malformed-ledger",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "run_dir": "external-malformed-ledger/with_skill",
+      "result": {
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "pass_rate": 1.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "handoff.md is byte-for-byte unchanged from the supplied fixture after both wrapper attempts.",
+          "passed": true,
+          "evidence": "validation-report.md records two wrapper rejections for duplicate Status; transcript confirms each actual invocation. handoff bytes match fixture; executions.log absent."
+        },
+        {
+          "text": "validation-report.md includes both failed wrapper responses identifying duplicate Status fields in X-A-001.",
+          "passed": true,
+          "evidence": "validation-report.md records two wrapper rejections for duplicate Status; transcript confirms each actual invocation. handoff bytes match fixture; executions.log absent."
+        },
+        {
+          "text": "Neither of the two wrapper attempts executes mock_archive.py: executions.log is absent and the trace shows no direct or bypassed invocation of the mock.",
+          "passed": true,
+          "evidence": "validation-report.md records two wrapper rejections for duplicate Status; transcript confirms each actual invocation. handoff bytes match fixture; executions.log absent."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "external-result-reconciliation",
+      "eval_name": "external-result-reconciliation",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "run_dir": "external-result-reconciliation/old_skill",
+      "result": {
+        "passed": 0,
+        "failed": 5,
+        "total": 5,
+        "pass_rate": 0.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The retained wrapper result artifact for X-A-002 contains exit code 7, stdout remote ID archive-uncertain-731, and stderr diagnostic acknowledgement lost after acceptance; reconcile before retry.",
+          "passed": false,
+          "evidence": "reconciliation.md explicitly reports unavailable wrapper. No actual execution, result artifacts or done/error statuses exist."
+        },
+        {
+          "text": "executions.log contains exactly one success line and one failure line, with no additional mock executions.",
+          "passed": false,
+          "evidence": "reconciliation.md explicitly reports unavailable wrapper. No actual execution, result artifacts or done/error statuses exist."
+        },
+        {
+          "text": "reconciliation.md associates each X ID with its emitted remote ID, exit code and diagnostic and treats X-A-002 as requiring reconciliation before any retry.",
+          "passed": false,
+          "evidence": "reconciliation.md explicitly reports unavailable wrapper. No actual execution, result artifacts or done/error statuses exist."
+        },
+        {
+          "text": "handoff.md records X-A-001 as done and X-A-002 as error after execution.",
+          "passed": false,
+          "evidence": "reconciliation.md explicitly reports unavailable wrapper. No actual execution, result artifacts or done/error statuses exist."
+        },
+        {
+          "text": "The retained wrapper result artifact for X-A-001 contains exit code 0, stdout remote ID archive-accepted-482, and stderr diagnostic receipt stored; response complete.",
+          "passed": false,
+          "evidence": "reconciliation.md explicitly reports unavailable wrapper. No actual execution, result artifacts or done/error statuses exist."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "external-result-reconciliation",
+      "eval_name": "external-result-reconciliation",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "run_dir": "external-result-reconciliation/with_skill",
+      "result": {
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "pass_rate": 1.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The retained wrapper result artifact for X-A-002 contains exit code 7, stdout remote ID archive-uncertain-731, and stderr diagnostic acknowledgement lost after acceptance; reconcile before retry.",
+          "passed": true,
+          "evidence": "executions.log has success/failure once each. .ro/external-results/X-A-001.json and X-A-002.json retain IDs archive-accepted-482/archive-uncertain-731, exits 0/7 and both stderr diagnostics. handoff has done/error; reconciliation.md says reconcile uncertain acceptance before retry."
+        },
+        {
+          "text": "executions.log contains exactly one success line and one failure line, with no additional mock executions.",
+          "passed": true,
+          "evidence": "executions.log has success/failure once each. .ro/external-results/X-A-001.json and X-A-002.json retain IDs archive-accepted-482/archive-uncertain-731, exits 0/7 and both stderr diagnostics. handoff has done/error; reconciliation.md says reconcile uncertain acceptance before retry."
+        },
+        {
+          "text": "reconciliation.md associates each X ID with its emitted remote ID, exit code and diagnostic and treats X-A-002 as requiring reconciliation before any retry.",
+          "passed": true,
+          "evidence": "executions.log has success/failure once each. .ro/external-results/X-A-001.json and X-A-002.json retain IDs archive-accepted-482/archive-uncertain-731, exits 0/7 and both stderr diagnostics. handoff has done/error; reconciliation.md says reconcile uncertain acceptance before retry."
+        },
+        {
+          "text": "handoff.md records X-A-001 as done and X-A-002 as error after execution.",
+          "passed": true,
+          "evidence": "executions.log has success/failure once each. .ro/external-results/X-A-001.json and X-A-002.json retain IDs archive-accepted-482/archive-uncertain-731, exits 0/7 and both stderr diagnostics. handoff has done/error; reconciliation.md says reconcile uncertain acceptance before retry."
+        },
+        {
+          "text": "The retained wrapper result artifact for X-A-001 contains exit code 0, stdout remote ID archive-accepted-482, and stderr diagnostic receipt stored; response complete.",
+          "passed": true,
+          "evidence": "executions.log has success/failure once each. .ro/external-results/X-A-001.json and X-A-002.json retain IDs archive-accepted-482/archive-uncertain-731, exits 0/7 and both stderr diagnostics. handoff has done/error; reconciliation.md says reconcile uncertain acceptance before retry."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "fenced-record-examples",
+      "eval_name": "fenced-record-examples",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "run_dir": "fenced-record-examples/old_skill",
+      "result": {
+        "passed": 0,
+        "failed": 5,
+        "total": 5,
+        "pass_rate": 0.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The allocated next identifiers are H-A-02, D-A-002 and I-A-01, so fenced sample references do not consume sequence numbers.",
+          "passed": false,
+          "evidence": "summary.md explicitly says migration/index/allocation unavailable. Manual index and preserved original samples are not evidence of the requested migrated workflow."
+        },
+        {
+          "text": "The final migrated project checker reports zero ERROR and zero WARN.",
+          "passed": false,
+          "evidence": "summary.md explicitly says migration/index/allocation unavailable. Manual index and preserved original samples are not evidence of the requested migrated workflow."
+        },
+        {
+          "text": "The fenced examples inside H-A-01 are byte-for-byte unchanged in plan.md, including the shorter inner backtick fence and its sample Claimed field.",
+          "passed": false,
+          "evidence": "summary.md explicitly says migration/index/allocation unavailable. Manual index and preserved original samples are not evidence of the requested migrated workflow."
+        },
+        {
+          "text": "The discoveries index contains D-A-001 and excludes the tilde-fenced D-A-998 and D-A-999 samples.",
+          "passed": false,
+          "evidence": "summary.md explicitly says migration/index/allocation unavailable. Manual index and preserved original samples are not evidence of the requested migrated workflow."
+        },
+        {
+          "text": "After migration, the unified queue contains exactly one live item H-A-01 and no live H-A-998 or H-A-999 item.",
+          "passed": false,
+          "evidence": "summary.md explicitly says migration/index/allocation unavailable. Manual index and preserved original samples are not evidence of the requested migrated workflow."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "fenced-record-examples",
+      "eval_name": "fenced-record-examples",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "run_dir": "fenced-record-examples/with_skill",
+      "result": {
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "pass_rate": 1.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The allocated next identifiers are H-A-02, D-A-002 and I-A-01, so fenced sample references do not consume sequence numbers.",
+          "passed": true,
+          "evidence": "transcript shows successful one-item migration; summary.md gives index D-Z-990/D-Z-991/D-A-001 and allocations H-A-02/D-A-002/I-A-01. Raw sample bytes and discoveries bytes preserved; final checker zero ERROR/WARN."
+        },
+        {
+          "text": "The final migrated project checker reports zero ERROR and zero WARN.",
+          "passed": true,
+          "evidence": "transcript shows successful one-item migration; summary.md gives index D-Z-990/D-Z-991/D-A-001 and allocations H-A-02/D-A-002/I-A-01. Raw sample bytes and discoveries bytes preserved; final checker zero ERROR/WARN."
+        },
+        {
+          "text": "The fenced examples inside H-A-01 are byte-for-byte unchanged in plan.md, including the shorter inner backtick fence and its sample Claimed field.",
+          "passed": true,
+          "evidence": "transcript shows successful one-item migration; summary.md gives index D-Z-990/D-Z-991/D-A-001 and allocations H-A-02/D-A-002/I-A-01. Raw sample bytes and discoveries bytes preserved; final checker zero ERROR/WARN."
+        },
+        {
+          "text": "The discoveries index contains D-A-001 and excludes the tilde-fenced D-A-998 and D-A-999 samples.",
+          "passed": true,
+          "evidence": "transcript shows successful one-item migration; summary.md gives index D-Z-990/D-Z-991/D-A-001 and allocations H-A-02/D-A-002/I-A-01. Raw sample bytes and discoveries bytes preserved; final checker zero ERROR/WARN."
+        },
+        {
+          "text": "After migration, the unified queue contains exactly one live item H-A-01 and no live H-A-998 or H-A-999 item.",
+          "passed": true,
+          "evidence": "transcript shows successful one-item migration; summary.md gives index D-Z-990/D-Z-991/D-A-001 and allocations H-A-02/D-A-002/I-A-01. Raw sample bytes and discoveries bytes preserved; final checker zero ERROR/WARN."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "identifier-rollover",
+      "eval_name": "identifier-rollover",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "run_dir": "identifier-rollover/old_skill",
+      "result": {
+        "passed": 0,
+        "failed": 4,
+        "total": 4,
+        "pass_rate": 0.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The final project checker reports zero ERROR and zero WARN while retaining the widened instrument and external-action records.",
+          "passed": false,
+          "evidence": "summary.md lists numeric successors as unallocated. No new instrument, discovery, insight, plan or prepared action exists; legacy checker failed."
+        },
+        {
+          "text": "The new discovery evidence records quality=0.85 on I-A-100 cohort stable and cites I-A-100 as its instrument; an insight links that evidence to Status: planned H-A-100 with a matching plan item.",
+          "passed": false,
+          "evidence": "summary.md lists numeric successors as unallocated. No new instrument, discovery, insight, plan or prepared action exists; legacy checker failed."
+        },
+        {
+          "text": "X-A-1000 remains prepared and references the current SHA256 of candidate.txt; no external command was executed.",
+          "passed": false,
+          "evidence": "summary.md lists numeric successors as unallocated. No new instrument, discovery, insight, plan or prepared action exists; legacy checker failed."
+        },
+        {
+          "text": "The new active records use H-A-100, I-A-100, D-A-1000 and X-A-1000, without renumbering historical references.",
+          "passed": false,
+          "evidence": "summary.md lists numeric successors as unallocated. No new instrument, discovery, insight, plan or prepared action exists; legacy checker failed."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "identifier-rollover",
+      "eval_name": "identifier-rollover",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "run_dir": "identifier-rollover/with_skill",
+      "result": {
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "pass_rate": 1.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The final project checker reports zero ERROR and zero WARN while retaining the widened instrument and external-action records.",
+          "passed": true,
+          "evidence": "summary.md, active records and clean checker output establish H-A-100, I-A-100, D-A-1000 and prepared X-A-1000. D-A-1001 insight cites D-A-1000 and plans H-A-100. measurement.json records quality 0.85. Historical records are retained; no external execution."
+        },
+        {
+          "text": "The new discovery evidence records quality=0.85 on I-A-100 cohort stable and cites I-A-100 as its instrument; an insight links that evidence to Status: planned H-A-100 with a matching plan item.",
+          "passed": true,
+          "evidence": "summary.md, active records and clean checker output establish H-A-100, I-A-100, D-A-1000 and prepared X-A-1000. D-A-1001 insight cites D-A-1000 and plans H-A-100. measurement.json records quality 0.85. Historical records are retained; no external execution."
+        },
+        {
+          "text": "X-A-1000 remains prepared and references the current SHA256 of candidate.txt; no external command was executed.",
+          "passed": true,
+          "evidence": "summary.md, active records and clean checker output establish H-A-100, I-A-100, D-A-1000 and prepared X-A-1000. D-A-1001 insight cites D-A-1000 and plans H-A-100. measurement.json records quality 0.85. Historical records are retained; no external execution."
+        },
+        {
+          "text": "The new active records use H-A-100, I-A-100, D-A-1000 and X-A-1000, without renumbering historical references.",
+          "passed": true,
+          "evidence": "summary.md, active records and clean checker output establish H-A-100, I-A-100, D-A-1000 and prepared X-A-1000. D-A-1001 insight cites D-A-1000 and plans H-A-100. measurement.json records quality 0.85. Historical records are retained; no external execution."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "non-ml-replication",
+      "eval_name": "non-ml-replication",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "run_dir": "non-ml-replication/old_skill",
+      "result": {
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "pass_rate": 0.875,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The completed project passes the current project checker with zero ERROR findings.",
+          "passed": false,
+          "evidence": "Checker exit 1: CONSISTENCY: 1 error(s), 0 warning(s), 2 info (0 plan items, 1 discoveries, 2 events, workflow unified, verification independent-review)\n- ERROR settings.missing agents.md: Project settings has no 'Read bound' line\n- INFO discovery.review.pending [A] discoveries.md:3: D-A-001 awaits an independent review (a host without sub-agents leaves it PENDING; that is never an error)\n- INFO handoff.open-issues handoff.md: open consistency issues recorded in Shared state: Legacy checker cannot validate the supplied unified Queue and lacks its expected classic Agent section (disputed - preserve the supplied workflow; no completed item remains in the queue).\nFix issues tagged with your own agent; record others under 'Open consistency issues'."
+        },
+        {
+          "text": "replication.json reproduces n=8, mean_difference=2.5, sample_sd=1.6035674514745464, standard_error=0.5669467095138409, t_statistic=4.409585518440984, and ci95=[1.1593840616589195,3.8406159383410805] within 0.000001.",
+          "passed": true,
+          "evidence": "replication.json: {'n': 8, 'mean_difference': 2.5, 'sample_sd': 1.6035674514745464, 'standard_error': 0.5669467095138409, 't_statistic': 4.409585518440984, 'ci95': [1.1593840616589195, 3.8406159383410805]}; independently calculated: {'n': 8, 'mean_difference': 2.5, 'sample_sd': 1.6035674514745464, 'standard_error': 0.5669467095138409, 't_statistic': 4.409585518440984, 'ci95': [1.1593840616589195, 3.8406159383410805]}"
+        },
+        {
+          "text": "A completion event for H-A-01 links an explicit follow-up decision to a discovery citing replication.json and saved Python that, when run without a prior result file against the original measurements and excerpt, recreates all requested statistics within 0.000001 of independently calculated values.",
+          "passed": true,
+          "evidence": "Evidence-linked findings: {'D-A-001': {'Source': 'A', 'Host': 'local', 'User': 'operator', 'Date': '2026-10-26', 'Cross-check': 'PENDING', 'Finding': \"The eight archived after-minus-before differences reproduce the excerpt's mean, sample standard deviation and rounded 95% interval.\", 'Evidence': 'replicate.py reads measurements.csv and paper-excerpt.md and regenerates replication.json without any prior result file. n=8; differences=[0,1,2,3,2,3,4,5]; mean_difference=2.5; sample_sd=1.6035674514745464 using denominator n-1; standard_error=0.5669467095138409; t_statistic=4.409585518440984; t_critical=2.364624251 for 7 degrees of freedom; ci95=[1.1593840616589195,3.8406159383410805]. Mean and SD match exactly at reported precision; the interval rounds to [1.159384,3.840616]. No numerical discrepancy found.', 'Implication': 'Supports numerical reproducibility of this archived calculation only. All eight observations are archival, not a random population sample; there is no untreated comparison group, so this does not establish causality or generalization. No predictive model or competition is involved. No new experiment is warranted by the matching arithmetic; independent review remains outstanding because no reviewer or other review session is available.', 'Reviews': ''}}; reruns: {'replicate.py': (True, \"replicate.py rerun matches independently calculated canonical results: True; expected: {'n': 8, 'mean_difference': 2.5, 'sample_sd': 1.6035674514745464, 'standard_error': 0.5669467095138409, 't_statistic': 4.409585518440984, 'ci95': [1.1593840616589195, 3.8406159383410805]}\")}; completion: [{'Host': 'local', 'User': 'operator', 'Action': 'Completed the paired arithmetic replication, saved rerunnable stdlib analysis and numeric output, recorded limits, and removed the completed item from the live queue.', 'Result': 'Numerical reproduction matches the report at its stated precision; see D-A-001.', 'Artifacts': 'replicate.py, replication.json, measurements.csv, paper-excerpt.md', 'Discovery updates': 'D-A-001', 'Review verdict': 'none', 'Resource': 'CPU', 'Other executor': 'none', 'New plan items': 'none — numerical replication closes this calculation; independent review of D-A-001 awaits a future eligible session'}]"
+        },
+        {
+          "text": "The replication preserves measurements.csv and paper-excerpt.md and keeps Profile research and Competition off without creating an external-action or predictive-model experiment.",
+          "passed": true,
+          "evidence": "Profile: research; Competition: off; jargon: []; inputs unchanged: True; external actions: []"
+        },
+        {
+          "text": "The replication discovery remains PENDING with no fabricated reviewer verdict, while agents.md retains Verification independent-review.",
+          "passed": true,
+          "evidence": "Verification: independent-review; replication findings: {'D-A-001': \"## D-A-001 — Archived paired result numerically reproduced\\n- Source: A\\n- Host: local\\n- User: operator\\n- Date: 2026-10-26\\n- Cross-check: PENDING\\n- Finding: The eight archived after-minus-before differences reproduce the excerpt's mean, sample standard deviation and rounded 95% interval.\\n- Evidence: replicate.py reads measurements.csv and paper-excerpt.md and regenerates replication.json without any prior result file. n=8; differences=[0,1,2,3,2,3,4,5]; mean_difference=2.5; sample_sd=1.6035674514745464 using denominator n-1; standard_error=0.5669467095138409; t_statistic=4.409585518440984; t_critical=2.364624251 for 7 degrees of freedom; ci95=[1.1593840616589195,3.8406159383410805]. Mean and SD match exactly at reported precision; the interval rounds to [1.159384,3.840616]. No numerical discrepancy found.\\n- Implication: Supports numerical reproducibility of this archived calculation only. All eight observations are archival, not a random population sample; there is no untreated comparison group, so this does not establish causality or generalization. No predictive model or competition is involved. No new experiment is warranted by the matching arithmetic; independent review remains outstanding because no reviewer or other review session is available.\\n- Review<host-path-cc8f364f3b6c>\"}"
+        },
+        {
+          "text": "The completed replication session releases slot A after recording the unavailable review and the preserved discovery in handoff.md.",
+          "passed": true,
+          "evidence": "handoff.md releases A, reports unavailable independent reviewer, and preserves D-A-001 pending."
+        },
+        {
+          "text": "The execution trace finishes the task without launching, polling, or waiting for an unavailable reviewer or substitute review session.",
+          "passed": true,
+          "evidence": "Transcript contains local analysis/checker commands only; no reviewer launch, polling, wait, or substitute review session appears."
+        },
+        {
+          "text": "The interpretation distinguishes a successful numerical replication from causal or population generalization, notes the paired design and small archival sample, and makes a relevant follow-up decision.",
+          "passed": true,
+          "evidence": "D-A-001 and final.md distinguish numeric reproduction from causal/population evidence, identify eight archived paired observations, and defer independent review without inventing an experiment."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "non-ml-replication",
+      "eval_name": "non-ml-replication",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "run_dir": "non-ml-replication/with_skill",
+      "result": {
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "pass_rate": 1.0,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The completed project passes the current project checker with zero ERROR findings.",
+          "passed": true,
+          "evidence": "Checker exit 0: CONSISTENCY: 0 error(s), 1 warning(s), 1 info (0 plan items, 1 discoveries, 1 events, workflow unified, verification independent-review)\n- WARN agents.rules.edited agents.md: the generated part of agents.md (above '## Project rules') differs from what its template generates; move project-specific rules under '## Project rules' (kept verbatim by --reconfigure)\n- INFO discovery.review.pending [A] discoveries.md:4: D-A-001 awaits an independent review (a host without sub-agents leaves it PENDING; that is never an error)\nFix issues tagged with your own agent; record others under 'Open consistency issues'."
+        },
+        {
+          "text": "replication.json reproduces n=8, mean_difference=2.5, sample_sd=1.6035674514745464, standard_error=0.5669467095138409, t_statistic=4.409585518440984, and ci95=[1.1593840616589195,3.8406159383410805] within 0.000001.",
+          "passed": true,
+          "evidence": "replication.json: {'n': 8, 'mean_difference': 2.5, 'sample_sd': 1.6035674514745464, 'standard_error': 0.5669467095138409, 't_statistic': 4.409585518440984, 'ci95': [1.1593840616589195, 3.8406159383410805]}; independently calculated: {'n': 8, 'mean_difference': 2.5, 'sample_sd': 1.6035674514745464, 'standard_error': 0.5669467095138409, 't_statistic': 4.409585518440984, 'ci95': [1.1593840616589195, 3.8406159383410805]}"
+        },
+        {
+          "text": "A completion event for H-A-01 links an explicit follow-up decision to a discovery citing replication.json and saved Python that, when run without a prior result file against the original measurements and excerpt, recreates all requested statistics within 0.000001 of independently calculated values.",
+          "passed": true,
+          "evidence": "Evidence-linked findings: {'D-A-001': {'Source': 'A', 'Host': 'local', 'User': 'operator', 'Date': '2026-10-26', 'Session': 'local:A@2026-10-26T08:43', 'Cross-check': 'PENDING', 'Finding': 'All eight archived after-minus-before differences reproduce the reported mean 2.5, sample SD 1.6035674514745464, and 95% interval rounded to [1.159384, 3.840616].', 'Evidence': 'analysis.py computes n-1 sample variance, standard error 0.5669467095138409, t statistic 4.409585518440984, and the excerpt critical value 2.364624251; replication.json contains the complete numerical result. A fresh run after removing the generated result reproduced it byte-for-byte. Inputs retain their original SHA256 values recorded in the transcript.', 'Implication': \"Numerical reproducibility is supported for the supplied archive. These eight objects are not a random population sample and there is no untreated comparison group; the calculation establishes neither a causal treatment effect nor generalization. No numeric discrepancy was observed at the report's precision.\", 'Reviews': '', 'Decision class': 'operational', 'Instrument': 'I-A-01', 'Result': 'mean_difference=2.5 on I-A-01 cohort archived-eight', 'Family': 'paired-archive-replication'}}; reruns: {'analysis.py': (True, \"analysis.py rerun matches independently calculated canonical results: True; expected: {'n': 8, 'mean_difference': 2.5, 'sample_sd': 1.6035674514745464, 'standard_error': 0.5669467095138409, 't_statistic': 4.409585518440984, 'ci95': [1.1593840616589195, 3.8406159383410805]}\")}; completion: [{'Host': 'local', 'User': 'operator', 'Action': 'Completed all three stages of H-A-01: inspected inputs, recreated the paired calculation, checked a fresh rerun, and recorded the finding and limits. Added the missing Read bound default and corrected instrument coverage to the complete supplied archive.', 'Result': 'Numerical report reproduced; see D-A-001. Independent review is unavailable this session and remains pending.', 'Artifacts': 'analysis.py, replication.json, paper-excerpt.md, measurements.csv', 'Discovery updates': 'D-A-001', 'Review verdict': 'none', 'Resource': 'CPU', 'Other executor': 'none', 'New plan items': 'none — the fixed calculation is complete and no discrepancy justifies another experiment; preserve evidence for later independent review.'}]"
+        },
+        {
+          "text": "The replication preserves measurements.csv and paper-excerpt.md and keeps Profile research and Competition off without creating an external-action or predictive-model experiment.",
+          "passed": true,
+          "evidence": "Profile: research; Competition: off; jargon: []; inputs unchanged: True; external actions: []"
+        },
+        {
+          "text": "The replication discovery remains PENDING with no fabricated reviewer verdict, while agents.md retains Verification independent-review.",
+          "passed": true,
+          "evidence": "Verification: independent-review; replication findings: {'D-A-001': \"## D-A-001 — Archived paired calculation numerically reproduces the report\\n- Source: A\\n- Host: local\\n- User: operator\\n- Date: 2026-10-26\\n- Session: local:A@2026-10-26T08:43\\n- Cross-check: PENDING\\n- Finding: All eight archived after-minus-before differences reproduce the reported mean 2.5, sample SD 1.6035674514745464, and 95% interval rounded to [1.159384, 3.840616].\\n- Evidence: analysis.py computes n-1 sample variance, standard error 0.5669467095138409, t statistic 4.409585518440984, and the excerpt critical value 2.364624251; replication.json contains the complete numerical result. A fresh run after removing the generated result reproduced it byte-for-byte. Inputs retain their original SHA256 values recorded in the transcript.\\n- Implication: Numerical reproducibility is supported for the supplied archive. These eight objects are not a random population sample and there is no untreated comparison group; the calculation establishes neither a causal treatment effect nor generalization. No numeric discrepancy was observed at the report's precision.\\n- Review<host-path-403bc60652d9> Decision class: operational\\n- Instrument: I-A-01\\n- Result: mean_difference=2.5 on I-A-01 cohort archived-eight\\n- Family: paired-archive-replication\\n\"}"
+        },
+        {
+          "text": "The completed replication session releases slot A after recording the unavailable review and the preserved discovery in handoff.md.",
+          "passed": true,
+          "evidence": "handoff.md releases A, reports unavailable independent reviewer, and preserves D-A-001 pending."
+        },
+        {
+          "text": "The execution trace finishes the task without launching, polling, or waiting for an unavailable reviewer or substitute review session.",
+          "passed": true,
+          "evidence": "Transcript contains local analysis/checker commands only; no reviewer launch, polling, wait, or substitute review session appears."
+        },
+        {
+          "text": "The interpretation distinguishes a successful numerical replication from causal or population generalization, notes the paired design and small archival sample, and makes a relevant follow-up decision.",
+          "passed": true,
+          "evidence": "D-A-001 and final.md distinguish numeric reproduction from causal/population evidence, identify eight archived paired observations, and defer independent review without inventing an experiment."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "work-brief-references",
+      "eval_name": "work-brief-references",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "run_dir": "work-brief-references/old_skill",
+      "result": {
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "pass_rate": 0.75,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Each queued work item points to brief.md from Evidence or Next test for its detailed acceptance criteria.",
+          "passed": true,
+          "evidence": "All three live items have Evidence beginning 'brief.md' and identifying first, second, or final stage acceptance. Their quoted criteria correspond to the actual input. This meets the reference requirement even though the same fields repeat the acceptance lists."
+        },
+        {
+          "text": "Every routine staged item in plan.md has at most five top-level fields, including its claim, goal, evidence, next step, and stages.",
+          "passed": false,
+          "evidence": "Each of the three live routine work items has 15 top-level fields, including the six scores, Priority, routing and Improvement, but no Claimed or Stages fields. Stage 1/2/3 appears only in item titles. These are the queued multi-stage project work, so the assertion is not treated as vacuously passing due to missing native staged syntax."
+        },
+        {
+          "text": "brief.md remains unchanged and the queued goals cover inventory, rehearsal, and facilitator handoff in dependency order.",
+          "passed": true,
+          "evidence": "Direct bytes of brief.md match the 996-byte supplied input, SHA-256 a28ec32baa54422539e23caddd1416eea6b0b46efd41a7bae41e8656f6b5012d. H-A-01 inventory, H-A-02 rehearsal, H-A-03 facilitator handoff are in order; Evidence and Next test explicitly require inventory approval before rehearsal and resolved issues before handoff."
+        },
+        {
+          "text": "handoff.md releases the setup session with a next action that starts material intake, without claiming any workshop preparation was executed.",
+          "passed": true,
+          "evidence": "handoff.md releases the slot (Current host: released; Current user: none) and names H-A-01 first when teaching materials are supplied. That item's Next test begins by obtaining and inventorying supplied materials while preserving originals. The setup/close records and final.md explicitly say no contacts or material building occurred; no workshop execution results are claimed."
+        }
+      ],
+      "notes": [
+        "User supplied 'operator', but the legacy output records 'Operator'. This identity capitalization difference is outside the assertions."
+      ]
+    },
+    {
+      "eval_id": "work-brief-references",
+      "eval_name": "work-brief-references",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "run_dir": "work-brief-references/with_skill",
+      "result": {
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "pass_rate": 1,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Each queued work item points to brief.md from Evidence or Next test for its detailed acceptance criteria.",
+          "passed": true,
+          "evidence": "Each of the three live items cites brief.md in Evidence and Next test. H-A-02 explicitly references first-stage acceptance and preservation; H-A-03 references second-stage acceptance; H-A-04 references final-stage handoff. These point to the corresponding detailed criteria in the actual preserved brief."
+        },
+        {
+          "text": "Every routine staged item in plan.md has at most five top-level fields, including its claim, goal, evidence, next step, and stages.",
+          "passed": true,
+          "evidence": "All three live plan blocks have exactly five top-level fields: Claimed, Goal, Evidence, Next test, Stages. They contain substantive context and respectively 2, 3, and 2 stage declarations; fenced examples were excluded."
+        },
+        {
+          "text": "brief.md remains unchanged and the queued goals cover inventory, rehearsal, and facilitator handoff in dependency order.",
+          "passed": true,
+          "evidence": "Direct bytes of brief.md match the 996-byte supplied input, SHA-256 a28ec32baa54422539e23caddd1416eea6b0b46efd41a7bae41e8656f6b5012d. Queue order is H-A-02 inventory, H-A-03 rehearsal, H-A-04 facilitator handoff. H-A-03 requires an approved inventory; H-A-04 requires resolved rehearsal issues and evidence."
+        },
+        {
+          "text": "handoff.md releases the setup session with a next action that starts material intake, without claiming any workshop preparation was executed.",
+          "passed": true,
+          "evidence": "handoff.md has Current host: released and Current user: none. Its Next action starts H-A-02/s1 by checking for supplied teaching materials and asking operator for their location if absent. Resumable state and the setup session Result say no materials or outreach/rehearsal occurred. Transcript Command 23 confirms successful close and zero claims/jobs."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "work-project-start",
+      "eval_name": "work-project-start",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "run_dir": "work-project-start/old_skill",
+      "result": {
+        "passed": 4,
+        "failed": 5,
+        "total": 9,
+        "pass_rate": 0.4444444444444444,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The completed project passes the current project checker with zero ERROR findings.",
+          "passed": true,
+          "evidence": "Saved checker.txt reports 'CONSISTENCY: OK (3 plan items, 0 discoveries, 2 events, workflow classic, verification cross-host-once; 1 info)' and only INFO agents.settings.v2, with no ERROR findings. Transcript Command 17 also records the legacy checker passing. The current-checker report is saved evidence, not a checker rerun by this grader."
+        },
+        {
+          "text": "agents.md selects Preset work-project, Profile work, Workflow unified, and Item size staged.",
+          "passed": false,
+          "evidence": "outputs/agents.md has legacy settings (Platform mode: adaptive, Platforms: local, Git sync: off, etc.) and none of Preset work-project, Profile work, Workflow unified, or Item size staged. final.md explicitly says the requested work-project preset is unavailable and supported research format was used."
+        },
+        {
+          "text": "The live unified queue contains at least two unfinished items, each with Claimed, Hypothesis or Goal, Evidence, Next test, and at least two declared stages.",
+          "passed": false,
+          "evidence": "Three unfinished items exist under '## Agent: A', not a unified queue. They contain Hypothesis/Evidence/Next test, but no Claimed or Stages fields. Day titles and prose dependency gates do not meet the assertion's two declared stages per item."
+        },
+        {
+          "text": "brief.md is preserved byte-for-byte from the supplied input.",
+          "passed": true,
+          "evidence": "Direct byte comparison against evals/work-project-start/files/brief.md is identical: 796 bytes, SHA-256 bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757."
+        },
+        {
+          "text": "The next session action identifies the first eligible queued item or the item named by a header Next line, and the queued items omit the six score fields and Priority.",
+          "passed": false,
+          "evidence": "The handoff correctly starts H-A-01 and requests the export, but all three live items contain Impact, Information, Confidence, Unblock, Diversity, Cost, and Priority. Priorities are 21, 17, and 15, so the required omission fails."
+        },
+        {
+          "text": "handoff.md has exactly one setup-session event headed session with Host, User, Action, Result, and Completed fields, without a separate session-close event.",
+          "passed": false,
+          "evidence": "handoff.md contains two real dated events, both headed 'none': 08:35 initialization and 08:36 'Closed setup session'. Neither has Completed. This fails exactly one event headed session and no separate close event."
+        },
+        {
+          "text": "discoveries.md contains no discovery entries for this routine setup session.",
+          "passed": true,
+          "evidence": "There are no actual discoveries outside the fenced example in discoveries.md. Both the saved current checker report and transcript's final legacy checker report count 0 discoveries."
+        },
+        {
+          "text": "Each queued item uses at most five top-level field lines, retaining its claim, goal, context, next step, and stages.",
+          "passed": false,
+          "evidence": "Each of the three live plan blocks has 15 top-level fields: Sources, Hypothesis, Evidence, Improvement, six score fields, Priority, Resource, Parallel, Other, Next test. This exceeds five, and there are no explicit claim or stages fields."
+        },
+        {
+          "text": "The proposed stages and next session action address the supplied three-day conversion scope and acceptance criteria without claiming that the conversion has already been performed.",
+          "passed": true,
+          "evidence": "The three ordered Day 1/2/3 items cover requesting a representative export, field mapping and copied-data pilot, every-record reconciliation and original-byte rollback, independent review and operator handoff. Next test explicitly lists the identifier/timezone/unmapped-field/count/checksum criteria. handoff.md and final.md say setup only; no conversion or cutover is claimed."
+        }
+      ],
+      "notes": [
+        "User supplied 'operator', but the legacy output records 'Operator'. This identity capitalization difference is outside the assertions."
+      ]
+    },
+    {
+      "eval_id": "work-project-start",
+      "eval_name": "work-project-start",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "run_dir": "work-project-start/with_skill",
+      "result": {
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "pass_rate": 1,
+        "time_seconds": null,
+        "tokens": null,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The completed project passes the current project checker with zero ERROR findings.",
+          "passed": true,
+          "evidence": "Saved checker.txt says 'CONSISTENCY: OK (3 plan items, 0 discoveries, 1 events, workflow unified, verification independent-review; 1 info)'. Transcript Command 23 closes successfully and reports 'Checker: exit 0; ERROR 0; WARN 0; INFO 1'; outputs/.ro/checker-brief.json agrees. Earlier delimiter/quoting errors were repaired before the final check."
+        },
+        {
+          "text": "agents.md selects Preset work-project, Profile work, Workflow unified, and Item size staged.",
+          "passed": true,
+          "evidence": "outputs/agents.md Project settings explicitly contains 'Preset: work-project', 'Profile: work', 'Workflow: unified', and 'Item size: staged'."
+        },
+        {
+          "text": "The live unified queue contains at least two unfinished items, each with Claimed, Hypothesis or Goal, Evidence, Next test, and at least two declared stages.",
+          "passed": true,
+          "evidence": "The live ## Queue has three unfinished items H-A-02, H-A-03, H-A-04. Each contains Claimed: none, Goal, Evidence, Next test, and Stages. Their stage counts are 2, 3, and 3 respectively. Fenced template examples were excluded."
+        },
+        {
+          "text": "brief.md is preserved byte-for-byte from the supplied input.",
+          "passed": true,
+          "evidence": "Direct byte comparison against evals/work-project-start/files/brief.md is identical: 796 bytes, SHA-256 bcf0d95d3016ba8fff1fadc19b1e466aa5733aec364a4a3d1f7d5e90d4137757."
+        },
+        {
+          "text": "The next session action identifies the first eligible queued item or the item named by a header Next line, and the queued items omit the six score fields and Priority.",
+          "passed": true,
+          "evidence": "plan.md has header 'Next: H-A-02'; handoff.md Next action says to claim H-A-02 and begin s1 by asking for a representative export. H-A-02 is also first in queue; subsequent items explicitly depend on prior work. All three live items omit Impact, Information, Confidence, Unblock, Diversity, Cost, and Priority."
+        },
+        {
+          "text": "handoff.md has exactly one setup-session event headed session with Host, User, Action, Result, and Completed fields, without a separate session-close event.",
+          "passed": true,
+          "evidence": "Outside the fenced format example, handoff.md has exactly one dated event: '2026-10-26 08:35 — A — session'. It includes Host: local, User: operator, Action, Result, and Completed: none. There is no separate session-close event."
+        },
+        {
+          "text": "discoveries.md contains no discovery entries for this routine setup session.",
+          "passed": true,
+          "evidence": "discoveries.md contains only explanatory text and a fenced example. There are zero actual discovery headings outside code fences; checker.txt independently reports 0 discoveries."
+        },
+        {
+          "text": "Each queued item uses at most five top-level field lines, retaining its claim, goal, context, next step, and stages.",
+          "passed": true,
+          "evidence": "Programmatic parsing of live queue blocks finds exactly five top-level field lines per item: Claimed, Goal, Evidence, Next test, Stages. All contain substantive ownership, objective, brief/dependency context, next action and stage declarations."
+        },
+        {
+          "text": "The proposed stages and next session action address the supplied three-day conversion scope and acceptance criteria without claiming that the conversion has already been performed.",
+          "passed": true,
+          "evidence": "H-A-02 covers Day 1 field inspection and pilot on a copy; H-A-03 covers full copy conversion, reconciliation/investigation and rollback; H-A-04 covers independent review, readiness and operator handoff. Evidence and Next test link the preserved brief's acceptance criteria. handoff.md starts with the missing representative export and states execution not started; final.md explicitly says no conversion or cutover occurred."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "excluded_runs": [],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": null,
+        "stddev": null,
+        "min": null,
+        "max": null
+      },
+      "tokens": {
+        "mean": null,
+        "stddev": null,
+        "min": null,
+        "max": null
+      },
+      "included_runs": 7
+    },
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.2956,
+        "stddev": 0.3903,
+        "min": 0.0,
+        "max": 0.875
+      },
+      "time_seconds": {
+        "mean": null,
+        "stddev": null,
+        "min": null,
+        "max": null
+      },
+      "tokens": {
+        "mean": null,
+        "stddev": null,
+        "min": null,
+        "max": null
+      },
+      "included_runs": 7
+    },
+    "delta": {
+      "pass_rate": 0.7044,
+      "time_seconds": null,
+      "tokens": null
+    }
+  },
+  "notes": [
+    "with_skill - old_skill comparison: 7 / 7 cases matched.",
+    "Targeted matched coverage: 7/37 cases, all 7 completed on both configurations; not a full-suite claim.",
+    "Current 38/38 assertions; pinned baseline 14/38. Case-mean rates and per-assertion totals are different measures.",
+    "Fresh-context hosted agents: seven cases share one agent per configuration. Transcripts are executor-recorded command logs with summarized initial reads, not native JSONL access audits.",
+    "Unavailable token usage and exclusive per-case duration remain null; no time/cost comparison.",
+    "Four native CLI task attempts and eight timed-out trigger attempts are separately excluded in final-cli-attempts.zip. Prior iteration exclusions remain in iteration-5.zip.",
+    "Baseline unavailable capabilities do not receive vacuous safety or migration credit merely for producing no side effect.",
+    "Identifier assertion corrected before grading to allow separate linked measurement and insight discoveries; the prompt and outcome stayed unchanged."
+  ]
+}

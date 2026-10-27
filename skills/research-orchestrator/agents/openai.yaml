@@ -1,0 +1,13 @@
+# research-orchestrator plugin release 6.0.0
+interface:
+  display_name: Research Orchestrator
+  short_description: Coordinate work projects, research, and competitions
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+  brand_color: "#1687D9"
+  default_prompt: Use Research Orchestrator to coordinate this work project, research, or competition. Resume existing state when present; otherwise choose a suitable preset and workflow, then track work, evidence, verification, and handoffs.
+policy:
+  products:
+    - CHAT
+    - CODEX
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hook-runtime-shortcuts
+expected_outcome: |
+  The default wrappers select the in-process watchdog path; Edit and Write pre-checks skip dispatch only without protected job ownership; malformed or recoverable state and active or uncertain ownership stay checked.
+context:
+  scaffold_script: place-files.sh

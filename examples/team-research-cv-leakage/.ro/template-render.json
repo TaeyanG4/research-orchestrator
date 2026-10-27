@@ -1,0 +1,4 @@
+{
+  "version": "v3.4",
+  "render_key": "profile=research workflow=classic verification=cross-host-once itemsize=short guards=light guardset=auto mode=multi git=off instruments=on externalactions=on collector=off preset=team-research external_actions_source=default pointers=research-guards,decision-guards,hooks"
+}

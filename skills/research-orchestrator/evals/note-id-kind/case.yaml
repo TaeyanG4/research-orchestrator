@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: note-id-kind
+expected_outcome: |
+  The documented N kind reserves two distinct slot-scoped note IDs without treating a note as a discovery or requiring note records.
+context:
+  scaffold_script: place-files.sh

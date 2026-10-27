@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: phase-clock-scaffold
+expected_outcome: |
+  Clocked projects scaffold only their configured shares as pending, the open-ended project omits Milestones, and elapsed checkpoints remain pending rather than being treated as complete.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: publication-destination-history
+expected_outcome: |
+  Both destination changes refuse the synthetic credential in historical commits,
+  even though the local tracking ref reaches the clean final tip. Neither empty
+  destination acquires a branch; a clean-history control succeeds. Findings are
+  redacted and the report distinguishes Git-supplied destination tips from local
+  tracking refs.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: owned-job-monitor
+expected_outcome: |
+  Launch an owned registered job, preserve ownership until it ends with a recorded monitor outcome, append the handoff Job line, and only then close the item and session with durable evidence.
+context:
+  scaffold_script: place-files.sh

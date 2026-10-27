@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: queue-ordering-validation
+expected_outcome: |
+  A research replication uses unscored queue ordering with default routing while rejecting invalid supplied scores and a dangling scheduling pointer.
+context:
+  scaffold_script: place-files.sh

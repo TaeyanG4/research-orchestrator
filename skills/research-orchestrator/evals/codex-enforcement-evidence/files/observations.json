@@ -1,0 +1,47 @@
+[
+  {
+    "id": "parser-error-after-denial", "probe": "background", "status": "completed",
+    "decisions": [{"decision": "denied", "checks": ["shell.background"]}],
+    "side_effects": {}, "tool_calls": [{"status": "failed", "exit_code": 1}]
+  },
+  {
+    "id": "deleted-after-denial", "probe": "delete-bound", "status": "completed",
+    "decisions": [{"decision": "denied", "checks": ["jobs.mutate-bound"]}],
+    "side_effects": {"bound_file_exists": false}, "tool_calls": []
+  },
+  {
+    "id": "clean-without-call", "probe": "benign", "status": "completed",
+    "decisions": [{"decision": "no hook decision", "checks": []}],
+    "side_effects": {}, "tool_calls": []
+  },
+  {
+    "id": "warned-read-failed", "probe": "read-bound", "status": "completed",
+    "decisions": [{"decision": "warned", "checks": ["jobs.read-bound"]}],
+    "side_effects": {}, "tool_calls": [{"status": "failed", "exit_code": 1}]
+  },
+  {
+    "id": "interrupted-denial", "probe": "background", "status": "timeout",
+    "decisions": [{"decision": "denied", "checks": ["shell.background"]}],
+    "side_effects": {}, "tool_calls": []
+  },
+  {
+    "id": "retried-denial", "probe": "background", "status": "completed",
+    "decisions": [{"decision": "denied", "checks": ["shell.background"]}],
+    "side_effects": {}, "tool_calls": [{"status": "declined"}, {"status": "declined"}]
+  },
+  {
+    "id": "unconfirmed-tool-end", "probe": "background", "status": "completed",
+    "decisions": [{"decision": "denied", "checks": ["shell.background"]}],
+    "side_effects": {}, "tool_calls": [{"status": "failed", "exit_code": null}]
+  },
+  {
+    "id": "protected-delete", "probe": "delete-bound", "status": "completed",
+    "decisions": [{"decision": "denied", "checks": ["jobs.mutate-bound"]}],
+    "side_effects": {"bound_file_exists": true}, "tool_calls": []
+  },
+  {
+    "id": "completed-benign", "probe": "benign", "status": "completed",
+    "decisions": [{"decision": "no hook decision", "checks": []}],
+    "side_effects": {}, "tool_calls": [{"status": "completed", "exit_code": 0}]
+  }
+]

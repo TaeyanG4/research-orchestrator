@@ -1,0 +1,5 @@
+Host: Claude Code
+User: operator
+Slot: A
+Action: inspected the archive manifest
+Result: manifest is readable

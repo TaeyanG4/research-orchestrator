@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: external-historical-duplicate-id
+expected_outcome: |
+  Both explicit and inferred selection reject duplicate historical IDs before artifact selection or any outward attempt, retaining the ledger and receipt evidence.
+context:
+  scaffold_script: place-files.sh

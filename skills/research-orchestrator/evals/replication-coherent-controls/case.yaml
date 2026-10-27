@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: replication-coherent-controls
+expected_outcome: |
+  The genuinely input-driven analysis passes coherent perturbations, while hardcoded count and method variants fail numerical controls; no prior result is reused and original evidence stays unchanged.
+context:
+  scaffold_script: place-files.sh

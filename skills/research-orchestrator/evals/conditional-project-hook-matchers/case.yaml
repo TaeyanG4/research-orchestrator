@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: conditional-project-hook-matchers
+expected_outcome: |
+  Project registrations omit question and agent tools while their checks are inactive, restore them after a policy change and reinstall, and retain mutation/shell tools; generic plugin registrations omit the optional tools.
+context:
+  scaffold_script: place-files.sh

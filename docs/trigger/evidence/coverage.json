@@ -1,0 +1,582 @@
+{
+  "app-bridge-heldout": {
+    "host_version": "codex-cli 0.154.0",
+    "requested_model": "gpt-6.1-sol",
+    "measurement_protocol": "first-selection-v1",
+    "created_at": "2026-10-26T00:39:03.851488+00:00",
+    "description_sha256": "0bb5fa4916f5889f6a4db09feddf8069d1e0ad6cc0223f4a7d94d5826d1a86a1",
+    "skill_sha256": "e85eae51cea66b94071530881c0360d61b9c4790249e609065bcb00216c18675",
+    "queries_sha256": "718c996bfd29924bb030e87660fc74ef0179d05c4ea7a1ccbf02afb7db036ff0",
+    "repeats": 3,
+    "threshold": 0.5,
+    "archive_sha256": "8aeb8d35cdae8cb80301ae77652420e1a76637d7406066fa225b14180c7392a2",
+    "train": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "inconclusive": 0
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": null,
+      "coverage": null,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      },
+      "negative_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      }
+    },
+    "test": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "all": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "identity_caveat": "Pre-rename measurement; original identifiers are sanitized placeholders and source digests remain authoritative."
+  },
+  "historical": {
+    "host_version": "codex-cli 0.154.0",
+    "requested_model": "gpt-6.1-sol",
+    "measurement_protocol": null,
+    "created_at": "2026-10-25T20:09:55.166436+00:00",
+    "description_sha256": "0bb5fa4916f5889f6a4db09feddf8069d1e0ad6cc0223f4a7d94d5826d1a86a1",
+    "skill_sha256": "e85eae51cea66b94071530881c0360d61b9c4790249e609065bcb00216c18675",
+    "queries_sha256": "718c996bfd29924bb030e87660fc74ef0179d05c4ea7a1ccbf02afb7db036ff0",
+    "repeats": 3,
+    "threshold": 0.5,
+    "archive_sha256": "4d8c934ba7832489b3f2af702c3a041919bd6a113b52435841a530f16318e9d2",
+    "train": {
+      "counts": {
+        "tp": 4,
+        "fp": 0,
+        "tn": 6,
+        "fn": 0,
+        "inconclusive": 2
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "coverage": 0.8333333333333334,
+      "positive_coverage": {
+        "scored": 4,
+        "total": 6,
+        "fraction": 0.6666666666666666
+      },
+      "negative_coverage": {
+        "scored": 6,
+        "total": 6,
+        "fraction": 1.0
+      }
+    },
+    "test": {
+      "counts": {
+        "tp": 1,
+        "fp": 0,
+        "tn": 4,
+        "fn": 0,
+        "inconclusive": 3
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "coverage": 0.625,
+      "positive_coverage": {
+        "scored": 1,
+        "total": 4,
+        "fraction": 0.25
+      },
+      "negative_coverage": {
+        "scored": 4,
+        "total": 4,
+        "fraction": 1.0
+      }
+    },
+    "all": {
+      "counts": {
+        "tp": 5,
+        "fp": 0,
+        "tn": 10,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "coverage": 0.75,
+      "positive_coverage": {
+        "scored": 5,
+        "total": 10,
+        "fraction": 0.5
+      },
+      "negative_coverage": {
+        "scored": 10,
+        "total": 10,
+        "fraction": 1.0
+      }
+    },
+    "identity_caveat": "Pre-rename measurement; original identifiers are sanitized placeholders and source digests remain authoritative."
+  },
+  "standalone-heldout": {
+    "host_version": "codex-cli 0.153.4",
+    "requested_model": "gpt-6.1-sol",
+    "measurement_protocol": "first-selection-v1",
+    "created_at": "2026-10-26T00:38:13.488159+00:00",
+    "description_sha256": "0bb5fa4916f5889f6a4db09feddf8069d1e0ad6cc0223f4a7d94d5826d1a86a1",
+    "skill_sha256": "e85eae51cea66b94071530881c0360d61b9c4790249e609065bcb00216c18675",
+    "queries_sha256": "718c996bfd29924bb030e87660fc74ef0179d05c4ea7a1ccbf02afb7db036ff0",
+    "repeats": 3,
+    "threshold": 0.5,
+    "archive_sha256": "77b3fa2e0e9749eba0b3988c9b50171a15b3aa43009864ae4f25bfec0b5f211b",
+    "train": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "inconclusive": 0
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": null,
+      "coverage": null,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      },
+      "negative_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      }
+    },
+    "test": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "all": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "identity_caveat": "Pre-rename measurement; original identifiers are sanitized placeholders and source digests remain authoritative."
+  },
+  "builder-repair-heldout": {
+    "archive": "builder-repair-heldout.zip",
+    "archive_sha256": "fe1d7dcea4315e935946df3d1fd4f3464bcf94d7674031ddc544e4bf63b8e058",
+    "host_version": "codex-cli 0.154.0",
+    "requested_model": null,
+    "skill_name": "<measured-skill-name>",
+    "measurement_protocol": "first-selection-v1",
+    "description": "Coordinate work projects, research, and competitions with a queue, reusable discoveries, independent review, resource routing, and durable handoffs. Use when starting or resuming work that needs persistent project coordination, prioritizing its tasks or hypotheses, coordinating parallel agents, or reviewing and preserving its findings—even without an explicit orchestration request. Standalone answers and isolated reviews do not require this workflow.",
+    "description_sha256": "0bb5fa4916f5889f6a4db09feddf8069d1e0ad6cc0223f4a7d94d5826d1a86a1",
+    "skill_sha256": "e85eae51cea66b94071530881c0360d61b9c4790249e609065bcb00216c18675",
+    "queries_sha256": "718c996bfd29924bb030e87660fc74ef0179d05c4ea7a1ccbf02afb7db036ff0",
+    "created_at": "2026-10-26T01:05:03.236820+00:00",
+    "seed": 42,
+    "split": {
+      "7": "test",
+      "3": "test",
+      "2": "test",
+      "8": "test",
+      "5": "train",
+      "6": "train",
+      "9": "train",
+      "4": "train",
+      "0": "train",
+      "1": "train",
+      "13": "test",
+      "15": "test",
+      "12": "test",
+      "14": "test",
+      "11": "train",
+      "18": "train",
+      "17": "train",
+      "10": "train",
+      "16": "train",
+      "19": "train"
+    },
+    "repeats": 3,
+    "threshold": 0.5,
+    "train": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "inconclusive": 0
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": null,
+      "coverage": null,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      },
+      "negative_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      }
+    },
+    "test": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "all": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "identity_caveat": "Pre-rename measurement; original identifiers are sanitized placeholders and source digests remain authoritative."
+  },
+  "builder-full-heldout": {
+    "archive": "builder-full-heldout.zip",
+    "archive_sha256": "2f6f72b9ce585166b73804cfb770618c9395f59373699e26f59f41595a739ac5",
+    "host_version": "codex-cli 0.154.0",
+    "requested_model": null,
+    "skill_name": "<measured-skill-name>",
+    "measurement_protocol": "first-selection-v1",
+    "description": "Coordinate work projects, research, and competitions with a queue, reusable discoveries, independent review, resource routing, and durable handoffs. Use when starting or resuming work that needs persistent project coordination, prioritizing its tasks or hypotheses, coordinating parallel agents, or reviewing and preserving its findings—even without an explicit orchestration request. Standalone answers and isolated reviews do not require this workflow.",
+    "description_sha256": "0bb5fa4916f5889f6a4db09feddf8069d1e0ad6cc0223f4a7d94d5826d1a86a1",
+    "skill_sha256": "e85eae51cea66b94071530881c0360d61b9c4790249e609065bcb00216c18675",
+    "queries_sha256": "718c996bfd29924bb030e87660fc74ef0179d05c4ea7a1ccbf02afb7db036ff0",
+    "created_at": "2026-10-26T02:38:41.126655+00:00",
+    "seed": 42,
+    "split": {
+      "7": "test",
+      "3": "test",
+      "2": "test",
+      "8": "test",
+      "5": "train",
+      "6": "train",
+      "9": "train",
+      "4": "train",
+      "0": "train",
+      "1": "train",
+      "13": "test",
+      "15": "test",
+      "12": "test",
+      "14": "test",
+      "11": "train",
+      "18": "train",
+      "17": "train",
+      "10": "train",
+      "16": "train",
+      "19": "train"
+    },
+    "repeats": 3,
+    "threshold": 0.5,
+    "analysis_member": "builder-full-heldout/analysis-data.json",
+    "timeout_seconds": 180,
+    "train": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "inconclusive": 0
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": null,
+      "coverage": null,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      },
+      "negative_coverage": {
+        "scored": 0,
+        "total": 0,
+        "fraction": null
+      }
+    },
+    "test": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "all": {
+      "counts": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 3,
+        "fn": 0,
+        "inconclusive": 5
+      },
+      "precision": null,
+      "recall": null,
+      "accuracy": 1.0,
+      "coverage": 0.375,
+      "positive_coverage": {
+        "scored": 0,
+        "total": 4,
+        "fraction": 0.0
+      },
+      "negative_coverage": {
+        "scored": 3,
+        "total": 4,
+        "fraction": 0.75
+      }
+    },
+    "identity_caveat": "Pre-rename measurement; original identifiers are sanitized placeholders and source digests remain authoritative."
+  },
+  "current-2": {
+    "host_version": "codex-cli 0.154.0",
+    "requested_model": "gpt-6.1-sol",
+    "measurement_protocol": "first-selection-v1",
+    "created_at": "2026-10-26T04:49:16.488079+00:00",
+    "description_sha256": "0bb5fa4916f5889f6a4db09feddf8069d1e0ad6cc0223f4a7d94d5826d1a86a1",
+    "skill_sha256": "e85eae51cea66b94071530881c0360d61b9c4790249e609065bcb00216c18675",
+    "queries_sha256": "718c996bfd29924bb030e87660fc74ef0179d05c4ea7a1ccbf02afb7db036ff0",
+    "seed": 42,
+    "split": {
+      "7": "test",
+      "3": "test",
+      "2": "test",
+      "8": "test",
+      "5": "train",
+      "6": "train",
+      "9": "train",
+      "4": "train",
+      "0": "train",
+      "1": "train",
+      "13": "test",
+      "15": "test",
+      "12": "test",
+      "14": "test",
+      "11": "train",
+      "18": "train",
+      "17": "train",
+      "10": "train",
+      "16": "train",
+      "19": "train"
+    },
+    "repeats": 3,
+    "threshold": 0.5,
+    "archive_sha256": "1c1272e079c0b9f7fd0a68899cf75cd6da309e48a6519f86445b18728fb94ced",
+    "measured_skill_name": "<measured-skill-name>",
+    "identity_caveat": "Pre-rename measurement; the released skill name and body are not the measured snapshot.",
+    "source_results_sha256": "9c44d257bf636914e55f936d224d829b5f29b266ca894936b1becfc3d8fc8a6a",
+    "attempts": {
+      "total": 60,
+      "valid": 60,
+      "selected": 31,
+      "not_selected": 29,
+      "correct_against_query_label": 59
+    },
+    "selection_evidence": "Replayed the original detector against every native measured prefix; completed-selection boundaries and clean nonselection endpoints verified.",
+    "run_config_caveat": "Native argv retained; explicit --model gpt-6.1-sol overrides configured model gpt-6-astra. Timeout/jobs/retry limits are not recorded by this result format and are not inferred.",
+    "train": {
+      "counts": {
+        "tp": 6,
+        "fp": 0,
+        "tn": 6,
+        "fn": 0,
+        "inconclusive": 0
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "coverage": 1.0,
+      "positive_coverage": {
+        "scored": 6,
+        "total": 6,
+        "fraction": 1.0
+      },
+      "negative_coverage": {
+        "scored": 6,
+        "total": 6,
+        "fraction": 1.0
+      }
+    },
+    "test": {
+      "counts": {
+        "tp": 4,
+        "fp": 0,
+        "tn": 4,
+        "fn": 0,
+        "inconclusive": 0
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "coverage": 1.0,
+      "positive_coverage": {
+        "scored": 4,
+        "total": 4,
+        "fraction": 1.0
+      },
+      "negative_coverage": {
+        "scored": 4,
+        "total": 4,
+        "fraction": 1.0
+      }
+    },
+    "all": {
+      "counts": {
+        "tp": 10,
+        "fp": 0,
+        "tn": 10,
+        "fn": 0,
+        "inconclusive": 0
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "coverage": 1.0,
+      "positive_coverage": {
+        "scored": 10,
+        "total": 10,
+        "fraction": 1.0
+      },
+      "negative_coverage": {
+        "scored": 10,
+        "total": 10,
+        "fraction": 1.0
+      }
+    }
+  }
+}

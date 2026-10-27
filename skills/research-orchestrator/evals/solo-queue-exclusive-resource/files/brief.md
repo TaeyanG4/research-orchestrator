@@ -1,0 +1,1 @@
+This project compares two reporting schemas. Its next item migrates a shared database schema in a disposable test environment. Another worker uses the same database from another checkout. The migration needs exclusive access; it is not a GPU task. Initialize with a neutral user label and choose a valid detected single host.

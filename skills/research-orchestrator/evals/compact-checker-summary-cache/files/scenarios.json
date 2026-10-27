@@ -1,0 +1,9 @@
+{
+  "valid_cache": true,
+  "scenarios": [
+    {"id": "compact-unchanged", "source": "compact", "age_seconds": 120, "same_day": true, "stamps_match": true},
+    {"id": "startup-expired", "source": "startup", "age_seconds": 120, "same_day": true, "stamps_match": true},
+    {"id": "compact-edited", "source": "compact", "age_seconds": 120, "same_day": true, "stamps_match": false},
+    {"id": "compact-new-day", "source": "compact", "age_seconds": 120, "same_day": false, "stamps_match": true}
+  ]
+}

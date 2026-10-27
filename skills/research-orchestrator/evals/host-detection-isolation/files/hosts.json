@@ -1,0 +1,16 @@
+[
+  {
+    "name": "claude",
+    "markers": {"CLAUDECODE": "1", "CLAUDE_CODE_ENTRYPOINT": "cli"},
+    "platform": "Claude Code",
+    "collector": "Codex/worker",
+    "collector_platform": "Codex"
+  },
+  {
+    "name": "codex",
+    "markers": {"CODEX_THREAD_ID": "isolated-test-thread"},
+    "platform": "Codex",
+    "collector": "Claude Code/worker",
+    "collector_platform": "Claude Code"
+  }
+]

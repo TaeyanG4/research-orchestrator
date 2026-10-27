@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: work-summary-omission
+expected_outcome: |
+  Work initialization with its collector off omits three optional summaries and reports their absence as INFO; the research control with an enabled collector reports their absence as ERROR.
+context:
+  scaffold_script: place-files.sh

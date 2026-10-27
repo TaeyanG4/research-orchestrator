@@ -1,0 +1,1 @@
+The source session token in these fictional records is session:source@2026-10-24T10:00. A token containing punctuation alone is not a review identity, and a session starting in the future cannot establish a review. Do not invent a review session or claim that unavailable review ran.

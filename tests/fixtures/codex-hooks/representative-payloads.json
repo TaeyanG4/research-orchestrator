@@ -1,0 +1,76 @@
+{
+  "provenance": "Cases named codex-captured-* keep the exact key set of a Codex PreToolUse raw_stdin captured by delivery probe D (Windows), with identifiers, model and project path replaced ($PROJECT). The other cases are synthetic candidates, NOT captured host evidence.",
+  "cases": [
+    {
+      "id": "Bash-powershell-argv",
+      "dialect": "powershell",
+      "check": "shell.background",
+      "payload": {
+        "hook_event_name": "PreToolUse",
+        "cwd": "$PROJECT",
+        "tool_name": "Bash",
+        "tool_input": {"command": ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-NoProfile", "-Command", "Write-Output probe &"]}
+      }
+    },
+    {
+      "id": "Bash-list-input",
+      "dialect": "bash",
+      "check": "shell.background",
+      "payload": {"workdir": "$PROJECT", "tool_name": "Bash", "tool_input": ["/bin/bash", "-lc", "echo probe &"]}
+    },
+    {
+      "id": "Bash-input-cmd-workdir",
+      "dialect": "bash",
+      "check": "shell.background",
+      "payload": {"tool_name": "Bash", "input": {"cmd": "echo probe &", "workdir": "$PROJECT"}}
+    },
+    {
+      "id": "Bash-arguments-command-cwd",
+      "dialect": "powershell",
+      "check": "shell.background",
+      "payload": {"tool_name": "Bash", "arguments": {"command": "Write-Output probe &", "shell": "pwsh", "cwd": "$PROJECT"}}
+    },
+    {
+      "id": "Bash-encoded-arguments",
+      "dialect": "bash",
+      "check": "shell.background",
+      "payload": {"workdir": "$PROJECT", "tool": "Bash", "arguments": "{\"command\": \"echo probe &\"}"}
+    },
+    {
+      "id": "Bash-top-level-command",
+      "dialect": "bash",
+      "check": "shell.background",
+      "payload": {"cwd": "$PROJECT", "tool_name": "Bash", "command": ["bash", "-c", "echo probe &"]}
+    },
+    {
+      "id": "Bash-input-argv",
+      "dialect": "bash",
+      "check": "shell.background",
+      "payload": {"cwd": "$PROJECT", "tool_name": "Bash", "tool_input": {"argv": ["bash", "-c", "echo probe &"]}}
+    },
+    {
+      "id": "apply-patch-freeform",
+      "dialect": "bash",
+      "check": "jobs.mutate-bound",
+      "payload": {"workdir": "$PROJECT", "tool_name": "apply_patch", "input": "*** Begin Patch\n*** Delete File: run/input.txt\n*** End Patch"}
+    },
+    {
+      "id": "apply-patch-arguments",
+      "dialect": "bash",
+      "check": "jobs.mutate-bound",
+      "payload": {"tool_name": "apply_patch", "arguments": {"workdir": "$PROJECT", "patch": "*** Begin Patch\n*** Update File: run/input.txt\n@@\n-before\n+after\n*** End Patch"}}
+    },
+    {
+      "id": "codex-captured-powershell-background",
+      "dialect": "powershell",
+      "check": "shell.background",
+      "payload": {"session_id": "00000000-0000-7000-8000-000000000001", "turn_id": "00000000-0000-7000-8000-000000000002", "transcript_path": null, "cwd": "$PROJECT", "hook_event_name": "PreToolUse", "model": "codex-model", "permission_mode": "bypassPermissions", "tool_name": "Bash", "tool_input": {"command": "Write-Output probe &"}, "tool_use_id": "call_synthetic"}
+    },
+    {
+      "id": "codex-captured-powershell-delete-bound",
+      "dialect": "powershell",
+      "check": "jobs.mutate-bound",
+      "payload": {"session_id": "00000000-0000-7000-8000-000000000001", "turn_id": "00000000-0000-7000-8000-000000000002", "transcript_path": null, "cwd": "$PROJECT", "hook_event_name": "PreToolUse", "model": "codex-model", "permission_mode": "bypassPermissions", "tool_name": "Bash", "tool_input": {"command": "Remove-Item run/input.txt"}, "tool_use_id": "call_synthetic"}
+    }
+  ]
+}

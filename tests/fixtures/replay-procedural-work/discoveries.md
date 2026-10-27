@@ -1,0 +1,11 @@
+## D-A-001 — a direct procedural decision
+- Source: A
+- Host: Claude Code
+- User: kim
+- Date: 2026-10-24
+- Cross-check: PENDING
+- Finding: the archived procedure is sufficient for this one-time request
+- Evidence: the requester accepted the recorded checklist
+- Implication: close the request
+- Reviews:
+- Decision class: operational

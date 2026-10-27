@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: external-result-reconciliation
+expected_outcome: |
+  One successful and one failed invocation retain their distinct remote IDs, stderr diagnostics and exit codes in wrapper result artifacts, are each executed exactly once, and support an accurate reconciliation report. Both commands observe a durable in-flight journal, a finite deadline and their journal's idempotency key before their local action executes.
+context:
+  scaffold_script: place-files.sh

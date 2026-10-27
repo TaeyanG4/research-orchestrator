@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: native-session-slots
+expected_outcome: |
+  Distinct native session identities retain A/B selection across command and native hook subprocesses, including a stale RO_SLOT environment and identity supplied through payload or environment. Startup and claims use the correct slot, B owns its launched job, Stop blocks only B until its monitor outcome exists, unknown startup avoids another slot's context, implicit command defaults remain associated, and damaged associations report visible failures and can be repaired. Hooks without a stable identity retain the single-session fallback without inventing a native association.
+context:
+  scaffold_script: place-files.sh

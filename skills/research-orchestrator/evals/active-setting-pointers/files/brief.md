@@ -1,0 +1,1 @@
+Use quick, platform local, language en, linux/bash, and git off. Initially the collector and external actions are off. Enable collector local/model, then turn it off after checking the generated pointers.

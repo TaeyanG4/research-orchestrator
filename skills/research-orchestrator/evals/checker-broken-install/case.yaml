@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: checker-broken-install
+expected_outcome: |
+  Missing local modules receive an explicit broken-install diagnostic and exit 2 without a raw traceback, while isolated loading of an intact checker succeeds.
+context:
+  scaffold_script: place-files.sh

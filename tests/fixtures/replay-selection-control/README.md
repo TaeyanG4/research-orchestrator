@@ -1,0 +1,1 @@
+Synthetic replay: selection across many unchanged candidates exceeds the proposed improvement. The record preserves the small gain but omits the control, so advice identifies the absent noise-floor evidence. The counter-replay records the measured control without changing the outcome.

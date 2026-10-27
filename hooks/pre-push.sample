@@ -1,0 +1,6 @@
+#!/bin/sh
+# Copy to the project's trusted Git hooks directory as pre-push and make executable.
+# Replace both the interpreter and the installed plugin path; preserve stdin unchanged.
+# A missing interpreter or scanner exits nonzero, so Git refuses the push.
+# Remote name is informational; exclusions use only destination tips supplied by Git on stdin.
+exec python -E -S "/absolute/path/to/plugin/skills/research-orchestrator/scripts/ro.py" hook pre-push --remote "$1"

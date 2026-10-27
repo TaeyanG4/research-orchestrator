@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: compact-render-metadata
+expected_outcome: |
+  Compact settings retain their full meaning and pending workflow changes still require migration.
+context:
+  scaffold_script: place-files.sh

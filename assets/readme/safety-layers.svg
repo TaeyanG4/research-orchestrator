@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 510" width="960" height="510" role="img" aria-labelledby="title desc">
+  <title id="title">Safety layers by host</title>
+  <desc id="desc">Codex probes on 2026-10-27 used per-invocation trust (--dangerously-bypass-hook-trust); persisted /hooks trust was not exercised. Ordinary codex exec needs established trust before relying on hook enforcement. Trusted invocations can enforce. Per-call hooks fail open. On every host ro commands and Git pre-push remain the relied-on gates.</desc>
+  <rect x="1" y="1" width="958" height="508" rx="14" fill="#f5f7fa" stroke="#cbd2d9" />
+  <text x="24" y="34" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">Per-call hooks catch accidents early; the layers below decide on every host</text>
+  <rect x="24" y="48" width="912" height="122" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <text x="40" y="78" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="15px" font-weight="600">Per-call host hooks</text>
+  <text x="40" y="100" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">advice or denial per tool call;</text>
+  <text x="40" y="118" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">fail open on crash or timeout</text>
+  <rect x="264" y="60" width="208" height="98" rx="8" fill="#f8fafc" stroke="#cbd2d9" stroke-width="1.2" />
+  <rect x="264" y="60" width="208" height="6" rx="3" fill="#2f855a" />
+  <text x="278" y="88" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14px" font-weight="600">Claude Code</text>
+  <text x="278" y="110" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">hooks/hooks.json, automatic</text>
+  <text x="278" y="128" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">denies listed checks</text>
+  <text x="278" y="146" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">6/6 verified 2026-10-27</text>
+  <rect x="488" y="60" width="208" height="98" rx="8" fill="#f8fafc" stroke="#cbd2d9" stroke-width="1.2" />
+  <rect x="488" y="60" width="208" height="6" rx="3" fill="#2f855a" />
+  <text x="502" y="88" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14px" font-weight="600">Codex 0.154.0</text>
+  <text x="502" y="110" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">6/6; per-invocation trust</text>
+  <text x="502" y="128" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">verified 2026-10-27</text>
+  <text x="502" y="146" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">hooks-capabilities.md</text>
+  <rect x="712" y="60" width="208" height="98" rx="8" fill="#f8fafc" stroke="#cbd2d9" stroke-width="1.2" />
+  <rect x="712" y="60" width="208" height="6" rx="3" fill="#7b8794" />
+  <text x="726" y="88" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14px" font-weight="600">Google Antigravity</text>
+  <text x="726" y="110" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">no hook adapter</text>
+  <text x="726" y="128" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">command-only</text>
+  <rect x="24" y="184" width="912" height="84" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <text x="40" y="212" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="15px" font-weight="600">ro commands</text>
+  <text x="40" y="232" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">every host; refuse when validation</text>
+  <text x="40" y="250" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">fails or cannot run</text>
+  <rect x="264" y="210" width="160" height="32" rx="16" fill="#eef2f7" stroke="#9aa5b1" stroke-width="1.2" />
+  <text x="344" y="231" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">ro launch: bound inputs</text>
+  <rect x="436" y="210" width="110" height="32" rx="16" fill="#eef2f7" stroke="#9aa5b1" stroke-width="1.2" />
+  <text x="491" y="231" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">ro claim: lock</text>
+  <rect x="558" y="210" width="200" height="32" rx="16" fill="#eef2f7" stroke="#9aa5b1" stroke-width="1.2" />
+  <text x="658" y="231" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">ro external: receipt, ledger</text>
+  <rect x="770" y="210" width="150" height="32" rx="16" fill="#eef2f7" stroke="#9aa5b1" stroke-width="1.2" />
+  <text x="845" y="231" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">ro check: shell calls</text>
+  <rect x="24" y="282" width="912" height="58" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <rect x="24" y="282" width="6" height="58" rx="3" fill="#2f6fde" />
+  <text x="40" y="306" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="15px" font-weight="600">Git pre-push scan</text>
+  <text x="40" y="326" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">fail-closed</text>
+  <text x="264" y="306" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">Scans every outgoing commit, including messages and paths.</text>
+  <text x="264" y="326" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">A nonzero exit blocks the push, independent of the agent host.</text>
+  <rect x="24" y="354" width="912" height="44" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <text x="40" y="381" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="15px" font-weight="600">Checker</text>
+  <text x="264" y="381" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">check_project.py: the four files agree; run at start, after a take-over, and before close</text>
+  <rect x="24" y="410" width="912" height="84" rx="10" fill="#fff4d6" stroke="#bb8b22" />
+  <text x="40" y="432" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="13px" font-weight="600">Codex 2026-10-27: per-invocation trust (--dangerously-bypass-hook-trust).</text>
+  <text x="40" y="451" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">Persisted /hooks trust was not exercised. Ordinary codex exec needs established trust before relying on hooks.</text>
+  <text x="40" y="470" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="12px">Trusted invocations can enforce listed checks. ro commands + Git pre-push are the relied-on gates.</text>
+  <text x="40" y="487" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11px">Dated probes verify their recorded candidate only; see hooks-capabilities.md for evidence scope.</text>
+</svg>

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: installer-repository-root
+expected_outcome: |
+  A nested project installation is rejected before changing either the project or isolated home, with guidance to install from Git's repository root. A root installation rejects forbidden content in outgoing history, and a missing expected registration rejects publication with repair guidance. An unrelated repository sharing the hook directory remains usable.
+context:
+  scaffold_script: place-files.sh

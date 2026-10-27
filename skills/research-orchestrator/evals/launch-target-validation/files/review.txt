@@ -1,0 +1,7 @@
+Completed independent review
+Author session: fixture-stage-author
+Reviewer session: fixture-stage-reviewer
+Artifact: contract.md
+Scope: H-A-01/s2:before
+Verdict: PASS
+The supplied contract is bounded and the unchanged local stub meets it. This is evidence for recording that verdict, not permission to invent any other reviewer or scope.

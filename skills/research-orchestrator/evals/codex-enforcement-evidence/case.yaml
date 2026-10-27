@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: codex-enforcement-evidence
+expected_outcome: |
+  The review distinguishes a runner's deny decision from host execution and does
+  not treat a zero host exit as a passing enforcement probe. Missing clean-call
+  evidence, tool failures, retries and incomplete runs remain inconclusive. The
+  Codex fixture creates its project diagnostics marker; Claude remains unchanged.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,21 @@
+{
+  "name": "solo-research",
+  "summary": "one agent running long research (recommended default)",
+  "profile": "research",
+  "workflow": "unified",
+  "verification": "independent-review",
+  "item_size": "staged",
+  "guards": "light",
+  "enforcement": "block",
+  "block": "shell.background, shell.heredoc, jobs.mutate-bound, publish.scan",
+  "platform_mode": "single",
+  "platforms": null,
+  "collector": "off",
+  "queue_limits": "stop at 50, resume at 5",
+  "reviewer": "off",
+  "fallback": "same-host",
+  "asks": [
+    "platforms",
+    "git"
+  ]
+}

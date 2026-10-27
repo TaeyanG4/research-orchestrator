@@ -1,0 +1,25 @@
+{
+  "name": "competition-team",
+  "summary": "a competition with parallel sessions or hosts",
+  "profile": "competition",
+  "workflow": "classic",
+  "verification": "hybrid",
+  "receipt_policy": "independent",
+  "item_size": "short",
+  "guards": "light",
+  "enforcement": "block",
+  "block": "shell.background, shell.heredoc, jobs.mutate-bound, publish.scan, external.gate",
+  "platform_mode": "multi",
+  "platforms": "Claude Code, Codex",
+  "collector": "off",
+  "queue_limits": "stop at 50, resume at 5",
+  "reviewer": "off",
+  "fallback": "wait",
+  "asks": [
+    "platforms",
+    "competition",
+    "external_actions",
+    "phase_clock",
+    "git"
+  ]
+}

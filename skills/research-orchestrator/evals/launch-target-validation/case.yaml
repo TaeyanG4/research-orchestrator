@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: launch-target-validation
+expected_outcome: |
+  All nonexistent, undeclared, duplicate, or archived targets refuse before job reservation, valid routine work runs without review, and the important stage requires its current independent review.
+context:
+  scaffold_script: place-files.sh

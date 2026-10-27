@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: plugin-project-policy-supplements
+expected_outcome: |
+  Installed project hooks preserve enabled question, delegation and read checks with the Claude plugin active, omit inactive checks, avoid duplicate plugin matchers, and refresh cleanly after policies change.
+context:
+  scaffold_script: place-files.sh

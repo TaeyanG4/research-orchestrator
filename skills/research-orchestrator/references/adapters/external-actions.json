@@ -1,0 +1,6 @@
+{
+  "kaggle": [
+    "kaggle competitions submit",
+    "kaggle kernels push"
+  ]
+}

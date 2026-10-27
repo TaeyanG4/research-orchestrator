@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: slot-reclaim-choice
+expected_outcome: |
+  The user's explicit reclaim choice resumes D without another selection question, logs the specified stale-session handoff action, and preserves the prior work and jobs.
+context:
+  scaffold_script: place-files.sh

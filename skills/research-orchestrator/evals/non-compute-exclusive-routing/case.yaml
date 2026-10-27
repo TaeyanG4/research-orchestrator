@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: non-compute-exclusive-routing
+expected_outcome: |
+  Non-compute exclusive resources use Other with Parallel NO while Resource remains a valid local compute value, and the plan requires the resource's shared lock or scheduler before launch.
+context:
+  scaffold_script: place-files.sh

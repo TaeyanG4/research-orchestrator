@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: receipt-policy-boundaries
+expected_outcome: |
+  A solo same-author PASS authorizes one local simulation; independent policy and all ledger/journal defects refuse execution, with unchanged input bytes.
+context:
+  scaffold_script: place-files.sh

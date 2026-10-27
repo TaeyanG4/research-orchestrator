@@ -1,0 +1,275 @@
+[
+  {
+    "source_entry": 1,
+    "name": "monitor-not-rearmed",
+    "classification": "deterministic",
+    "mistake": "A monitor exited and was not restarted, leaving a running job unattended.",
+    "deterministic_aspects": "A live registered job without a live monitor is reported at Stop.",
+    "judgement_aspects": "A hook cannot choose useful resource thresholds, guarantee hourly scheduling, or restart a host task.",
+    "cases": [{"name": "live-job-without-monitor", "method": "unmonitored", "check": "jobs.unmonitored"}]
+  },
+  {
+    "source_entry": 2,
+    "name": "scan-live-output-directory",
+    "classification": "deterministic",
+    "mistake": "Listing or recursively scanning a job's output directory interfered with its running writer.",
+    "deterministic_aspects": "Literal directory reads overlapping a registered live run directory are detected.",
+    "judgement_aspects": "The hook cannot predict every filesystem or worker failure caused by concurrent readers.",
+    "cases": [
+      {"name": "list-live-output", "method": "pre", "tool": "Bash", "command": "ls runs/job-a/", "check": "jobs.read-bound"},
+      {"name": "find-live-output", "method": "pre", "tool": "Bash", "command": "find runs/job-a/ -type f", "check": "jobs.read-bound"}
+    ]
+  },
+  {
+    "source_entry": 3,
+    "name": "session-directory-changed",
+    "classification": "deterministic",
+    "mistake": "Changing into a run directory changed the session working directory for later calls.",
+    "deterministic_aspects": "A foreground bare directory change away from the project root is detected.",
+    "judgement_aspects": "Path conventions beyond the documented literal shell grammar remain a workflow choice.",
+    "cases": [{"name": "bare-run-directory-change", "method": "pre", "tool": "Bash", "command": "cd runs/job-a/", "check": "shell.cd"}]
+  },
+  {
+    "source_entry": 4,
+    "name": "expanding-heredoc-wrote-script",
+    "classification": "out-of-scope",
+    "mistake": "Writing a script through an expanding heredoc changed its executable text.",
+    "reason": "Outside section 11: the destination script extension alone is no longer a heredoc check; an unquoted heredoc without backticks does not block.",
+    "judgement_aspects": "The source also required a dedicated write tool and a parse check; a generic hook cannot establish script correctness or require every quoted heredoc to use that tool.",
+    "cases": [],
+    "out_of_scope_cases": [{"name": "unquoted-script-heredoc", "tool": "Bash", "command": "cat > scripts/cleanup-a.ps1 <<EOF\nRemove-Item runs/job-a/output.txt\nEOF"}]
+  },
+  {
+    "source_entry": 5,
+    "name": "review-premise-was-unmeasured",
+    "classification": "judgement",
+    "mistake": "An incorrect resource measurement in a reviewer prompt produced an incorrect verdict.",
+    "reason": "Not enforceable by a hook: deciding whether a premise accurately describes current measurements requires evidence and reviewer judgement.",
+    "cases": []
+  },
+  {
+    "source_entry": 6,
+    "name": "wrong-process-targeted",
+    "classification": "deterministic",
+    "mistake": "Stopping a stalled job targeted a different worker process instead of the verified owned tree.",
+    "deterministic_aspects": "The owned kill command rejects a changed creation identity.",
+    "judgement_aspects": "A raw explicit PID kill can bypass the wrapper; determining the intended worker from arbitrary command lines is not enforceable by a hook.",
+    "cases": [
+      {"name": "stale-owned-process-identity", "method": "kill_identity"}
+    ],
+    "out_of_scope_cases": [{"name": "broad-name-process-kill", "tool": "PowerShell", "command": "Stop-Process -Name worker-a"}]
+  },
+  {
+    "source_entry": 7,
+    "name": "launch-event-before-start-confirmation",
+    "classification": "deterministic",
+    "mistake": "A launched event was recorded before the command had successfully started.",
+    "deterministic_aspects": "The launch command must not record a launched event when child creation fails, including a zero confirmation interval.",
+    "judgement_aspects": "A started process is not proof that its scientific or operational result will be correct.",
+    "cases": [{"name": "failed-child-start-has-no-launch-event", "method": "failed_launch"}]
+  },
+  {
+    "source_entry": 8,
+    "name": "foreground-detached-monitor",
+    "classification": "deterministic",
+    "mistake": "Starting a monitor with a trailing background operator in a foreground tool call lost its notification path.",
+    "deterministic_aspects": "A foreground shell call containing a statement-level background operator is detected.",
+    "judgement_aspects": "Actual host notification delivery depends on the host's background-task support.",
+    "cases": [{"name": "monitor-ampersand-in-foreground", "method": "pre", "tool": "Bash", "command": "scripts/monitor-a.sh &", "check": "shell.background"}]
+  },
+  {
+    "source_entry": 9,
+    "name": "unmeasured-peak-resource-requirement",
+    "classification": "judgement",
+    "mistake": "A job was admitted without measuring its full configuration's peak resource use.",
+    "reason": "Not enforceable by a hook: defining representative inputs, measuring peak memory and deciding whether all execution options were covered require workload-specific evidence.",
+    "cases": []
+  },
+  {
+    "source_entry": 10,
+    "name": "watchdog-missed-throughput-collapse",
+    "classification": "judgement",
+    "mistake": "A watchdog noticed only complete stalls and missed a severe throughput reduction.",
+    "reason": "Not enforceable by a hook: a useful throughput baseline and collapse threshold depend on the workload; heartbeat and duration checks do not establish throughput health.",
+    "cases": []
+  },
+  {
+    "source_entry": 11,
+    "name": "discovery-identifier-collision",
+    "classification": "deterministic",
+    "mistake": "A discovery reused an identifier already written by another session.",
+    "deterministic_aspects": "The post-write hook detects newly duplicated headings; next-id skips recorded identifiers.",
+    "judgement_aspects": "Users can bypass reservations by manually editing records; choosing the right discovery content still requires judgement.",
+    "cases": [
+      {"name": "duplicate-discovery-heading", "method": "duplicate_id", "check": "records.id"},
+      {"name": "reserve-after-existing-discovery", "method": "next_id"}
+    ]
+  },
+  {
+    "source_entry": 12,
+    "name": "idle-resource-during-review-loop",
+    "classification": "judgement",
+    "mistake": "Repeated build and review rounds left a scarce resource idle without an approved next job.",
+    "reason": "Not enforceable by a hook: choosing a useful next experiment, balancing review quality against idle time and arranging a productive queue require scheduling judgement.",
+    "cases": []
+  },
+  {
+    "source_entry": 13,
+    "name": "cleanup-used-unset-variable",
+    "classification": "judgement",
+    "mistake": "A chained launcher attempted cleanup using an unset environment-derived path.",
+    "reason": "Not enforceable by a hook: resolving environment values, branch conditions and the intended cleanup target generally requires executing or validating the script. A warning about a dynamic bound path cannot prove that this launcher bug was caught.",
+    "cases": []
+  },
+  {
+    "source_entry": 14,
+    "name": "completion-only-waiter-missed-hang",
+    "classification": "deterministic",
+    "mistake": "A completion-only waiter left a hung job unattended far beyond a measured expected duration.",
+    "deterministic_aspects": "The monitor command reports elapsed time above twice its configured expected duration.",
+    "judgement_aspects": "Choosing the expected duration and recognizing changes to launch or import behaviour are not enforceable by a hook.",
+    "cases": [{"name": "twice-expected-duration-alert", "method": "overrun"}]
+  },
+  {
+    "source_entry": 15,
+    "name": "stopped-parent-left-children-running",
+    "classification": "deterministic",
+    "mistake": "Stopping a host task left queued child actions alive; disowned monitors also lost notifications.",
+    "deterministic_aspects": "The explicit disown operation in the source countermeasure is detected.",
+    "judgement_aspects": "This replay does not claim that a hook can clean up arbitrary children after a host task stop. Owned-tree termination belongs to ro kill; unregistered host tasks require process verification.",
+    "cases": [{"name": "disowned-monitor", "method": "pre", "tool": "Bash", "command": "scripts/monitor-a.sh & disown", "check": "shell.background"}]
+  },
+  {
+    "source_entry": 16,
+    "name": "substantive-review-failure-overridden",
+    "classification": "deterministic",
+    "mistake": "A substantive independent review failure was overridden as harmless and the broken candidate was executed.",
+    "deterministic_aspects": "The external command refuses an artifact whose latest independent receipt is FAIL, even after an earlier PASS.",
+    "judgement_aspects": "The hook cannot decide whether a change is substantive, validate a review's reasoning, or stop someone from fabricating a replacement receipt.",
+    "cases": [{"name": "latest-fail-prevents-external-execution", "method": "failed_receipt"}]
+  },
+  {
+    "source_entry": 17,
+    "name": "shared-generator-changed-unregistered-behaviour",
+    "classification": "judgement",
+    "mistake": "One builder generated several candidates and silently changed launch behaviour, imports and filenames beyond the registered change.",
+    "reason": "Not enforceable by a hook: candidate boundaries and permissible semantic changes require a governing contract and a complete artifact comparison; generic shell syntax does not establish either.",
+    "cases": []
+  },
+  {
+    "source_entry": 18,
+    "name": "submitted-name-differed-from-polled-identifier",
+    "classification": "judgement",
+    "mistake": "A title included an owner-like prefix, so the created identifier differed from the identifier polled by the waiter.",
+    "reason": "Not enforceable by a hook: title rules, returned identifiers and accessibility failures belong to the external service's response schema and its adapter, not generic shell classification.",
+    "cases": []
+  },
+  {
+    "source_entry": 19,
+    "name": "live-script-rewritten-and-heredoc-expanded",
+    "classification": "deterministic",
+    "mistake": "A running shell script was rewritten, and an expanding heredoc executed backtick text intended for a record.",
+    "deterministic_aspects": "Edits to a registered live script and backticks inside an unquoted heredoc are both detected.",
+    "judgement_aspects": "Unregistered scripts and opaque interpreter strings remain outside this literal-path replay.",
+    "cases": [
+      {"name": "edit-registered-live-script", "method": "pre", "tool": "Edit", "path": "scripts/worker-a.sh", "check": "jobs.mutate-bound"},
+      {"name": "backticks-in-expanding-heredoc", "method": "pre", "tool": "Bash", "command": "cat <<EOF\n`worker-a`\nEOF", "check": "shell.heredoc"}
+    ]
+  },
+  {
+    "source_entry": 20,
+    "name": "stale-budget-observation-used-in-planning",
+    "classification": "deterministic",
+    "mistake": "Planning reused an old resource-budget observation after the available budget had changed.",
+    "deterministic_aspects": "The factual session brief explicitly marks a recorded observation older than its declared TTL as stale.",
+    "judgement_aspects": "A hook cannot tell whether a later statement relies on that value or guarantee a fresh measurement immediately before every decision.",
+    "cases": [{"name": "expired-observation-marked-stale", "method": "stale_observation"}]
+  },
+  {
+    "source_entry": 21,
+    "name": "credential-scan-coverage-and-false-positive",
+    "classification": "deterministic",
+    "mistake": "A publication scanner lacked a pattern family; a later alert was investigated and found to be ordinary checksum text rather than a real credential.",
+    "deterministic_aspects": "The authoritative outgoing-object scan detects a configured forbidden marker in an intermediate commit even after deletion; unrelated checksum text stays clean.",
+    "judgement_aspects": "This test does not assert that the source incident exposed a credential. Deciding whether a matching value is a real secret and choosing complete service-specific patterns require investigation.",
+    "cases": [{"name": "outgoing-history-pattern-and-clean-checksum", "method": "publish_history"}]
+  },
+  {
+    "source_entry": 22,
+    "name": "repeated-stray-background-and-directory-change",
+    "classification": "deterministic",
+    "mistake": "Foreground dispatch calls repeatedly appended a background loop, disown operation or session directory change.",
+    "deterministic_aspects": "A statement-level background loop, disown and a bare directory change are detected independently.",
+    "judgement_aspects": "Mapping an orphaned process back to its intended task before cleanup requires owned identity records or manual verification.",
+    "cases": [
+      {"name": "background-loop-after-dispatch", "method": "pre", "tool": "Bash", "command": "dispatch-a; until done-a; do sleep 1; done &", "check": "shell.background"},
+      {"name": "disown-after-dispatch", "method": "pre", "tool": "Bash", "command": "dispatch-a; disown", "check": "shell.background"},
+      {"name": "directory-change-after-dispatch", "method": "pre", "tool": "Bash", "command": "dispatch-a; cd runs/job-a/", "check": "shell.cd"}
+    ]
+  },
+  {
+    "source_entry": 23,
+    "name": "review-checklist-reconstructed-from-memory",
+    "classification": "judgement",
+    "mistake": "Review checklists invented requirements or failed to name the exact governing file, producing false failures.",
+    "reason": "Not enforceable by a hook: checking whether each review question faithfully quotes the applicable contract and names the correct evidence file requires semantic review.",
+    "cases": []
+  },
+  {
+    "source_entry": 24,
+    "name": "required-multi-view-readout-omitted",
+    "classification": "deterministic",
+    "mistake": "Review prompts omitted a required multi-view readout, and a verdict ignored the combined decision and incomplete views.",
+    "deterministic_aspects": "A configured literal required line missing from the corresponding agent brief is detected.",
+    "judgement_aspects": "Presence of the line does not prove that all views were computed, eligibility was justified, or the final verdict interpreted the table correctly.",
+    "cases": [{"name": "required-readout-line-missing", "method": "required_brief", "check": "brief.requirements"}]
+  },
+  {
+    "source_entry": 25,
+    "name": "edit-dispatched-against-live-bound-files",
+    "classification": "deterministic",
+    "mistake": "An editor was dispatched against files bound by a newly launched job, invalidating later phases; a foreground directory change recurred.",
+    "deterministic_aspects": "Writes and edits to registered live bound files and the repeated bare directory change are detected.",
+    "judgement_aspects": "The hook cannot discover bindings omitted from the registry or guarantee that a newly versioned file preserves the intended behaviour.",
+    "cases": [
+      {"name": "edit-live-bound-input", "method": "pre", "tool": "Edit", "path": "runs/job-a/input.txt", "check": "jobs.mutate-bound"},
+      {"name": "write-live-bound-script", "method": "pre", "tool": "Write", "path": "scripts/worker-a.sh", "check": "jobs.mutate-bound"},
+      {"name": "foreground-scratch-directory-change", "method": "pre", "tool": "Bash", "command": "cd scratch/job-a/", "check": "shell.cd"}
+    ]
+  },
+  {
+  "source_entry": 26,
+    "name": "cwd-recurrence-synthetic-fixtures-and-retry-policy",
+    "classification": "out-of-scope",
+    "mistake": "Bare directory changes recurred; a harness passed ordered synthetic fixtures but failed on real worker output; failed work also needed an explicit reviewed retry path.",
+    "deterministic_aspects": "No current deterministic recall claim for this chain; protected literal operands are tested separately.",
+    "judgement_aspects": "The hook cannot judge whether fixtures reproduce real output ordering, whether an admission replay is representative, or whether a workload-specific retry is reviewed. Those two source subparts are not claimed in recall.",
+    "reason": "Only a bare trailing cd now receives shell.cd advice; this historical chained cd has no known protected operand and is quiet.",
+    "out_of_scope_cases": [
+      {
+        "name": "bare-directory-change-in-chain",
+        "method": "pre",
+        "tool": "Bash",
+        "command": "cd scratch/job-a/; worker-a",
+        "check": "shell.cd"
+      }
+    ],
+    "cases": []
+  },
+  {
+    "source_entry": 27,
+    "name": "evidence-source-trust-and-post-result-reweighting",
+    "classification": "judgement",
+    "mistake": "Claims treated one imperfect evidence source as ground truth or changed source weights after seeing results.",
+    "reason": "Not enforceable by a hook: source error types, selection exposure, agreement and precommitted weighting require research judgement and an evidence ledger.",
+    "cases": []
+  },
+  {
+    "source_entry": 28,
+    "name": "review-process-proportional-to-change",
+    "classification": "judgement",
+    "mistake": "The workflow needed lighter combined reviews for admitted small changes, clerical fixes without repeated review, binding substantive failures and measured resource planning.",
+    "reason": "Not enforceable by a hook: classifying clerical versus substantive changes, deciding review scope and choosing cost-effective execution resources require the governing agreement and judgement.",
+    "cases": []
+  }
+]

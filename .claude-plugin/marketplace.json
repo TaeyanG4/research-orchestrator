@@ -5,13 +5,13 @@
     "name": "TaeyanG4"
   },
   "metadata": {
-    "description": "Research Orchestrator plugin marketplace",
-    "version": "5.1.0"
+    "description": "Research Orchestrator plugins for work projects, research, and competitions",
+    "version": "6.0.0"
   },
   "plugins": [
     {
       "name": "research-orchestrator",
-      "description": "Hypothesis-driven multi-agent research workflow with scored plans, peer review, adaptive workers, and durable handoffs.",
+      "description": "Coordinate work projects, research, and competitions with presets, classic or unified workflows, configurable guards, operational hooks, and durable handoffs.",
       "source": "./",
       "category": "development"
     }

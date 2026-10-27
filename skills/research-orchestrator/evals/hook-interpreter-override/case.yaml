@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: hook-interpreter-override
+expected_outcome: |
+  Hook calls leave installed and project trees free of new __pycache__; Windows children use the shared windowless helper.
+  The configured interpreter runs the installed wrapper with a restricted child PATH,
+  preserving the payload and returning the selected shell.background denial.
+  An unavailable configured interpreter returns visible fail-open output.
+  The wrapper preserves the runner's nonzero exit status for an invalid event.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: shared-git-hook-ownership
+expected_outcome: |
+  Each installed checkout owns a separate publication-gate registration. Removing one
+  scope leaves the other usable in both shared-hook layouts. A custom hook is preserved
+  with explicit integration guidance instead of being claimed as an installed gate.
+context:
+  scaffold_script: place-files.sh

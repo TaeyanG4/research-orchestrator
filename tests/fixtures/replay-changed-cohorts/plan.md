@@ -1,0 +1,18 @@
+### H-A-01 — structural work remains actionable
+- Claimed: none
+- Sources: D-A-006
+- Hypothesis: a structural procedure can address the gap
+- Evidence: observed component gap
+- Improvement: none
+- Impact: 1
+- Information: 1
+- Confidence: 1
+- Unblock: 1
+- Diversity: 1
+- Cost: 1
+- Priority: 9
+- Resource: CPU
+- Parallel: YES
+- Other: NONE
+- Next test: run the structural procedure on a fixed cohort
+- Family: family-a

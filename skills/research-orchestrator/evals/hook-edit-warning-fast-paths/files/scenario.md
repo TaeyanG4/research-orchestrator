@@ -1,0 +1,3 @@
+# Local fixture
+
+Use the shipped POSIX wrapper and cmd.exe wrapper where available with an interpreter sentinel and an open, unwritten stdin pipe. For PreToolUse --tool edit, test absent jobs.json and recovery/jobs.json, a primary registry, and a recovery-only registry. Include a project discovered through a nested working directory and a project hint. Retain unavailable-platform status rather than inventing a run. Exercise Edit, Write and NotebookEdit payloads in the Python runner. For PostToolUse, freeze the clock, snapshot records, log a warning, deliver it, then repeat unchanged and change warning bytes while preserving length and mtime. Record whether quiet() skips dispatch; keep malformed and missing acknowledgement controls.

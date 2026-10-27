@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: work-project-session-history
+expected_outcome: |
+  Two routine work items finish with compact records and one shared session event; a reusable dead end gets a structured discovery rejecting suffix-only selection because it drops a required input, routine preparation does not. Switching to solo-research preserves that session block and its completion IDs, and the final project passes the checker.
+context:
+  scaffold_script: place-files.sh

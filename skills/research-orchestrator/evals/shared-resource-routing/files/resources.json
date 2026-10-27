@@ -1,0 +1,21 @@
+{
+  "database": {
+    "name": "shared-database",
+    "held_by": "A",
+    "item": "H-A-01"
+  },
+  "licence": {
+    "name": "licensed-tool-seat",
+    "available": true
+  },
+  "items": [
+    {
+      "id": "H-A-01",
+      "goal": "Migrate schema"
+    },
+    {
+      "id": "H-B-01",
+      "goal": "Validate archived results with licensed tool"
+    }
+  ]
+}

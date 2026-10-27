@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: neutral-interface-and-hook-guide
+expected_outcome: |
+  The capability summary covers work queues and findings without requiring hypothesis scoring.
+  The report locates watchdog and latency measurement details through the daily guide's on-demand reference.
+context:
+  scaffold_script: place-files.sh

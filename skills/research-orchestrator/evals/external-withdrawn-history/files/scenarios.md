@@ -1,0 +1,7 @@
+The local service fixture contains no accepted delivery. Its audit observed non-acceptance at 2020-01-01 09:00; retain this statement as the service reconciliation evidence. Expectations for the original and retry are 2020-01-01 08:00 and 2020-01-02 08:00 respectively.
+
+Create isolated scenarios for each combination of journal status unknown, done and in-flight with ledger treatment withdrawn or omitted. The fixture's in-flight journal represents a runner that has ended; it does not authorize starting a live background process. Seed the predecessor journal at .ro/external-attempts/X-A-001.json with action X-A-001, the actual SHA256 of artifact.txt, destination local stub, the scenario status, idempotency_key fixture-delivery-key, owner_pid 0, owner_start null, and started_at 2020-01-01T08:01:00+00:00. This is explicitly synthetic fixture history, not a claim of a real execution. Keep it intact throughout.
+
+For each scenario prepare X-A-002 without Retry of and confirm the wrapper refuses before invoking action_stub.py. Restore the omitted row where necessary, then add Retry of but leave reconciliation absent to demonstrate that the link alone is insufficient. Finally add the supplied not-accepted reconciliation on X-A-001 and execute the retry once. The stub's observed key should remain fixture-delivery-key.
+
+In a separate fresh project prepare X-A-001 without any journal or execution, withdraw it, and prepare X-A-002 for the same artifact and destination. This fresh preparation can execute once without a Retry of field.

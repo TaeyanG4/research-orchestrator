@@ -1,0 +1,1 @@
+One item migrates a shared database schema during its exclusive maintenance window. The second uses the team's only licensed simulation seat. Both have small CPU drivers and neither needs a GPU. Another checkout might request either resource concurrently. Record the two distinct resource identities without claiming that a local process reservation can coordinate other checkouts.

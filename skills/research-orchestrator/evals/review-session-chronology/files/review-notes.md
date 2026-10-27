@@ -1,0 +1,1 @@
+These are fictional restored records. The independent review for D-A-001 occurred on 2026-10-24; that reviewer session had started the previous day. No review occurred for D-A-002 or D-A-003: their future dates are erroneous historical claims to retain for audit, not timestamps to rewrite. No reviewer can run now.

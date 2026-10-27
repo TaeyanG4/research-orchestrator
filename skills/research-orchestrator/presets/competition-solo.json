@@ -1,0 +1,25 @@
+{
+  "name": "competition-solo",
+  "summary": "a competition run mainly by one agent",
+  "profile": "competition",
+  "workflow": "unified",
+  "verification": "independent-review",
+  "receipt_policy": "self",
+  "item_size": "staged",
+  "guards": "light",
+  "enforcement": "block",
+  "block": "shell.background, shell.heredoc, jobs.mutate-bound, publish.scan, external.gate",
+  "platform_mode": "single",
+  "platforms": null,
+  "collector": "off",
+  "queue_limits": "stop at 50, resume at 5",
+  "reviewer": "off",
+  "fallback": "same-host",
+  "asks": [
+    "platforms",
+    "competition",
+    "external_actions",
+    "phase_clock",
+    "git"
+  ]
+}

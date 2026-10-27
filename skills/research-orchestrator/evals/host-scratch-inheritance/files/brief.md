@@ -1,0 +1,1 @@
+A separate sandbox user writes .ro during a host trial. A later unmonitored-stop setup fails with WinError 5 while creating .ro/sessions. tempfile temporary directories use protected owner ACLs on Windows. Fix both dryrun.py and codex_hook_delivery_probe.py.

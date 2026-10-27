@@ -1,0 +1,49 @@
+# {{PROJECT_NAME}} — Discoveries
+
+This file holds shared findings. At startup read its index (headings plus Finding/Status/Cross-check lines; `ro index`), then open matching entries on demand. Read `<skill-root>/references/records.md` when writing a record and `<skill-root>/SKILL.md` for the item lifecycle.{{#if verification=cross-host-once,independent-review,hybrid}} Read `<skill-root>/references/verification.md` when reviewing a finding (Verification `{{VERIFICATION}}`).{{/if}} In the work profile, preserve changed decisions, dead ends others should not retry, and verified facts others depend on; routine completions use the session event alone.
+
+Discovery format:
+
+{{#if verification=cross-host-once}}
+```markdown
+## D-B-001 — Short title
+- Source: B
+- Host: Codex
+- User: lee
+- Date: 2026-10-05
+- Cross-check: VERIFIED
+- Finding: ...
+- Evidence: ...
+- Implication: ...
+- Reviews:
+  - Claude Code (A): CLOSED — reproduced independently with ...
+```
+{{/if}}
+{{#if verification=independent-review,hybrid}}
+```markdown
+## D-A-001 — Short title
+- Source: A
+- Host: Claude Code
+- User: kim
+- Date: 2026-10-05
+- Session: claude-code:A@2026-10-05T14:10
+- Cross-check: VERIFIED
+- Finding: ...
+- Evidence: ...
+- Implication: ...
+- Reviews:
+  - Claude Code (A): CLOSED — reviewer subagent:fable@2026-10-05T15:02 — reproduced independently with ...
+```
+{{/if}}
+{{#if verification=self}}
+```markdown
+## D-A-001 — Short title
+- Source: A
+- Host: Claude Code
+- User: kim
+- Date: 2026-10-05
+- Finding: ...
+- Evidence: ...
+- Implication: ...
+```
+{{/if}}

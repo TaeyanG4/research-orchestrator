@@ -1,0 +1,1 @@
+Platform: Kaggle; code competition: synthetic-audit. Rules source: rules-snapshot.txt, observed 2030-04-02 09:00 UTC, runtime limit 120 minutes. Candidate measurement source: run-summary.json, measured 2030-04-02 09:30 UTC, elapsed 137 minutes. This is a planning exercise with no account authorization.

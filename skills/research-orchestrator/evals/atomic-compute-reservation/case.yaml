@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: atomic-compute-reservation
+expected_outcome: |
+  Two simultaneous exclusive CPU launches in disjoint directories produce one confirmed job and one compute-conflict refusal, without changing Parallel to bypass ownership.
+context:
+  scaffold_script: place-files.sh

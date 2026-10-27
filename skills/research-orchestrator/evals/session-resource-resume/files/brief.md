@@ -1,0 +1,1 @@
+A team project has slots A and B. This host session is museum-session-7 and owns slot B. The work audits a museum catalogue using one exclusive catalogue license; it needs no GPU. The controlled current time is 2030-04-02 10:00. An edit carries timestamp 2030-04-02 10:04.

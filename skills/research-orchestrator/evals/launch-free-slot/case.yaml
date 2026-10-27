@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: launch-free-slot
+expected_outcome: |
+  A free slot is refused before any command or launch record; a taken slot produces an event attributed to the actual listed host and user.
+context:
+  scaffold_script: place-files.sh

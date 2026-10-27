@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: minimal-quick-self-guidance
+expected_outcome: |
+  Quick setup infers the unambiguous host and language without explicit overrides. Self-verification records omit verification guidance, while independent-review records retain the relevant pointer.
+context:
+  scaffold_script: place-files.sh

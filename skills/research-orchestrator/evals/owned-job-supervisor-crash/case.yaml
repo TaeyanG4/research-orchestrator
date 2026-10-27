@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: owned-job-supervisor-crash
+expected_outcome: |
+  Supervisor loss retains an attention state and every ownership barrier until identity-safe tree cleanup and a terminal monitor outcome.
+context:
+  scaffold_script: place-files.sh

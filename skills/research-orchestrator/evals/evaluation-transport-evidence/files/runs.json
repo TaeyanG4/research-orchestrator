@@ -1,0 +1,159 @@
+[
+  {
+    "name": "capacity",
+    "failure_category": "executor",
+    "returncode": 1,
+    "events": [
+      {
+        "type": "error",
+        "message": "Selected model is at capacity. Please try a different model."
+      },
+      {
+        "type": "turn.failed",
+        "error": {
+          "message": "Selected model is at capacity. Please try a different model."
+        }
+      }
+    ],
+    "grade": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1,
+      "pass_rate": 0.0
+    }
+  },
+  {
+    "name": "bridge",
+    "failure_category": "executor",
+    "returncode": 1,
+    "events": [
+      {
+        "type": "error",
+        "message": "unexpected status 503 Service Unavailable: session bridge cooling down after upstream timeouts"
+      },
+      {
+        "type": "turn.failed",
+        "error": {
+          "message": "unexpected status 503 Service Unavailable: session bridge cooling down after upstream timeouts"
+        }
+      }
+    ],
+    "grade": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "pass_rate": 1.0
+    }
+  },
+  {
+    "name": "quoted-capacity",
+    "failure_category": null,
+    "returncode": 0,
+    "events": [
+      {
+        "type": "item.completed",
+        "item": {
+          "type": "agent_message",
+          "text": "Selected model is at capacity. Please try a different model."
+        }
+      },
+      {
+        "type": "turn.completed"
+      }
+    ],
+    "grade": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1,
+      "pass_rate": 0.0
+    }
+  },
+  {
+    "name": "tool-capacity",
+    "failure_category": null,
+    "returncode": 0,
+    "events": [
+      {
+        "type": "item.completed",
+        "item": {
+          "type": "command_execution",
+          "command": "read local log",
+          "aggregated_output": "Selected model is at capacity. Please try a different model.",
+          "exit_code": 0
+        }
+      },
+      {
+        "type": "turn.completed"
+      }
+    ],
+    "grade": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1,
+      "pass_rate": 0.0
+    }
+  },
+  {
+    "name": "recovered",
+    "failure_category": null,
+    "returncode": 0,
+    "events": [
+      {
+        "type": "error",
+        "message": "unexpected status 503 Service Unavailable: session bridge cooling down after upstream timeouts"
+      },
+      {
+        "type": "turn.completed"
+      }
+    ],
+    "grade": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1,
+      "pass_rate": 0.0
+    }
+  },
+  {
+    "name": "later-permission-error",
+    "failure_category": "executor",
+    "returncode": 1,
+    "events": [
+      {
+        "type": "error",
+        "message": "Selected model is at capacity. Please try a different model."
+      },
+      {
+        "type": "turn.completed"
+      },
+      {
+        "type": "turn.failed",
+        "error": {
+          "message": "Permission denied"
+        }
+      }
+    ],
+    "grade": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1,
+      "pass_rate": 0.0
+    }
+  },
+  {
+    "name": "setup-copy",
+    "failure_category": "setup/copy",
+    "returncode": 0,
+    "events": [
+      {
+        "type": "turn.completed"
+      }
+    ],
+    "error": "PermissionError while retaining outputs",
+    "grade": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "pass_rate": 1.0
+    }
+  }
+]

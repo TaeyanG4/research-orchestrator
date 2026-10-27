@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: publish-gate-startup-notice
+expected_outcome: |
+  Both startup routes disclose a missing scoped publish registration, while a matching registration and non-Git projects avoid that notice.
+context:
+  scaffold_script: place-files.sh

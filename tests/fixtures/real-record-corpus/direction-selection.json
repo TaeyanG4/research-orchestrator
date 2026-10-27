@@ -1,0 +1,3030 @@
+{
+  "provenance": "anonymised from a past project's records",
+  "excerpts": [
+    {
+      "key": "strategy-review",
+      "lines": [
+        {
+          "line": 1,
+          "shape": "heading",
+          "name": "",
+          "text": "strategy review asks whether the current plan can close the gap",
+          "dates": [
+            "2026-10-13"
+          ],
+          "numbers": [
+            "2026",
+            "-10",
+            "-13",
+            "-10",
+            "1"
+          ],
+          "states": []
+        },
+        {
+          "line": 2,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 3,
+          "shape": "paragraph",
+          "name": "",
+          "text": "reviewed records, queue, recent events, outside discussions and resource constraints; no experiment executed",
+          "dates": [
+            "10-13"
+          ],
+          "numbers": [
+            "20",
+            "10",
+            "-13",
+            "-3",
+            "3",
+            "7"
+          ],
+          "states": []
+        },
+        {
+          "line": 4,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 5,
+          "shape": "heading",
+          "name": "",
+          "text": "honest diagnosis",
+          "dates": [],
+          "numbers": [
+            "1"
+          ],
+          "states": []
+        },
+        {
+          "line": 6,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 7,
+          "shape": "paragraph",
+          "name": "",
+          "text": "current quality mostly comes from the same outside pair; own changes are below visible resolution; improvements came from stronger outside members",
+          "dates": [],
+          "numbers": [
+            "0.957",
+            "0.956",
+            "7",
+            "0.957",
+            "0.956",
+            "0",
+            "-957",
+            "+0.001",
+            "0.15",
+            "-168",
+            "0.15",
+            "0.30",
+            "7",
+            "2",
+            "-167",
+            "-105",
+            "-113",
+            "-126",
+            "-131",
+            "-157",
+            "-147",
+            "151",
+            "0.2",
+            "6",
+            "+0.003",
+            "7",
+            "+0.002",
+            "0",
+            "118",
+            "41",
+            "0.957"
+          ],
+          "states": []
+        },
+        {
+          "line": 8,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 9,
+          "shape": "paragraph",
+          "name": "",
+          "text": "strong approaches have stronger standalone members and a different supervision process",
+          "dates": [],
+          "numbers": [
+            "0.957",
+            "0.962",
+            "-0.966"
+          ],
+          "states": []
+        },
+        {
+          "line": 10,
+          "shape": "bullet",
+          "name": "",
+          "text": "outside reports compare standalone methods and iterative supervision; the method family remains unbuilt locally",
+          "dates": [],
+          "numbers": [
+            "5",
+            "1",
+            "5",
+            "0.959",
+            "2",
+            "0.956",
+            "0.952",
+            "735304",
+            "47",
+            "2131",
+            "0.960",
+            "2.5",
+            "0.953",
+            "2",
+            "0.951",
+            "0.955",
+            "41",
+            "0.955",
+            "5",
+            "127",
+            "0.956",
+            "0.938",
+            "0.949",
+            "23"
+          ],
+          "states": []
+        },
+        {
+          "line": 11,
+          "shape": "bullet",
+          "name": "",
+          "text": "strong approaches report no outside inputs; own outside-input tests were negative",
+          "dates": [],
+          "numbers": [
+            "5",
+            "6",
+            "748295",
+            "-139",
+            "-101",
+            "-070",
+            "071",
+            "075"
+          ],
+          "states": []
+        },
+        {
+          "line": 12,
+          "shape": "bullet",
+          "name": "",
+          "text": "outside reports compare agreement of deciding instruments; the proxy is weaker than the alternative",
+          "dates": [],
+          "numbers": [
+            "30",
+            "114",
+            "0.961",
+            "5",
+            "0.937",
+            "58",
+            "0.938",
+            "2131",
+            "0.87",
+            "58",
+            "0.66",
+            "748011",
+            "2131",
+            "0.986",
+            "58",
+            "0.835",
+            "745949"
+          ],
+          "states": []
+        },
+        {
+          "line": 13,
+          "shape": "field",
+          "name": "Reference today",
+          "text": "reference quality bands and positions show a structural gap",
+          "dates": [],
+          "numbers": [
+            "0.966",
+            "1",
+            "0.963",
+            "7",
+            "-15",
+            "0.960",
+            "33",
+            "-49",
+            "0.957",
+            "108",
+            "-120"
+          ],
+          "states": []
+        },
+        {
+          "line": 14,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 15,
+          "shape": "paragraph",
+          "name": "",
+          "text": "own standalone quality is lower and correlated with the outside pair; strong-member supervision has never been tried",
+          "dates": [],
+          "numbers": [
+            "143",
+            "2",
+            "0.946",
+            "-087",
+            "101",
+            "0.93",
+            "1",
+            "50",
+            "2",
+            "0.931",
+            "-080",
+            "0.006",
+            "-0.013",
+            "0.30",
+            "0.956",
+            "2",
+            "0.75",
+            "0.25",
+            "-095",
+            "123",
+            "34",
+            "0.91",
+            "-011",
+            "-0.006",
+            "-027",
+            "-0.002",
+            "0.93",
+            "-083",
+            "3",
+            "0.95",
+            "7",
+            "4,344",
+            "3",
+            "2",
+            "5",
+            "50",
+            "4"
+          ],
+          "states": []
+        },
+        {
+          "line": 16,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 17,
+          "shape": "paragraph",
+          "name": "",
+          "text": "most effort went to low-weight branches with small end-to-end upside; the queue mostly hedges",
+          "dates": [
+            "10-10"
+          ],
+          "numbers": [
+            "10",
+            "-10",
+            "10",
+            "0.15",
+            "0.26",
+            "4",
+            "-161",
+            "164",
+            "165",
+            "166",
+            "20",
+            "-125",
+            "134",
+            "156",
+            "-130",
+            "+0.003",
+            "+0.0005",
+            "-128",
+            "-01",
+            "-10",
+            "0",
+            "-3"
+          ],
+          "states": []
+        },
+        {
+          "line": 18,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 19,
+          "shape": "heading",
+          "name": "",
+          "text": "whether the current plan is the best use of the remaining window",
+          "dates": [],
+          "numbers": [
+            "2",
+            "10"
+          ],
+          "states": []
+        },
+        {
+          "line": 20,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 21,
+          "shape": "paragraph",
+          "name": "",
+          "text": "keep robustness, outside-asset watch and an independent ruler; park low-upside variants; require a distinct final pair",
+          "dates": [
+            "10-16"
+          ],
+          "numbers": [
+            "85",
+            "7",
+            "1.2.0",
+            "-126",
+            "129",
+            "131",
+            "-162",
+            "+0",
+            "+0.01",
+            "57133175",
+            "-136",
+            "20",
+            "10",
+            "-16",
+            "-144",
+            "7",
+            "6",
+            "-132",
+            "40",
+            "60",
+            "0",
+            "-134",
+            "+2",
+            "7",
+            "-147",
+            "-135",
+            "-137",
+            "139",
+            "140",
+            "-138",
+            "+0.0003",
+            "-142",
+            "62",
+            "+0.0002",
+            "-143",
+            "7",
+            "3",
+            "-133",
+            "6",
+            "-35",
+            "107",
+            "141",
+            "172",
+            "0.948",
+            "-0.009",
+            "4"
+          ],
+          "states": []
+        },
+        {
+          "line": 22,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 23,
+          "shape": "heading",
+          "name": "",
+          "text": "ranked feasible moves",
+          "dates": [
+            "10-20"
+          ],
+          "numbers": [
+            "3",
+            "10",
+            "-20"
+          ],
+          "states": []
+        },
+        {
+          "line": 24,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 25,
+          "shape": "paragraph",
+          "name": "",
+          "text": "proposed pivot: transfer held-out strong-member outputs to a different standalone family; register an independent first test",
+          "dates": [],
+          "numbers": [
+            "1",
+            "1",
+            "2",
+            "7",
+            "7",
+            "5",
+            "-011",
+            "5",
+            "40",
+            "4070",
+            "143",
+            "2",
+            "4",
+            "-011",
+            "027",
+            "083",
+            "-166",
+            "+0.004",
+            "+0.010",
+            "+0.011",
+            "0.951",
+            "-0.959",
+            "0.30",
+            "7",
+            "+0.001",
+            "+0.004",
+            "+0.002",
+            "0.35",
+            "7",
+            "2",
+            "-144",
+            "1.5",
+            "7",
+            "-8",
+            "1",
+            "-0",
+            "42",
+            "43",
+            "1",
+            "122",
+            "58",
+            "-011",
+            "10",
+            "0.3",
+            "0.5",
+            "4",
+            "85",
+            "7",
+            "4.7",
+            "7",
+            "6.7"
+          ],
+          "states": []
+        },
+        {
+          "line": 26,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 27,
+          "shape": "paragraph",
+          "name": "",
+          "text": "raise the own contribution only after the pivot passes",
+          "dates": [],
+          "numbers": [
+            "2",
+            "1",
+            "0.70",
+            "7",
+            "0.30",
+            "4",
+            "-159",
+            "167",
+            "2",
+            "2",
+            "0.30",
+            "0.40",
+            "+0.001",
+            "+0.003",
+            "1",
+            "2"
+          ],
+          "states": []
+        },
+        {
+          "line": 28,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 29,
+          "shape": "paragraph",
+          "name": "",
+          "text": "repeat the transfer cycle only after a positive first cycle",
+          "dates": [
+            "10-17/18",
+            "10-20"
+          ],
+          "numbers": [
+            "3",
+            "1",
+            "10",
+            "-17",
+            "18",
+            "+0.011",
+            "+0.001",
+            "+0.002",
+            "5",
+            "-6",
+            "10",
+            "-20"
+          ],
+          "states": []
+        },
+        {
+          "line": 30,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 31,
+          "shape": "paragraph",
+          "name": "",
+          "text": "retain time-boxed robustness work",
+          "dates": [],
+          "numbers": [
+            "4",
+            "1",
+            "1.2.0",
+            "12",
+            ".51",
+            "-131",
+            "313",
+            "+0",
+            "+0.01",
+            "0.3"
+          ],
+          "states": []
+        },
+        {
+          "line": 32,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 33,
+          "shape": "paragraph",
+          "name": "",
+          "text": "route a component only after both deciding instruments agree",
+          "dates": [],
+          "numbers": [
+            "5",
+            "-144",
+            "58",
+            "7",
+            "58",
+            "0.973",
+            "0.937",
+            "-163",
+            "6",
+            "+0",
+            "+0.001",
+            "0.4"
+          ],
+          "states": []
+        },
+        {
+          "line": 34,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 35,
+          "shape": "paragraph",
+          "name": "",
+          "text": "retain an authenticated outside-asset swap rule",
+          "dates": [],
+          "numbers": [
+            "6",
+            "0.958",
+            "50",
+            "50",
+            "3"
+          ],
+          "states": []
+        },
+        {
+          "line": 36,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 37,
+          "shape": "paragraph",
+          "name": "",
+          "text": "defer small variants, repeated weak branches and proxy-only gains",
+          "dates": [
+            "10-20"
+          ],
+          "numbers": [
+            "10",
+            "-20",
+            "-167",
+            "-100",
+            "132",
+            "+0.002",
+            "-127",
+            "-135",
+            "164",
+            "166",
+            "58"
+          ],
+          "states": []
+        },
+        {
+          "line": 38,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 39,
+          "shape": "heading",
+          "name": "",
+          "text": "schedule and final-pair logic",
+          "dates": [
+            "10-22"
+          ],
+          "numbers": [
+            "4",
+            "10",
+            "-22"
+          ],
+          "states": []
+        },
+        {
+          "line": 40,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 41,
+          "shape": "bullet",
+          "name": "",
+          "text": "decide pivot; park weaker items; build held-out outputs and the transfer tool; finish the robustness review",
+          "dates": [
+            "10-13"
+          ],
+          "numbers": [
+            "10",
+            "-13",
+            "2",
+            "1",
+            "-144",
+            "7",
+            "4,344",
+            "58",
+            "-4",
+            "1.2.0"
+          ],
+          "states": []
+        },
+        {
+          "line": 42,
+          "shape": "bullet",
+          "name": "",
+          "text": "release the conservative anchor; read pending receipts; build a paired pivot screen",
+          "dates": [
+            "10-14"
+          ],
+          "numbers": [
+            "10",
+            "-14",
+            "09",
+            "00",
+            "85",
+            "7",
+            "1.2.0",
+            "1",
+            "1.5",
+            "57133175",
+            "7",
+            "57136544",
+            "4070",
+            "7",
+            "2",
+            "1",
+            "-0",
+            "1.5",
+            "58",
+            "123"
+          ],
+          "states": []
+        },
+        {
+          "line": 43,
+          "shape": "bullet",
+          "name": "",
+          "text": "independent go-or-stop review; proceed with standalone production only on a positive result",
+          "dates": [
+            "10-15"
+          ],
+          "numbers": [
+            "10",
+            "-15",
+            "4070",
+            "4",
+            "5",
+            "42",
+            "3.3",
+            "3090",
+            "9",
+            "-049",
+            "7",
+            "1.2.0",
+            "85",
+            "7",
+            "5"
+          ],
+          "states": []
+        },
+        {
+          "line": 44,
+          "shape": "bullet",
+          "name": "",
+          "text": "qualify the pivot candidate and perform the last outside-asset check",
+          "dates": [
+            "10-16",
+            "10-17 09:00"
+          ],
+          "numbers": [
+            "10",
+            "-16",
+            "4",
+            "32",
+            "7",
+            "2",
+            "7",
+            "10",
+            "-17",
+            "09",
+            "00",
+            "6.7"
+          ],
+          "states": []
+        },
+        {
+          "line": 45,
+          "shape": "bullet",
+          "name": "",
+          "text": "read the pivot; repeat only on a clear improvement; otherwise stop",
+          "dates": [
+            "10-17",
+            "10-17/18"
+          ],
+          "numbers": [
+            "10",
+            "-17",
+            "+0.002",
+            "85",
+            "7",
+            "2",
+            "3",
+            "10",
+            "-17",
+            "18",
+            "0"
+          ],
+          "states": []
+        },
+        {
+          "line": 46,
+          "shape": "bullet",
+          "name": "",
+          "text": "produce the second cycle and qualify both finalists",
+          "dates": [
+            "10-18",
+            "10-19"
+          ],
+          "numbers": [
+            "10",
+            "-18",
+            "10",
+            "-19",
+            "-2",
+            "32"
+          ],
+          "states": []
+        },
+        {
+          "line": 47,
+          "shape": "bullet",
+          "name": "",
+          "text": "last release early enough for completion",
+          "dates": [
+            "10-20",
+            "10-21"
+          ],
+          "numbers": [
+            "10",
+            "-20",
+            "10",
+            "-21"
+          ],
+          "states": []
+        },
+        {
+          "line": 48,
+          "shape": "bullet",
+          "name": "",
+          "text": "read results and choose the pair",
+          "dates": [
+            "10-21/22"
+          ],
+          "numbers": [
+            "10",
+            "-21",
+            "22"
+          ],
+          "states": []
+        },
+        {
+          "line": 49,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 50,
+          "shape": "paragraph",
+          "name": "",
+          "text": "pair a conservative anchor with a structurally different upside branch if it qualifies; otherwise retain a distinct fallback",
+          "dates": [],
+          "numbers": [
+            "85",
+            "7",
+            "0.957",
+            "0.30",
+            "-0.40",
+            "0.001",
+            "0.0025",
+            "1",
+            "7",
+            "0.70",
+            "172",
+            "0.948"
+          ],
+          "states": [
+            "COMPLETE"
+          ]
+        },
+        {
+          "line": 51,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 52,
+          "shape": "heading",
+          "name": "",
+          "text": "realistic outcome expectation",
+          "dates": [],
+          "numbers": [
+            "5"
+          ],
+          "states": []
+        },
+        {
+          "line": 53,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 54,
+          "shape": "paragraph",
+          "name": "",
+          "text": "without the pivot the current branch has bounded upside and correlated downside",
+          "dates": [],
+          "numbers": [
+            "0.957",
+            "0.958",
+            "60",
+            "-250",
+            "55",
+            "40",
+            "2",
+            "58",
+            "-079",
+            "7"
+          ],
+          "states": []
+        },
+        {
+          "line": 55,
+          "shape": "paragraph",
+          "name": "",
+          "text": "with the pivot upside is still bounded; its value is a distinct branch and final pick; cost replaces weaker hedges",
+          "dates": [
+            "12-15"
+          ],
+          "numbers": [
+            "0.958",
+            "-0.959",
+            "0.960",
+            "-50",
+            "25",
+            "-30",
+            "0.963",
+            "-10",
+            "3",
+            "-5",
+            "1",
+            "1",
+            "+0.006",
+            "+0.01",
+            "12",
+            "-15"
+          ],
+          "states": []
+        }
+      ]
+    },
+    {
+      "key": "direction-debate",
+      "lines": [
+        {
+          "line": 1,
+          "shape": "heading",
+          "name": "",
+          "text": "pivot proposed and pilot dispatched; larger expansion held; release an unused resource",
+          "dates": [
+            "2026-10-16 01:43 KST"
+          ],
+          "numbers": [
+            "2026",
+            "-10",
+            "-16",
+            "01",
+            "43",
+            "1",
+            "3",
+            "-176",
+            "-166",
+            "4090",
+            "2"
+          ],
+          "states": []
+        },
+        {
+          "line": 2,
+          "shape": "field",
+          "name": "Agent",
+          "text": "slot b",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 3,
+          "shape": "field",
+          "name": "Host",
+          "text": "host a",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 4,
+          "shape": "field",
+          "name": "User",
+          "text": "operator",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 5,
+          "shape": "field",
+          "name": "Heading",
+          "text": "direction and queue items",
+          "dates": [],
+          "numbers": [
+            "-176",
+            "-166",
+            "-174",
+            "175"
+          ],
+          "states": []
+        },
+        {
+          "line": 6,
+          "shape": "field",
+          "name": "Action",
+          "text": "reviewer one proposes the structural pivot; reviewer two requests an exact cheap check and independent evidence; operator dispatches the pivot pilot, holds the larger expansion, releases unused capacity",
+          "dates": [],
+          "numbers": [
+            "3",
+            "1",
+            "+0.003",
+            "-166",
+            "32",
+            "6",
+            "-5",
+            "6",
+            "-166",
+            "6",
+            "18",
+            "6",
+            "6",
+            "58",
+            "6",
+            "1",
+            "-176",
+            "20",
+            "200",
+            "2",
+            "-166",
+            "1.2.2",
+            "4090",
+            "2",
+            "-155",
+            "165",
+            "166",
+            "2",
+            "3",
+            "3"
+          ],
+          "states": [
+            "HELD"
+          ]
+        },
+        {
+          "line": 7,
+          "shape": "field",
+          "name": "Discovery updates",
+          "text": "none",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 8,
+          "shape": "field",
+          "name": "Review verdict",
+          "text": "not applicable",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 9,
+          "shape": "field",
+          "name": "Resource",
+          "text": "resource status recorded",
+          "dates": [],
+          "numbers": [
+            "4090",
+            "2",
+            "4070",
+            "6"
+          ],
+          "states": []
+        },
+        {
+          "line": 10,
+          "shape": "field",
+          "name": "Other executor",
+          "text": "reviewers and workers",
+          "dates": [],
+          "numbers": [
+            "2",
+            "3"
+          ],
+          "states": []
+        },
+        {
+          "line": 11,
+          "shape": "field",
+          "name": "New plan items",
+          "text": "queue change recorded",
+          "dates": [],
+          "numbers": [
+            "-176"
+          ],
+          "states": []
+        },
+        {
+          "line": 12,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 13,
+          "shape": "heading",
+          "name": "",
+          "text": "debate starts after reviewing earlier attempts; unrelated storage move continues",
+          "dates": [
+            "2026-10-16 01:51 KST"
+          ],
+          "numbers": [
+            "2026",
+            "-10",
+            "-16",
+            "01",
+            "51",
+            "1",
+            "-5",
+            "2"
+          ],
+          "states": []
+        },
+        {
+          "line": 14,
+          "shape": "field",
+          "name": "Agent",
+          "text": "slot b",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 15,
+          "shape": "field",
+          "name": "Host",
+          "text": "host a",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 16,
+          "shape": "field",
+          "name": "User",
+          "text": "operator",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 17,
+          "shape": "field",
+          "name": "Heading",
+          "text": "direction and queue items",
+          "dates": [],
+          "numbers": [
+            "-176"
+          ],
+          "states": []
+        },
+        {
+          "line": 18,
+          "shape": "field",
+          "name": "Action",
+          "text": "operator requests the same reviewers debate after reading earlier failures and provenance; both rebut; unrelated storage cleanup protects live work",
+          "dates": [],
+          "numbers": [
+            "1",
+            "3",
+            "-1",
+            "-1016",
+            "1",
+            "-001",
+            "002",
+            "006",
+            "-038",
+            "1",
+            "-074",
+            "077",
+            "078",
+            "-051",
+            "-112",
+            "-011",
+            "041",
+            "083",
+            "-187",
+            "190",
+            "191",
+            "58",
+            "-5",
+            "2",
+            "2",
+            "-2",
+            "512",
+            "213.7",
+            "0.01",
+            "-147",
+            "62",
+            "155",
+            "56.6",
+            "120",
+            "95",
+            "2",
+            "1",
+            "2"
+          ],
+          "states": []
+        },
+        {
+          "line": 19,
+          "shape": "field",
+          "name": "Discovery updates",
+          "text": "none",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 20,
+          "shape": "field",
+          "name": "Review verdict",
+          "text": "not applicable",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 21,
+          "shape": "field",
+          "name": "Resource",
+          "text": "resource status recorded",
+          "dates": [],
+          "numbers": [
+            "76",
+            "170"
+          ],
+          "states": []
+        },
+        {
+          "line": 22,
+          "shape": "field",
+          "name": "Other executor",
+          "text": "reviewers and workers",
+          "dates": [],
+          "numbers": [
+            "-5",
+            "-2"
+          ],
+          "states": []
+        },
+        {
+          "line": 23,
+          "shape": "field",
+          "name": "New plan items",
+          "text": "queue change recorded",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 24,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 25,
+          "shape": "heading",
+          "name": "",
+          "text": "visible completion and pre-action reviews; target small daily changes plus a structural bet",
+          "dates": [
+            "2026-10-16 01:57 KST"
+          ],
+          "numbers": [
+            "2026",
+            "-10",
+            "-16",
+            "01",
+            "57",
+            "-172",
+            "-168",
+            "172",
+            "+0.001",
+            "1",
+            "2"
+          ],
+          "states": [
+            "COMPLETE"
+          ]
+        },
+        {
+          "line": 26,
+          "shape": "field",
+          "name": "Agent",
+          "text": "slot b",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 27,
+          "shape": "field",
+          "name": "Host",
+          "text": "host a",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 28,
+          "shape": "field",
+          "name": "User",
+          "text": "operator",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 29,
+          "shape": "field",
+          "name": "Heading",
+          "text": "direction and queue items",
+          "dates": [],
+          "numbers": [
+            "-168",
+            "-172"
+          ],
+          "states": []
+        },
+        {
+          "line": 30,
+          "shape": "field",
+          "name": "Action",
+          "text": "operator records a daily improvement target within visible noise, asks for reviews and keeps small daily changes plus the structural bet",
+          "dates": [],
+          "numbers": [
+            "01",
+            "56",
+            "28",
+            "59",
+            "30",
+            "1.0.6",
+            "4",
+            "1",
+            "1",
+            "1.1.27",
+            "-168",
+            "-6",
+            "-172",
+            "-1",
+            "+0.001",
+            "1",
+            "2",
+            "-172",
+            "09",
+            "00",
+            "+0.001"
+          ],
+          "states": [
+            "PASS",
+            "COMPLETE"
+          ]
+        },
+        {
+          "line": 31,
+          "shape": "field",
+          "name": "Discovery updates",
+          "text": "none",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 32,
+          "shape": "field",
+          "name": "Review verdict",
+          "text": "pending",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 33,
+          "shape": "field",
+          "name": "Resource",
+          "text": "resource status recorded",
+          "dates": [],
+          "numbers": [
+            "1.0",
+            "0.5"
+          ],
+          "states": []
+        },
+        {
+          "line": 34,
+          "shape": "field",
+          "name": "Other executor",
+          "text": "reviewers and workers",
+          "dates": [],
+          "numbers": [
+            "-1",
+            "-6",
+            "-5"
+          ],
+          "states": []
+        },
+        {
+          "line": 35,
+          "shape": "field",
+          "name": "New plan items",
+          "text": "queue change recorded",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 36,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 37,
+          "shape": "heading",
+          "name": "",
+          "text": "pivot withdrawn as redundant on prior proxy measurements; pilot left running but not used",
+          "dates": [
+            "2026-10-16 01:59 KST"
+          ],
+          "numbers": [
+            "2026",
+            "-10",
+            "-16",
+            "01",
+            "59",
+            "-176",
+            "1",
+            "3",
+            "1",
+            "0"
+          ],
+          "states": [
+            "WITHDRAWN"
+          ]
+        },
+        {
+          "line": 38,
+          "shape": "field",
+          "name": "Agent",
+          "text": "slot b",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 39,
+          "shape": "field",
+          "name": "Host",
+          "text": "host a",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 40,
+          "shape": "field",
+          "name": "User",
+          "text": "operator",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 41,
+          "shape": "field",
+          "name": "Heading",
+          "text": "direction and queue items",
+          "dates": [],
+          "numbers": [
+            "-176"
+          ],
+          "states": []
+        },
+        {
+          "line": 42,
+          "shape": "field",
+          "name": "Action",
+          "text": "earlier full variant exists; measured share increases are flat or worse on proxy rulers; operator withdraws the pivot as redundant, leaves the pilot running without using it, and declines the alternative for lack of independent readers",
+          "dates": [
+            "2026-10-09"
+          ],
+          "numbers": [
+            "1",
+            "1",
+            "148",
+            "147",
+            "4",
+            "15",
+            "1.1",
+            "-6",
+            "4,405",
+            "2026",
+            "-10",
+            "-09",
+            "25",
+            "2",
+            "143",
+            "2",
+            "0.946",
+            "155",
+            "0",
+            "−0.0069",
+            "50",
+            "-123",
+            "60",
+            "-166",
+            "100",
+            "−0.0058",
+            "-083",
+            "23",
+            "1",
+            "+0.003",
+            "3",
+            "5",
+            "-176",
+            "1",
+            "2",
+            "0",
+            "9",
+            "13",
+            "58",
+            "-074",
+            "077",
+            "078",
+            "58",
+            "9",
+            "19",
+            "+0.01"
+          ],
+          "states": []
+        },
+        {
+          "line": 43,
+          "shape": "field",
+          "name": "Discovery updates",
+          "text": "none; to be recorded with the debate outcome",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 44,
+          "shape": "field",
+          "name": "Review verdict",
+          "text": "not applicable",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 45,
+          "shape": "field",
+          "name": "Resource",
+          "text": "resource status recorded",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 46,
+          "shape": "field",
+          "name": "Other executor",
+          "text": "reviewers and workers",
+          "dates": [],
+          "numbers": [
+            "2"
+          ],
+          "states": []
+        },
+        {
+          "line": 47,
+          "shape": "field",
+          "name": "New plan items",
+          "text": "pivot item removed",
+          "dates": [],
+          "numbers": [
+            "-176"
+          ],
+          "states": []
+        },
+        {
+          "line": 48,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 49,
+          "shape": "heading",
+          "name": "",
+          "text": "storage move verified independently after its log failed",
+          "dates": [
+            "2026-10-16 02:11 KST"
+          ],
+          "numbers": [
+            "2026",
+            "-10",
+            "-16",
+            "02",
+            "11",
+            "2",
+            "120",
+            "95",
+            "164"
+          ],
+          "states": []
+        },
+        {
+          "line": 50,
+          "shape": "field",
+          "name": "Agent",
+          "text": "slot b",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 51,
+          "shape": "field",
+          "name": "Host",
+          "text": "host a",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 52,
+          "shape": "field",
+          "name": "User",
+          "text": "operator",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 53,
+          "shape": "field",
+          "name": "Heading",
+          "text": "direction and queue items",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 54,
+          "shape": "field",
+          "name": "Action",
+          "text": "selected items moved; after logging failed, verify destinations, source removal, counts and sizes; retain active items",
+          "dates": [],
+          "numbers": [
+            "2",
+            "1",
+            "120",
+            "-2",
+            "120",
+            "120",
+            "0",
+            "2",
+            "-147",
+            "62",
+            "155",
+            "56.6",
+            "76",
+            "164"
+          ],
+          "states": []
+        },
+        {
+          "line": 55,
+          "shape": "field",
+          "name": "Discovery updates",
+          "text": "none",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 56,
+          "shape": "field",
+          "name": "Review verdict",
+          "text": "not applicable",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 57,
+          "shape": "field",
+          "name": "Resource",
+          "text": "resource status recorded",
+          "dates": [],
+          "numbers": [
+            "164",
+            "3.5"
+          ],
+          "states": []
+        },
+        {
+          "line": 58,
+          "shape": "field",
+          "name": "Other executor",
+          "text": "reviewers and workers",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 59,
+          "shape": "field",
+          "name": "New plan items",
+          "text": "queue change recorded",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 60,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 61,
+          "shape": "heading",
+          "name": "",
+          "text": "debate concludes on daily single-change tests and a recipe fix; pivot and alternative declined",
+          "dates": [
+            "2026-10-16 02:12 KST"
+          ],
+          "numbers": [
+            "2026",
+            "-10",
+            "-16",
+            "02",
+            "12",
+            "-177",
+            "2"
+          ],
+          "states": []
+        },
+        {
+          "line": 62,
+          "shape": "field",
+          "name": "Agent",
+          "text": "slot b",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 63,
+          "shape": "field",
+          "name": "Host",
+          "text": "host a",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 64,
+          "shape": "field",
+          "name": "User",
+          "text": "operator",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 65,
+          "shape": "field",
+          "name": "Heading",
+          "text": "direction and queue items",
+          "dates": [],
+          "numbers": [
+            "-177",
+            "-168",
+            "170",
+            "172",
+            "173",
+            "174",
+            "175"
+          ],
+          "states": []
+        },
+        {
+          "line": 66,
+          "shape": "field",
+          "name": "Action",
+          "text": "reviewers agree on daily isolated changes and one recipe fix; decline the pivot because definitions changed nothing and proxy rulers saw no gain; record that the daily target is inside display noise; require a complementary final pair",
+          "dates": [
+            "10-17/18",
+            "10-16"
+          ],
+          "numbers": [
+            "2",
+            "-167",
+            "6",
+            "25",
+            "+0.003",
+            "6",
+            "+0.001",
+            "15",
+            "2",
+            "-003",
+            "0",
+            "0.15",
+            "+0.001",
+            "1",
+            "2",
+            "0.002",
+            "+0.0005",
+            "6",
+            "6",
+            "4",
+            "12",
+            "10",
+            "-17",
+            "18",
+            "2",
+            "-195",
+            "-177",
+            "17",
+            "4",
+            "4070",
+            "4090",
+            "10",
+            "-16",
+            "09",
+            "00",
+            "-168",
+            "-170",
+            "-173",
+            "6",
+            "6"
+          ],
+          "states": [
+            "FINAL",
+            "FINAL",
+            "CHALLENGED"
+          ]
+        },
+        {
+          "line": 67,
+          "shape": "field",
+          "name": "Discovery updates",
+          "text": "none; debate outcome retained separately",
+          "dates": [],
+          "numbers": [
+            "-1016"
+          ],
+          "states": []
+        },
+        {
+          "line": 68,
+          "shape": "field",
+          "name": "Review verdict",
+          "text": "not applicable",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        },
+        {
+          "line": 69,
+          "shape": "field",
+          "name": "Resource",
+          "text": "resource status recorded",
+          "dates": [],
+          "numbers": [
+            "4070",
+            "6",
+            "-177"
+          ],
+          "states": []
+        },
+        {
+          "line": 70,
+          "shape": "field",
+          "name": "Other executor",
+          "text": "reviewers and workers",
+          "dates": [],
+          "numbers": [
+            "-4",
+            "5",
+            "4"
+          ],
+          "states": []
+        },
+        {
+          "line": 71,
+          "shape": "field",
+          "name": "New plan items",
+          "text": "recipe-fix item created",
+          "dates": [],
+          "numbers": [
+            "-177"
+          ],
+          "states": []
+        },
+        {
+          "line": 72,
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "dates": [],
+          "numbers": [],
+          "states": []
+        }
+      ]
+    },
+    {
+      "key": "intake",
+      "lines": [
+        {
+          "line": 1,
+          "shape": "table-row",
+          "name": "",
+          "text": "outside access question; no new usable asset",
+          "dates": [],
+          "numbers": [
+            "749145",
+            "749145",
+            "3538358"
+          ],
+          "states": []
+        },
+        {
+          "line": 2,
+          "shape": "table-row",
+          "name": "",
+          "text": "enforcement speculation; no authenticated rule change or usable asset",
+          "dates": [],
+          "numbers": [
+            "749250",
+            "749250"
+          ],
+          "states": []
+        },
+        {
+          "line": 3,
+          "shape": "table-row",
+          "name": "",
+          "text": "standalone recipe and score claim; proxy independence warning; closed because already in the current line, no new usable asset",
+          "dates": [],
+          "numbers": [
+            "746792",
+            "746792",
+            ".949",
+            "3537858",
+            "58",
+            "4349",
+            "+2399",
+            "6748",
+            "384",
+            "320",
+            "3",
+            "224",
+            ".945",
+            "3",
+            "12",
+            "3537933",
+            "224"
+          ],
+          "states": []
+        },
+        {
+          "line": 4,
+          "shape": "table-row",
+          "name": "",
+          "text": "instrument agreement and uncertainty claims; unreplicated; no usable asset",
+          "dates": [],
+          "numbers": [
+            "748011",
+            "748011",
+            "3536374",
+            "15",
+            ".66",
+            ".87",
+            "3537932",
+            ".003"
+          ],
+          "states": []
+        },
+        {
+          "line": 5,
+          "shape": "table-row",
+          "name": "",
+          "text": "iterative-supervision method and score claim; closed because no new usable member",
+          "dates": [],
+          "numbers": [
+            "735304",
+            "735304",
+            "3529062",
+            "50",
+            "50",
+            "3528358",
+            "-180",
+            "187"
+          ],
+          "states": []
+        },
+        {
+          "line": 6,
+          "shape": "table-row",
+          "name": "",
+          "text": "filtering-method claim; no controlled change; no usable asset",
+          "dates": [],
+          "numbers": [
+            "745861",
+            "745861",
+            "3537565",
+            ".9",
+            ".1",
+            "25%"
+          ],
+          "states": []
+        },
+        {
+          "line": 7,
+          "shape": "table-row",
+          "name": "",
+          "text": "completion is not correctness; no new authenticated production asset",
+          "dates": [],
+          "numbers": [
+            "747658",
+            "747658",
+            "3538424",
+            "3538664",
+            "58",
+            "58",
+            "3536263",
+            ".891895"
+          ],
+          "states": []
+        },
+        {
+          "line": 8,
+          "shape": "table-row",
+          "name": "",
+          "text": "numeric precision anecdote; operational reminder; no usable asset",
+          "dates": [],
+          "numbers": [
+            "744230",
+            "744230",
+            "16",
+            ".710",
+            ".851",
+            "16",
+            "4",
+            "100",
+            "-190",
+            "16"
+          ],
+          "states": []
+        },
+        {
+          "line": 9,
+          "shape": "table-row",
+          "name": "",
+          "text": "visible success can precede a later exception; no usable asset",
+          "dates": [],
+          "numbers": [
+            "749623",
+            "749623",
+            "-182",
+            "183"
+          ],
+          "states": []
+        },
+        {
+          "line": 10,
+          "shape": "table-row",
+          "name": "",
+          "text": "copying complaint; no authenticated rule change or usable asset",
+          "dates": [],
+          "numbers": [
+            "748181",
+            "748181"
+          ],
+          "states": []
+        },
+        {
+          "line": 11,
+          "shape": "table-row",
+          "name": "",
+          "text": "recombination suggestions; no isolated stronger member",
+          "dates": [],
+          "numbers": [
+            "748295",
+            "748295",
+            ".954"
+          ],
+          "states": []
+        },
+        {
+          "line": 12,
+          "shape": "table-row",
+          "name": "",
+          "text": "standalone score rumour; no authenticated member or recipe",
+          "dates": [],
+          "numbers": [
+            "748111",
+            "748111",
+            ".960"
+          ],
+          "states": []
+        },
+        {
+          "line": 13,
+          "shape": "table-row",
+          "name": "",
+          "text": "stuck outward action; no basis to retry a consumed attempt",
+          "dates": [],
+          "numbers": [
+            "748403",
+            "748403"
+          ],
+          "states": []
+        },
+        {
+          "line": 14,
+          "shape": "table-row",
+          "name": "",
+          "text": "overview; no new strategy-changing rule or usable asset",
+          "dates": [],
+          "numbers": [
+            "733343",
+            "733343"
+          ],
+          "states": []
+        },
+        {
+          "line": 15,
+          "shape": "table-row",
+          "name": "",
+          "text": "survey; no candidate or rule change",
+          "dates": [],
+          "numbers": [
+            "749038",
+            "749038"
+          ],
+          "states": []
+        },
+        {
+          "line": 16,
+          "shape": "table-row",
+          "name": "",
+          "text": "licence discussion; no new usable asset",
+          "dates": [],
+          "numbers": [
+            "739905",
+            "739905"
+          ],
+          "states": []
+        },
+        {
+          "line": 17,
+          "shape": "table-row",
+          "name": "",
+          "text": "recruitment and score claim; no public artifact or provenance for adoption",
+          "dates": [],
+          "numbers": [
+            "749426",
+            "749426",
+            ".952"
+          ],
+          "states": []
+        }
+      ]
+    },
+    {
+      "key": "final-selection",
+      "lines": [
+        {
+          "line": 1,
+          "shape": "heading",
+          "name": "",
+          "text": "final slot schedule fixed before results",
+          "dates": [
+            "2026-10-20 18:35 KST"
+          ],
+          "numbers": [
+            "10",
+            "2026",
+            "-10",
+            "-20",
+            "18",
+            "35",
+            "-3",
+            "-1020"
+          ],
+          "states": []
+        },
+        {
+          "line": 2,
+          "shape": "bullet",
+          "name": "",
+          "text": "latest update: final pair selected from the same family; one alternative deselected; preserve fixed switch conditions and final checks",
+          "dates": [
+            "10-23 00:3x"
+          ],
+          "numbers": [
+            "12",
+            "10",
+            "-23",
+            "00",
+            "3",
+            "-6",
+            "-1022",
+            "00",
+            "3",
+            "6",
+            "958",
+            "1",
+            "3",
+            "20",
+            "2",
+            "57415972",
+            "0.958",
+            "6",
+            "958",
+            "1",
+            "3",
+            "2",
+            "25",
+            "10",
+            "1",
+            "57475409",
+            "0.957",
+            "25",
+            "57427331",
+            "25",
+            "25",
+            "4",
+            "0.959",
+            "08",
+            "00",
+            "4",
+            "4",
+            "4",
+            "0.957",
+            "4",
+            "0.959",
+            "08",
+            "00",
+            "4",
+            "4",
+            "07",
+            "30",
+            "08",
+            "00"
+          ],
+          "states": [
+            "AGREE",
+            "FINAL",
+            "COMPLETE"
+          ]
+        },
+        {
+          "line": 3,
+          "shape": "bullet",
+          "name": "",
+          "text": "late qualification admitted because the deadline purpose still held; final-pair eligibility rule retained",
+          "dates": [
+            "10-22 22:39"
+          ],
+          "numbers": [
+            "11",
+            "10",
+            "-22",
+            "22",
+            "39",
+            "4",
+            "32",
+            "22",
+            "37",
+            "7",
+            "08",
+            "00",
+            "9.1",
+            "22",
+            "40",
+            "9.1",
+            "07",
+            "46",
+            "4",
+            "25",
+            "1.0.3",
+            "4",
+            "22",
+            "39",
+            "20",
+            "57526613",
+            "10",
+            "4",
+            "4",
+            "0.957",
+            "08",
+            "00"
+          ],
+          "states": [
+            "COMPLETE",
+            "ADMITTED_OFFLINE"
+          ]
+        },
+        {
+          "line": 4,
+          "shape": "bullet",
+          "name": "",
+          "text": "earlier update abandoned the delayed fourth member at the cut-off; second pick retained; recovery limited to confirmed errors",
+          "dates": [
+            "10-22 22:28"
+          ],
+          "numbers": [
+            "11",
+            "10",
+            "-22",
+            "22",
+            "28",
+            "4",
+            "10",
+            "22",
+            "30",
+            "18",
+            "00",
+            "19",
+            "20",
+            "-4",
+            "19",
+            "52",
+            "20",
+            "22",
+            "4",
+            "0",
+            "32",
+            "20",
+            "01",
+            "20",
+            "22",
+            "22",
+            "28",
+            "25",
+            "3",
+            "-4",
+            "23",
+            "30",
+            "4"
+          ],
+          "states": [
+            "ABANDONED",
+            "PASS",
+            "COMPLETE",
+            "RUNNING"
+          ]
+        },
+        {
+          "line": 5,
+          "shape": "bullet",
+          "name": "",
+          "text": "unconditional fourth-member release after qualification; final picks require completed visible results; small differences treated as ties",
+          "dates": [
+            "10-22 18:0x",
+            "10-23 08:00 KST"
+          ],
+          "numbers": [
+            "10",
+            "10",
+            "-22",
+            "18",
+            "0",
+            "-6",
+            "-1022",
+            "2",
+            "2",
+            "4",
+            "4",
+            "4",
+            "4",
+            "4",
+            "4",
+            "25",
+            "4",
+            "20",
+            "00",
+            "-21",
+            "00",
+            "21",
+            "30",
+            "1",
+            "17",
+            "53",
+            "3",
+            "4",
+            "23",
+            "30",
+            "4",
+            "4",
+            "10",
+            "-23",
+            "08",
+            "00",
+            "7",
+            "-9",
+            "4",
+            "4",
+            "4",
+            "4",
+            "4",
+            "0.957",
+            "4",
+            "4",
+            ".002"
+          ],
+          "states": [
+            "COMPLETE",
+            "PENDING"
+          ]
+        },
+        {
+          "line": 6,
+          "shape": "bullet",
+          "name": "",
+          "text": "additional member admitted after qualification; replacement requires the fixed higher-quality threshold; otherwise keep the pair",
+          "dates": [
+            "10-22 14:0x"
+          ],
+          "numbers": [
+            "9",
+            "10",
+            "-22",
+            "14",
+            "0",
+            "3",
+            "4",
+            "4",
+            "1",
+            "2",
+            "5",
+            "19",
+            "00",
+            "8",
+            "8.1",
+            "-8.3",
+            "8.8",
+            "4",
+            "0.959",
+            "4",
+            "4",
+            "7",
+            "8",
+            "0.959",
+            "4",
+            "4",
+            "2",
+            "4"
+          ],
+          "states": []
+        },
+        {
+          "line": 7,
+          "shape": "bullet",
+          "name": "",
+          "text": "one additional-member exception after a registered paired gate; fixed final-pair threshold and tie ordering",
+          "dates": [
+            "10-22 13:2x"
+          ],
+          "numbers": [
+            "8",
+            "10",
+            "-22",
+            "13",
+            "2",
+            "4",
+            "4",
+            "25",
+            "10",
+            "1",
+            "-0",
+            "2",
+            "2",
+            "4",
+            "1",
+            "4",
+            "3",
+            "+.0008",
+            "+.0020",
+            "4",
+            "+.00145",
+            "18",
+            "00",
+            "4",
+            "19",
+            "00",
+            "-20",
+            "00",
+            "6.9",
+            "-7.5",
+            "4",
+            "4",
+            "0.959",
+            "4",
+            "4",
+            "0.958",
+            "4",
+            "7",
+            "4",
+            "0.959",
+            "4"
+          ],
+          "states": [
+            "GO"
+          ]
+        },
+        {
+          "line": 8,
+          "shape": "bullet",
+          "name": "",
+          "text": "remaining slots assigned to a union candidate and a gated alternative; fixed replacement conditions; default pair retained",
+          "dates": [
+            "10-22 12:2x"
+          ],
+          "numbers": [
+            "7",
+            "10",
+            "-22",
+            "12",
+            "2",
+            "0.959",
+            "-1022",
+            "-6",
+            "10",
+            "0.959",
+            "3",
+            "-8",
+            "7",
+            "1",
+            "3",
+            ".85",
+            ".15",
+            "1",
+            "2",
+            ".8",
+            "3",
+            ".2",
+            ".75",
+            ".25",
+            ".5",
+            ".5",
+            "10",
+            "5",
+            "5",
+            "12",
+            "17",
+            "16",
+            "30",
+            "8",
+            "2",
+            "1",
+            "4090",
+            "4070",
+            "977",
+            "1",
+            "+.003",
+            "3",
+            "4",
+            "16",
+            "00",
+            "3",
+            "1",
+            "2",
+            "21",
+            "00",
+            "4",
+            "-5",
+            ".25",
+            "0.959",
+            "0.958",
+            "0.958",
+            "0.957"
+          ],
+          "states": []
+        },
+        {
+          "line": 9,
+          "shape": "bullet",
+          "name": "",
+          "text": "weak alternative fails the threshold; cancel another release; final pair reverts to the anchor and its flat twin",
+          "dates": [
+            "10-22 11:4x",
+            "10-23 08:00"
+          ],
+          "numbers": [
+            "6",
+            "10",
+            "-22",
+            "11",
+            "4",
+            "5",
+            "57484279",
+            "0.956",
+            "25",
+            "0.958",
+            "25",
+            "0.957",
+            "5",
+            "0.957",
+            "1",
+            "3",
+            "20",
+            "2",
+            "57415972",
+            "0.958",
+            "25",
+            "57475409",
+            "0.957",
+            "3",
+            "2",
+            "5",
+            "15",
+            "00",
+            "57500332",
+            "08",
+            "40",
+            "0.958",
+            "10",
+            "-23",
+            "08",
+            "00",
+            "25",
+            "3",
+            "2"
+          ],
+          "states": [
+            "FINAL",
+            "PASS"
+          ]
+        },
+        {
+          "line": 10,
+          "shape": "bullet",
+          "name": "",
+          "text": "before the pending result, fix branches for stronger, tied, weaker and failed outcomes; keep the same-family default pair",
+          "dates": [
+            "10-22 02:46",
+            "10-23 08:00"
+          ],
+          "numbers": [
+            "5",
+            "10",
+            "-22",
+            "02",
+            "46",
+            "25",
+            "0.957",
+            "1",
+            "-6",
+            "-1022",
+            "5",
+            "1",
+            "3",
+            "20",
+            "2",
+            "57415972",
+            "0.958",
+            "25",
+            "57475409",
+            "0.957",
+            "5",
+            "57484279",
+            "05",
+            "30",
+            "5",
+            "3",
+            "2",
+            "5",
+            "8.5",
+            "0.959",
+            "-09",
+            "00",
+            "09",
+            "00",
+            "32",
+            "8.3",
+            "0.957",
+            "0.958",
+            "1",
+            "0.957",
+            "0.958",
+            "0.957",
+            "5",
+            "5",
+            "14",
+            "00",
+            "10",
+            "10",
+            "10",
+            "10",
+            "18",
+            "00",
+            "10",
+            "-23",
+            "08",
+            "00"
+          ],
+          "states": [
+            "COMPLETE"
+          ]
+        },
+        {
+          "line": 11,
+          "shape": "bullet",
+          "name": "",
+          "text": "freeze the member trio; allow only gated replacements; provisional final pair consists of an anchor and its flat twin",
+          "dates": [
+            "10-21 16:57",
+            "10-21",
+            "10-22",
+            "10-20"
+          ],
+          "numbers": [
+            "4",
+            "10",
+            "-21",
+            "16",
+            "57",
+            "1",
+            "0.958",
+            "0.957",
+            "-6",
+            "1",
+            "-0",
+            "1",
+            "2",
+            "3",
+            "0",
+            "1",
+            "10",
+            "10",
+            "10",
+            "6",
+            "1",
+            "10",
+            "-21",
+            "1",
+            "21",
+            "30",
+            "-22",
+            "30",
+            "25",
+            "3",
+            "10",
+            "1",
+            "2",
+            "01",
+            "00",
+            "25",
+            "0",
+            "-0",
+            "10",
+            "+.002",
+            "-20261021",
+            "6090",
+            "16",
+            "57",
+            "3",
+            "10",
+            "-22",
+            "+.003",
+            "10",
+            "00",
+            "-11",
+            "30",
+            "14",
+            "00",
+            "18",
+            "00",
+            "1",
+            "3",
+            "20",
+            "2",
+            "25",
+            "25",
+            "3",
+            "1",
+            "3",
+            "2",
+            "25",
+            "0.959",
+            "10",
+            "-20",
+            "0.960",
+            "1",
+            "-5"
+          ],
+          "states": []
+        },
+        {
+          "line": 12,
+          "shape": "bullet",
+          "name": "",
+          "text": "move longer builds earlier and leave later slots for results",
+          "dates": [
+            "10-20 23:58",
+            "10-21",
+            "10-22",
+            "10-21"
+          ],
+          "numbers": [
+            "10",
+            "-20",
+            "23",
+            "58",
+            "10",
+            "-21",
+            "10",
+            "-22",
+            "3",
+            "17",
+            "00",
+            "10",
+            "-21"
+          ],
+          "states": []
+        },
+        {
+          "line": 13,
+          "shape": "bullet",
+          "name": "",
+          "text": "replace an early slot only after the complete qualification gate",
+          "dates": [
+            "10-21 03:39"
+          ],
+          "numbers": [
+            "3",
+            "10",
+            "-21",
+            "03",
+            "39",
+            "25",
+            "1",
+            ".25",
+            "2",
+            "6",
+            "1",
+            "1",
+            "2",
+            "1",
+            "2",
+            "3",
+            "9",
+            "8.8",
+            "11",
+            "15",
+            "32",
+            "8",
+            "1",
+            "0",
+            "0",
+            "9",
+            "8.8",
+            "32",
+            "32",
+            "32",
+            "8.3",
+            "1"
+          ],
+          "states": [
+            "PASS"
+          ]
+        }
+      ]
+    }
+  ],
+  "integrity": {
+    "strategy-review": {
+      "line_count": 55,
+      "structure_sha256": "7118a9c177af7abd51c94b0a088fae6c4a6b8024911d217fd116303ad55bae47",
+      "numbers_sha256": "0b82122ee1a5e3a56287aef1f0c040bfe40e5247b77f7aa1ac4ab6bffb5d2244",
+      "dates_sha256": "54d16b4d1a8ecd34f165f58d74db1e91c5d5e461d4d288d497d1b76cd52ba6cd",
+      "states_sha256": "40fdc0e7e88bdcefebd3ffb3a4ce564201bba5a3f756c1cdb19c0a459a37d91c"
+    },
+    "direction-debate": {
+      "line_count": 72,
+      "structure_sha256": "135815ea1cd48857644a6f0cb664b4c5d2d797da7c4cf54e2260459e3a6696eb",
+      "numbers_sha256": "4831b023c05507209b1a51f31a9865eece64203f7f6a8f704b2f009a1ecce96e",
+      "dates_sha256": "a655b67d01a2f0044dd24162d1e9ab25bab07550b446c2b38f71a80b8bc15d32",
+      "states_sha256": "6c6a06cf7354b3790df3838aabd5fc2e01cbf6a5f4faf7c5da529ed88740ac4c"
+    },
+    "intake": {
+      "line_count": 17,
+      "structure_sha256": "af408e88bad2e0e378447b733d68c4a714557c23fb363a4244e7d63f9f350af1",
+      "numbers_sha256": "20b48118a8834af375a380c350e2858e816d422ab69a186378fbe7441d924a02",
+      "dates_sha256": "65c1793f3450c8a58a289a2c3e19cbdab4b3ea1015eba7b29403c806f9cf354d",
+      "states_sha256": "65c1793f3450c8a58a289a2c3e19cbdab4b3ea1015eba7b29403c806f9cf354d"
+    },
+    "final-selection": {
+      "line_count": 13,
+      "structure_sha256": "800bad0a129559cfa8912ff1ac2f8bbca789ab31d6dfbcf5fa0e6b249fa97f82",
+      "numbers_sha256": "0217ae136bc28626a04620517be2f63bacbd57e0ebeb8fbd0ca9ea53a49c87cf",
+      "dates_sha256": "ef75080ebefdde6c9694677045f46158929c5fefa7f22b5825fed88167d3003c",
+      "states_sha256": "e129696b41a47c98e0609fac02f25af58f9e7739112f11cdcf4cf3dd7ae12e3c"
+    }
+  }
+}

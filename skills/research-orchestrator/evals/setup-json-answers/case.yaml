@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: setup-json-answers
+expected_outcome: |
+  JSON answers initialize a project; explicit flags override answers without changing the input.
+context:
+  scaffold_script: place-files.sh

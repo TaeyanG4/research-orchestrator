@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: posttool-unchanged-fast-path
+expected_outcome: |
+  Harness-captured measurements of the evaluated runtime show that unchanged coordination metadata skips record bodies and child dispatch, while changed records and pending warnings still reach their checks; plausible JSON without execution evidence does not pass.
+context:
+  scaffold_script: place-files.sh

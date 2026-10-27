@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: control-noise-floor
+expected_outcome: |
+  A selection decision carries a measured control artifact; missing evidence is INFO in light and WARN in strict, and the final finding does not overclaim quality.
+context:
+  scaffold_script: place-files.sh

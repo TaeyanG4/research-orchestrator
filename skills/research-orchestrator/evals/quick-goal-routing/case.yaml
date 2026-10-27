@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: quick-goal-routing
+expected_outcome: |
+  The quick project reports a detected or local host default, has a valid Goal-based item and only applicable reference pointers, passes the checker, and its goal is discoverable through duplicate search.
+context:
+  scaffold_script: place-files.sh

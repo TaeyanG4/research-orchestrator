@@ -1,0 +1,4 @@
+{
+  "version": "v3.4",
+  "render_key": "profile=work workflow=unified verification=independent-review itemsize=staged guards=light guardset=auto mode=single git=off instruments=off externalactions=on collector=off preset=work-project external_actions_source=explicit pointers=workflow-unified,verification,staged-items,research-guards,decision-guards,external-actions,hooks"
+}

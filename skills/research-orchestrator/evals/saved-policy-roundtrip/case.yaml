@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: saved-policy-roundtrip
+expected_outcome: |
+  A preset saved with the shipped initializer retains every reusable preference and effective external gate, preserves source files, omits source identity and dated project state, and supplies those preferences when initializing another project. An explicit language flag overrides the saved language. Hook evaluations deny the saved outward command and allow its nonmatching control without executing either command.
+context:
+  scaffold_script: place-files.sh

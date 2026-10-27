@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: stale-slot-question
+expected_outcome: |
+  The agent asks one combined slot-choice question with the stale resumable slot recommended first and leaves its ownership, claims, resume state and jobs unchanged pending the user's choice.
+context:
+  scaffold_script: place-files.sh

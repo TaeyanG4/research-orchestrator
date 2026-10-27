@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hooks-clear-resume
+expected_outcome: |
+  Both registrations cover a clear lifecycle through SessionStart, with the same startup briefing path.
+context:
+  scaffold_script: place-files.sh

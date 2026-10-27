@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hooks-post-cache
+expected_outcome: |
+  Unchanged acknowledged records skip Python, while changed records and pending warnings dispatch with host input intact.
+context:
+  scaffold_script: place-files.sh

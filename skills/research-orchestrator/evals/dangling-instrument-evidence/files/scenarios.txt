@@ -1,0 +1,7 @@
+Use I-A-01 as an existing independent held-out instrument with measured agreement and resolution backed by the supplied supporting-evidence.md fixture. I-A-99 is intentionally absent.
+Active cases:
+1. A discovery with Instrument: I-A-01, I-A-99 and Decision class: input-change (G1).
+2. A discovery with Result: quality=0.8 on I-A-01 cohort stable; quality=0.9 on I-A-99 cohort stable (G3).
+3. An external action with Result: quality=0.9 on I-A-99 cohort stable (observed YYYY-MM-DD HH:MM), using a valid past timestamp after guard activation (G3).
+4. A negative input-change finding with Outcome: rejected and Rejected on: I-A-99; fired: trace.log confirms execution, with no Instrument field (G5). Repeat the same record with Finding prose in Korean (가설이 기각되었다), Japanese (仮説は支持されなかった), and English (The proposed change failed), then remove Rejected on to check execution-evidence enforcement. Test supported and inconclusive Outcome controls without Rejected on, plus missing and invalid Outcome values. Keep an English legacy 'does not hold' version without Outcome or Rejected on to verify the rejection-evidence fallback.
+Controls: replace I-A-99 with I-A-01; date citing records before guard activation; disable guards; declare the owning guard inapplicable with a reason. Keep the valid instrument historical in one active-reference control.

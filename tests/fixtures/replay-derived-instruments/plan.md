@@ -1,0 +1,18 @@
+### H-A-01 — another variant of the tied family
+- Claimed: none
+- Sources: D-A-001
+- Hypothesis: a local adjustment changes quality
+- Evidence: the prior family results tied
+- Improvement: none
+- Impact: 1
+- Information: 1
+- Confidence: 1
+- Unblock: 1
+- Diversity: 1
+- Cost: 1
+- Priority: 9
+- Resource: CPU
+- Parallel: YES
+- Other: NONE
+- Next test: measure another local adjustment
+- Family: family-a

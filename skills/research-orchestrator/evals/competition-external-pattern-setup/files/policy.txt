@@ -1,0 +1,1 @@
+The outward command prefix is archive-client publish. Do not execute a publication while configuring the project.

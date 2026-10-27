@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: analytic-complete-coverage
+expected_outcome: |
+  An exhaustive measurement uses Coverage complete with unmeasured agreement and resolution, supports a method-change decision without a circular-evidence finding, retains independent provenance and limited scope, and distinguishes an N coordination note from evidence records.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hook-effective-working-directory
+expected_outcome: |
+  Hook evidence distinguishes protected relative operands from an unrelated sibling using the effective host/tool directory, warns when the directory is unknown, preserves the probe inputs, and leaves no worker running.
+context:
+  scaffold_script: place-files.sh

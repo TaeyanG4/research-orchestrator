@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: publish-hook-timeout-recovery
+expected_outcome: |
+  Public pre-push responses preserve refusal and safe recovery details for timeouts
+  after and before enumeration. The known count agrees with Git; the unknown count
+  is explicitly unavailable. Applying the precise retry setting preserves scanning
+  and permits the normal clean retry, without exposing the injected exception text.
+context:
+  scaffold_script: place-files.sh

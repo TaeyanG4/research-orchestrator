@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: compact-checker-summary-cache
+expected_outcome: |
+  Compact reuses a same-day checker summary beyond the normal TTL only while dependency stamps match; ordinary startup, changed inputs and a new day refresh it, while live job and observation facts remain fresh.
+context:
+  scaffold_script: place-files.sh

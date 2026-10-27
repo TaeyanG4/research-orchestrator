@@ -1,0 +1,10 @@
+{
+  "clean": "CONSISTENCY: OK (0 plan items, 0 discoveries, 0 events, workflow classic, verification self)",
+  "info": "CONSISTENCY: OK (0 plan items, 0 discoveries, 0 events, workflow classic, verification self; 1 info)\n- INFO record.order: advice",
+  "warning": "CONSISTENCY: 0 error(s), 1 warning(s), 0 info (0 plan items)\n- WARN plan.claim.stale: released owner",
+  "clipped-warning": "CONSISTENCY: 0 error(s), 1 warning(s), 0 info (0 plan items)",
+  "error": "CONSISTENCY: 1 error(s), 0 warning(s), 0 info (0 plan items)\n- ERROR plan.claim.missing: no claim",
+  "contradictory": "CONSISTENCY: OK (0 plan items)\n- WARN fixture.check: stale",
+  "unreadable": "CONSISTENCY: cannot read the project files",
+  "invented-pass": "CONSISTENCY: PASS"
+}

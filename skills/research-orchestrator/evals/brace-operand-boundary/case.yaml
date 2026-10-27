@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: brace-operand-boundary
+expected_outcome: |
+  Known outer background operators remain blocking despite brace operands; paths derived from opaque brace words warn, the literal bound path blocks, and quoted data creates no background finding.
+context:
+  scaffold_script: place-files.sh

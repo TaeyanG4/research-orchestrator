@@ -1,0 +1,318 @@
+{
+  "threshold": 0.5,
+  "measurement_protocol": "full-task-v1",
+  "queries": [
+    {
+      "query": "clean-positive",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true,
+              "contamination": {
+                "contaminated": false,
+                "findings": [
+                  {
+                    "reason": "source_repository",
+                    "contaminating": false,
+                    "outcome": "failed"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "clean-negative",
+      "should_trigger": false,
+      "runs": [
+        {
+          "status": "ok",
+          "triggered": false,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": false
+            }
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": false,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "exposed-context",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        },
+        {
+          "status": "contaminated",
+          "triggered": null,
+          "attempts": [
+            {
+              "status": "contaminated",
+              "triggered": null,
+              "failure_category": "timeout",
+              "detection": {
+                "triggered": true
+              },
+              "contamination": {
+                "contaminated": true,
+                "findings": [
+                  {
+                    "reason": "source_repository",
+                    "contaminating": true,
+                    "outcome": "successful_read"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "selected-timeout",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "timeout",
+          "triggered": null,
+          "attempts": [
+            {
+              "status": "timeout",
+              "triggered": null,
+              "failure_category": "timeout",
+              "detection": {
+                "triggered": true
+              }
+            }
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "throttled",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "error",
+          "triggered": null,
+          "attempts": [
+            {
+              "status": "error",
+              "triggered": null,
+              "failure_category": "rate_limit",
+              "returncode": 1
+            }
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "unavailable",
+      "should_trigger": false,
+      "runs": [
+        {
+          "status": "error",
+          "triggered": null,
+          "attempts": [
+            {
+              "status": "error",
+              "triggered": null,
+              "error": "Cannot inventory installed skills",
+              "failure_category": "setup"
+            }
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "recovered-retry",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "error",
+              "triggered": null,
+              "failure_category": "transport"
+            },
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "empty-query",
+      "should_trigger": false,
+      "runs": []
+    },
+    {
+      "query": "contradictory-summary",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": false
+            }
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true,
+              "detection": {
+                "triggered": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "malformed-attempt",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            null
+          ]
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "missing-measurement",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "ok"
+        },
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "query": "short-repeat",
+      "should_trigger": true,
+      "runs": [
+        {
+          "status": "ok",
+          "triggered": true,
+          "attempts": [
+            {
+              "status": "ok",
+              "triggered": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "repeats": 2
+}

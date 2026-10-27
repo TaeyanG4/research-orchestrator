@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: decision-class-integrity
+expected_outcome: |
+  Misspelled and differently cased classes are structural errors, canonical and neutral aliases preserve provenance restrictions, and unused guard exemptions are informational.
+context:
+  scaffold_script: place-files.sh

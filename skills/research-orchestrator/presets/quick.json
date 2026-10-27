@@ -1,0 +1,21 @@
+{
+  "name": "quick",
+  "summary": "short work by one agent; optional scores, reusable findings, one session event",
+  "profile": "work",
+  "workflow": "classic",
+  "verification": "self",
+  "item_size": "short",
+  "guards": "off",
+  "enforcement": "block",
+  "block": "shell.background, shell.heredoc, jobs.mutate-bound, publish.scan",
+  "platform_mode": "single",
+  "platforms": null,
+  "collector": "off",
+  "queue_limits": "stop at 50, resume at 5",
+  "reviewer": "off",
+  "fallback": "same-host",
+  "asks": [
+    "platforms",
+    "git"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "repositories": "Create disposable local bare source and destination repositories for each configuration; no network endpoints.",
+  "history": [
+    "Commit ordinary content.txt on main.",
+    "Commit a synthetic credential formed by joining sk- with seven repetitions of a1B2 in content.txt.",
+    "Replace content.txt with ordinary text and commit the removal."
+  ],
+  "tracking": "Populate source with that history and fetch it as origin/main so the tracking ref reaches the clean final tip.",
+  "configurations": {
+    "separate-push-url": "Leave origin's fetch URL pointing to source; set its push URL to an empty destination.",
+    "retargeted-remote": "After fetching source, change origin's URL to an empty destination without removing the existing tracking ref."
+  },
+  "policy": {
+    "Enforcement": "block",
+    "Block": "publish.scan",
+    "Publish scan": "secrets"
+  },
+  "control": "Push a branch containing only ordinary content to a separate empty local destination with the same gate and policy."
+}

@@ -1,0 +1,13 @@
+schema_version: "1.1"
+name: codex-host-capabilities
+expected_outcome: |
+  The handoff reports the six Codex exec probe outcomes verified on 2026-10-27
+  with codex-cli 0.154.0, gpt-6.1-sol and declared windows/powershell, superseding
+  the earlier failed probes without extending coverage to unverified events.
+  It distinguishes logged read advice from visible warning delivery and Stop
+  blocking, and retains ro commands and Git pre-push because hooks fail open.
+  Installation preserves existing configuration and includes the checkout
+  installer and /hooks trust without treating trust or an active self-test as
+  proof of enforcement coverage.
+context:
+  scaffold_script: place-files.sh

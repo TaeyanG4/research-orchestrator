@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: shared-resource-routing
+expected_outcome: |
+  Named resource ownership and scheduler locks govern work; GPU examples are not required for ordinary routing.
+context:
+  scaffold_script: place-files.sh

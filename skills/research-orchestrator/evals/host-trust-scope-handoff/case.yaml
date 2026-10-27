@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: host-trust-scope-handoff
+expected_outcome: |
+  The handoff separates verified per-invocation trust, untested persisted trust, and authoritative command gates for both hosts.
+context:
+  scaffold_script: place-files.sh

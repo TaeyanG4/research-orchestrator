@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: failed-runner-slot-ownership
+expected_outcome: |
+  Failed jobs keep visible slot ownership until descendants are proven ended.
+context:
+  scaffold_script: place-files.sh

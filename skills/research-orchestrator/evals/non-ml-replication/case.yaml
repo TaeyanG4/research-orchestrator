@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: non-ml-replication
+expected_outcome: |
+  Reproduce the paired differences and uncertainty from the supplied observations with saved Python that recreates replication.json from the original inputs, record a discovery and next-step decision, and close with review PENDING when no reviewer can run, without waiting or fabricating an independent review.
+context:
+  scaffold_script: place-files.sh

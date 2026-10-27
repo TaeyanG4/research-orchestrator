@@ -1,0 +1,10 @@
+[
+  {"id": "bash-all", "dialect": "bash", "command": "analyze-first & analyze-second & wait"},
+  {"id": "bash-partial", "dialect": "bash", "command": "analyze-first & analyze-second & wait -n"},
+  {"id": "bash-conditional", "dialect": "bash", "command": "analyze-first & check-ready && wait"},
+  {"id": "bash-trailing", "dialect": "bash", "command": "analyze-first & wait; analyze-second &"},
+  {"id": "bash-detached", "dialect": "bash", "command": "nohup analyze-first & wait"},
+  {"id": "powershell-all", "dialect": "powershell", "command": "Analyze-First &; Analyze-Second &; Get-Job | Wait-Job"},
+  {"id": "powershell-timeout", "dialect": "powershell", "command": "Analyze-First &; Get-Job | Wait-Job -Timeout 1"},
+  {"id": "powershell-trailing", "dialect": "powershell", "command": "Analyze-First &; Get-Job | Wait-Job; Analyze-Second &"}
+]

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: selection-family-source
+expected_outcome: |
+  Final selection uses required action-level families, distinguishes diverse and justified same-family choices, and preserves historical exemptions.
+context:
+  scaffold_script: place-files.sh

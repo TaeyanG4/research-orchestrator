@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: general-reference-vocabulary
+expected_outcome: |
+  The shipped general research guidance passes as written, an injected domain term fails in research-guards, and specialized competition/adapters guidance remains exempt.
+context:
+  scaffold_script: place-files.sh

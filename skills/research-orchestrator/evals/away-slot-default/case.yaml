@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: away-slot-default
+expected_outcome: |
+  With questions forbidden by Autonomy: away, the new session creates a new parallel slot and records both that decision and stale slot D, without reclaiming or changing the existing work.
+context:
+  scaffold_script: place-files.sh

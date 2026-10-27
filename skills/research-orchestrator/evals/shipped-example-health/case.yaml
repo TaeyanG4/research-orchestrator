@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: shipped-example-health
+expected_outcome: |
+  All six shipped examples are checked at every severity and measured-decision examples retain concrete Control applicability records.
+context:
+  scaffold_script: place-files.sh

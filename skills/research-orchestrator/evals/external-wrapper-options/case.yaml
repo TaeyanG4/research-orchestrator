@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: external-wrapper-options
+expected_outcome: |
+  Regex matching does not deny sanctioned ro external calls with global options,
+  including an interpreter wrapper and the ro shim. Direct commands, lookalike
+  arguments, and a direct second statement still receive external.gate denials.
+context:
+  scaffold_script: place-files.sh

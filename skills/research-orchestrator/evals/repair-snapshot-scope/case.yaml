@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: repair-snapshot-scope
+expected_outcome: |
+  A real conflicting missing-file repair is refused with plan.md still absent; complete before/after inventories establish preservation of coordination files, nested user data, and hidden tool state without additional project files.
+  Evidence stays outside the inspected tree and the repeatable comparison detects both changed bytes and unexpected new files.
+context:
+  scaffold_script: place-files.sh

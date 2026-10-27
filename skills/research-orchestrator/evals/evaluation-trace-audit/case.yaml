@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: evaluation-trace-audit
+expected_outcome: |
+  Retain genuine staged-runtime work, absent ancestor-instruction probes, and program arguments misidentified as paths while excluding real protected access and unsupported attempts to clear prior findings.
+  Every classification cites recorded evidence, and a reusable stdlib audit reproduces the result without executing the saved commands.
+context:
+  scaffold_script: place-files.sh

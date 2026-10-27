@@ -1,0 +1,73 @@
+[
+  {
+    "name": "benign",
+    "event": "PreToolUse",
+    "expected": "no hook decision",
+    "runner": {
+      "event": "PreToolUse",
+      "checks": [],
+      "decision": "no hook decision"
+    },
+    "tool_status": "completed",
+    "exit_code": 0,
+    "future_record_written": false,
+    "host_output": "No structured hook evidence"
+  },
+  {
+    "name": "read-bound",
+    "event": "PreToolUse",
+    "expected": "warned",
+    "runner": {
+      "event": "PreToolUse",
+      "checks": [
+        "jobs.read-bound"
+      ],
+      "decision": "warned"
+    },
+    "tool_status": "completed",
+    "exit_code": 0,
+    "future_record_written": false,
+    "host_output": "No structured hook evidence"
+  },
+  {
+    "name": "unmonitored-stop",
+    "event": "Stop",
+    "expected": "warned",
+    "runner": {
+      "event": "Stop",
+      "checks": [
+        "jobs.unmonitored"
+      ],
+      "decision": "warned"
+    },
+    "tool_status": "completed",
+    "exit_code": 0,
+    "future_record_written": false,
+    "host_output": "No structured hook evidence"
+  },
+  {
+    "name": "future-record",
+    "event": "PostToolUse",
+    "expected": "warned",
+    "runner": {
+      "event": "PostToolUse",
+      "checks": [
+        "records.timestamp"
+      ],
+      "decision": "warned"
+    },
+    "tool_status": "completed",
+    "exit_code": 0,
+    "future_record_written": true,
+    "host_output": "No structured hook evidence"
+  },
+  {
+    "name": "missing-diagnostics",
+    "event": "Stop",
+    "expected": "unknown/inconclusive",
+    "runner": null,
+    "tool_status": "completed",
+    "exit_code": 0,
+    "host_output": "Assistant says the hook warned"
+  }
+]

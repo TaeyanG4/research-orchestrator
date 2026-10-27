@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: post-close-review
+expected_outcome: |
+  A linked supporting retrospective preserves dated evidence, cites material conclusions, qualifies counterfactuals, records pending independent review and routes follow-ups into the existing coordination files.
+context:
+  scaffold_script: place-files.sh

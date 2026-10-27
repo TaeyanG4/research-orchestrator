@@ -1,0 +1,206 @@
+{
+  "purpose": "Original raw files moved outside the repository before sanitised replacements; no raw material deleted.",
+  "external_archive": "2026-10-27",
+  "files": [
+    {
+      "path": "docs/evals/builder-findings.md",
+      "source_sha256": "fae7d6da36e6638859f3a1fe2a74815062fc1160e7ff7518c8915b1f113d90ef",
+      "bytes": 8292
+    },
+    {
+      "path": "docs/evals/evidence/builder-coverage.json",
+      "source_sha256": "4e873825cd4bc8e2caccf238d8632e0623206195acba90b64751e42cb5c4894a",
+      "bytes": 53685
+    },
+    {
+      "path": "docs/evals/evidence/builder-final-preflight.zip",
+      "source_sha256": "e58632684f1f66c2b1247d403411c14c5b74b3286bc78df7d643d72d23ca9167",
+      "bytes": 23925
+    },
+    {
+      "path": "docs/evals/evidence/builder-final-review.html",
+      "source_sha256": "2cbe3c3d7980f72bdcf92663d24a8b7f7400bca9a342f01ab921d7e9b6ddecdb",
+      "bytes": 57814
+    },
+    {
+      "path": "docs/evals/evidence/builder-full-duration.zip",
+      "source_sha256": "f92659df853930583094d7d4753d3a0b46ac52f53066b45cb506c398657ae087",
+      "bytes": 31191
+    },
+    {
+      "path": "docs/evals/evidence/builder-full-review.html",
+      "source_sha256": "01945a47f8603a322bd17f8e228d9f54877f494a6d6c64465ebdf223263955f1",
+      "bytes": 58814
+    },
+    {
+      "path": "docs/evals/evidence/builder-native-attempts.zip",
+      "source_sha256": "98fb1c38c11332a16f6ab02e563eb45c9f9fccf14baee7d6bfdf858435134252",
+      "bytes": 45427
+    },
+    {
+      "path": "docs/evals/evidence/builder-recheck-preflight.zip",
+      "source_sha256": "1e86fdfcc8da0d1baa90002d072897ad1637f69406f0cae3319483b62350de98",
+      "bytes": 26158
+    },
+    {
+      "path": "docs/evals/evidence/builder-recheck-review.html",
+      "source_sha256": "eec799aa7b05ea2ed5ecb857066ef5f3337bd56b94eee9708d75ff498ab2f993",
+      "bytes": 53562
+    },
+    {
+      "path": "docs/evals/evidence/builder-repair-attempts.zip",
+      "source_sha256": "e80a544b6001422cbb86dff9b81b613eaaef000b475108cdb8684bb35a042dba",
+      "bytes": 21984
+    },
+    {
+      "path": "docs/evals/evidence/builder-repair-review.html",
+      "source_sha256": "1127f189628c121e0e828f96769ddbb36cab8609dcd215b1d33fdf2959e6f947",
+      "bytes": 54226
+    },
+    {
+      "path": "docs/evals/evidence/builder-review.html",
+      "source_sha256": "50a3ffcd53b8f420233d91d850c7ddb48cbc7e398a7c4c9c55bb4fb1994e74a9",
+      "bytes": 92057
+    },
+    {
+      "path": "docs/evals/evidence/final-benchmark.json",
+      "source_sha256": "fe3ccb30300bbd7e04f70b70c65fbf0ed43379023c095f2f9141ee1865a31c5b",
+      "bytes": 50770
+    },
+    {
+      "path": "docs/evals/evidence/final-cli-attempts.zip",
+      "source_sha256": "dd3fd44d7618631fc45105eae1e0dd2125025e87b33956f29d4fa8eb79c15166",
+      "bytes": 51701
+    },
+    {
+      "path": "docs/evals/evidence/final-paired.zip",
+      "source_sha256": "bd5c6d883f350ab60472695e03f64b8b4595b0ef52acbc90a06080aa147658d5",
+      "bytes": 420049
+    },
+    {
+      "path": "docs/evals/evidence/final-review.html",
+      "source_sha256": "770c7024dcfb9bb40ff1428d05ff8757cf6a4823cbd1374d5303ef9abb105861",
+      "bytes": 381695
+    },
+    {
+      "path": "docs/evals/evidence/hook-latency-eval.zip",
+      "source_sha256": "76dcc1aa109c8ef867e9443c600db07c20438c04e976485b5cfe9bd99b0d508a",
+      "bytes": 41066
+    },
+    {
+      "path": "docs/evals/evidence/hook-latency-gatefix.json",
+      "source_sha256": "2c9fd4c932df12f2bb2e02275c1ebe03fd1e7eae5eb395795896887cd9be15fc",
+      "bytes": 7022
+    },
+    {
+      "path": "docs/evals/evidence/iteration-5.zip",
+      "source_sha256": "8f8e424115a97920b86c3fbfeeb55c254cb106b21dd31c1d0888e5a95a0cc798",
+      "bytes": 18733377
+    },
+    {
+      "path": "docs/evals/hook-latency-gatefix.md",
+      "source_sha256": "572294639e5050aac806df4d2ebae573c347683bf6400767a72ef68b6ae17dc2",
+      "bytes": 4853
+    },
+    {
+      "path": "docs/host-dry-runs/claude-code-2026-10-25.md",
+      "source_sha256": "56aedb1c85e5182cf6edca9ed28c32f4d5161ce2a14c2e10942adcbe752eb264",
+      "bytes": 85625
+    },
+    {
+      "path": "docs/host-dry-runs/codex-2026-10-25.md",
+      "source_sha256": "a92564d0b78e28c58df4791d70dcafcc1b01615ae5e315b5c59af6632fb55857",
+      "bytes": 13084
+    },
+    {
+      "path": "docs/host-dry-runs/codex-2026-10-26-verified.md",
+      "source_sha256": "19fef20c66e902142ac5ceeccc872b85b4e9fdf9da275b11ae182f2e03f1fa14",
+      "bytes": 14720
+    },
+    {
+      "path": "docs/host-dry-runs/codex-2026-10-26.md",
+      "source_sha256": "5ff4fc65f2b720175f8abe9ee3462686a13a8efb036d508a267346096e03855e",
+      "bytes": 16738
+    },
+    {
+      "path": "docs/host-dry-runs/codex-delivery-probe-2026-10-25.md",
+      "source_sha256": "1e284a1bf7a7cbe374ace4ad44e13f94ba32205bb7de93163c332bbff7d0ffdb",
+      "bytes": 5482
+    },
+    {
+      "path": "docs/host-dry-runs/codex-delivery-probe-DE.md",
+      "source_sha256": "95a9f4a86f7a62c8ca964fa30c75977e7da1cf47235d6ac04accb49880e5854a",
+      "bytes": 5905
+    },
+    {
+      "path": "docs/host-dry-runs/codex-final.md",
+      "source_sha256": "f277b25b13f85d34290768e9c6fd08b560b043fff8171bd2965aa04aa00d61d6",
+      "bytes": 16821
+    },
+    {
+      "path": "docs/plans/reviews/final-eval-r3-astra.md",
+      "source_sha256": "ae9b603ffbbc3603fc17d10f54f24d25b83df57789418af67c7508c5057a8f8e",
+      "bytes": 7660
+    },
+    {
+      "path": "docs/plans/reviews/p3-design-fable.md",
+      "source_sha256": "459eca229c8f4b69b370e234a3091070a47ab426b6c3657e2728c305c604ee86",
+      "bytes": 6671
+    },
+    {
+      "path": "docs/plans/reviews/p3-review4-astra.md",
+      "source_sha256": "e057eeb484b612ac1811fa3a4a5752f45fe575f1177ccb2bc24fe2cffd7275ce",
+      "bytes": 4408
+    },
+    {
+      "path": "docs/plans/v3-p1-spec.md",
+      "source_sha256": "55f75ab85ca80d2de8d9cb2667342a1734036ba59b07eb81a782eb52d6efaa60",
+      "bytes": 13135
+    },
+    {
+      "path": "docs/plans/v3-p4-spec.md",
+      "source_sha256": "609a0fee80d6cdb3935d88da13c9fa0d8e66bccbe008f2f2c625eaa9b65b11da",
+      "bytes": 7221
+    },
+    {
+      "path": "docs/plans/v3-plan.md",
+      "source_sha256": "23e360a435d5502721165a6ce7d59d64fb62361ceeaaa73b3a481a11f04d8a18",
+      "bytes": 19233
+    },
+    {
+      "path": "docs/trigger/evidence/app-bridge-heldout.zip",
+      "source_sha256": "212110fe315a4949e34c7133c4b753c98a3f79a8f70d014758c6609d4b049042",
+      "bytes": 112694
+    },
+    {
+      "path": "docs/trigger/evidence/builder-full-heldout.zip",
+      "source_sha256": "174f5fc9d6aa07515e22ffc0feed9d11bc0b9fd6c48bbd11befd551afe470b5d",
+      "bytes": 117595
+    },
+    {
+      "path": "docs/trigger/evidence/builder-repair-heldout.zip",
+      "source_sha256": "efb72f912c487cd73efed1af8fa9745cf71c85fde265c9051b7a2e501923844b",
+      "bytes": 109387
+    },
+    {
+      "path": "docs/trigger/evidence/coverage.json",
+      "source_sha256": "bf3c821924fb9446061f8443da42a3a0cd8ec65810b0fd564ae2db9abf1eef05",
+      "bytes": 16252
+    },
+    {
+      "path": "docs/trigger/evidence/current-2.zip",
+      "source_sha256": "60078dba8947a8820de910a049e504e9542d03475248c939c8f6e3e7f62450b9",
+      "bytes": 435421
+    },
+    {
+      "path": "docs/trigger/evidence/historical.zip",
+      "source_sha256": "50901673025aa1c925ba68034f6da2cd672ca13eeb9520434870e652328c9eee",
+      "bytes": 610343
+    },
+    {
+      "path": "docs/trigger/evidence/standalone-heldout.zip",
+      "source_sha256": "5bb74ea4dae10b9ca86a40cc96a7957c3136836bfd079f2183c45126bbac9de7",
+      "bytes": 112339
+    }
+  ]
+}

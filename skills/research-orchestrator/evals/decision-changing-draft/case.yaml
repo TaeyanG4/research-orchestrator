@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: decision-changing-draft
+expected_outcome: |
+  The workflow represents a writing goal and advances it by drafting a decision brief, preserving the pending editorial decision without inventing an experiment or measured result.
+context:
+  scaffold_script: place-files.sh

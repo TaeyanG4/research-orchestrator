@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: record-clock-tolerance
+expected_outcome: |
+  The checker and NotebookEdit post hook share the five-minute allowance, including its boundary, and NotebookEdit has exactly one post registration.
+context:
+  scaffold_script: place-files.sh

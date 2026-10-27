@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: evaluation-grade-integrity
+expected_outcome: |
+  Only complete unique typed evidence-backed verdicts matching the source assertions contribute to performance; summaries are recomputed and inconsistent or unsupported grades are excluded with reasons.
+  Unavailable duration, token, and execution-error measurements remain null and do not lower measured means; null optional metrics and notes do not invalidate complete grades.
+  Out-of-range rates and nonfinite measurements are excluded with reasons while the audit completes for valid candidates.
+context:
+  scaffold_script: place-files.sh

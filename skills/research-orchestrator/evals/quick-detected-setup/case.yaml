@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: quick-detected-setup
+expected_outcome: |
+  The project is initialized with quick and the supplied identity without asking
+  the user to reconfirm environment, language, host or Git sync. It uses the
+  detected environment and host, English free text, and reports the defaults.
+  The cleanup task remains unstarted.
+context:
+  scaffold_script: place-files.sh

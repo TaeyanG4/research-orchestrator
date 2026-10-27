@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: local-single-host-first-session
+expected_outcome: |
+  A real host in a single-host local project produces an actionable warning without a host error; explicitly configured host boundaries remain strict.
+context:
+  scaffold_script: place-files.sh

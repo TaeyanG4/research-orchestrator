@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "archive": "iteration-6-outputs.zip",
+  "archive_sha256": "59eb75cb07019fa6bf9de576a19d9f64efda32098fabb90ba488c2c245b04880",
+  "source_snapshot": "adjudicated iteration-6",
+  "task_output_files": 4497,
+  "exported_files": 4937,
+  "omitted_files": 1387,
+  "new_runs": false,
+  "new_grading": false,
+  "limitations": "Historical output inspection only. No new paired runs were made for 6.0.0 by owner decision. Raw transcripts, native identifiers, inventories, local paths and binary containers are withheld or sanitized. Encoded text streams are withheld; the pre-sanitization archive is retained privately."
+}

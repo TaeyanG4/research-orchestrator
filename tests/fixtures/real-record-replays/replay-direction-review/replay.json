@@ -1,0 +1,11 @@
+{
+  "provenance": "anonymised from a past project's records",
+  "excerpts": ["strategy-review", "direction-debate", "intake"],
+  "snapshot": "2026-10-20 12:00",
+  "records": ["D-A-301", "D-A-302", "D-A-303", "D-A-304"],
+  "insight": "D-A-301",
+  "pivot": "D-A-302",
+  "rejection": "D-A-303",
+  "review": "D-A-304",
+  "checks": ["guard.direction.incomplete", "guard.insight.overdue", "guard.insight.rejection"]
+}

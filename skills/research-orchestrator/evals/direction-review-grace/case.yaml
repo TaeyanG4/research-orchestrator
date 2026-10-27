@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: direction-review-grace
+expected_outcome: |
+  The fresh project reports INFO until its first review is due, a paused project suppresses cadence warnings, and resuming the overdue project restores the INFO direction-review reminder until dated item activity occurs without disabling GD.
+context:
+  scaffold_script: place-files.sh

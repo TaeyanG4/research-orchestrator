@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 290" width="960" height="290" role="img" aria-labelledby="title desc">
+  <title id="title">Item lifecycle</title>
+  <desc id="desc">Claim or own an item, work on it, record a discovery and a handoff event, derive follow-ups, then close it by removing it from plan.md. Follow-ups re-enter the queue.</desc>
+  <defs>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#616e7c" />
+    </marker>
+    <marker id="green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2f855a" />
+    </marker>
+  </defs>
+  <rect x="1" y="1" width="958" height="288" rx="14" fill="#f5f7fa" stroke="#cbd2d9" />
+  <text x="36" y="40" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">One item, start to finish</text>
+  <path d="M342,68 V60 H922 V68" stroke="#9aa5b1" stroke-width="1.4" fill="none" />
+  <text x="632" y="50" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">record together before starting something else</text>
+  <rect x="36" y="72" width="128" height="60" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <text x="46" y="88" font-family="Helvetica, Arial, sans-serif" fill="#2f6fde" font-size="11px" font-weight="700">1</text>
+  <text x="100" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14.5px" font-weight="600">Claim or own</text>
+  <rect x="188" y="72" width="128" height="60" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <text x="198" y="88" font-family="Helvetica, Arial, sans-serif" fill="#2f6fde" font-size="11px" font-weight="700">2</text>
+  <text x="252" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14.5px" font-weight="600">Work</text>
+  <rect x="340" y="72" width="128" height="60" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="350" y="88" font-family="Helvetica, Arial, sans-serif" fill="#2f6fde" font-size="11px" font-weight="700">3</text>
+  <text x="404" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14.5px" font-weight="600">Discovery</text>
+  <rect x="492" y="72" width="128" height="60" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="502" y="88" font-family="Helvetica, Arial, sans-serif" fill="#2f6fde" font-size="11px" font-weight="700">4</text>
+  <text x="556" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14.5px" font-weight="600">Event</text>
+  <rect x="644" y="72" width="128" height="60" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="654" y="88" font-family="Helvetica, Arial, sans-serif" fill="#2f6fde" font-size="11px" font-weight="700">5</text>
+  <text x="708" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14.5px" font-weight="600">Follow-ups</text>
+  <rect x="796" y="72" width="128" height="60" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="806" y="88" font-family="Helvetica, Arial, sans-serif" fill="#2f6fde" font-size="11px" font-weight="700">6</text>
+  <text x="860" y="108" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="14.5px" font-weight="600">Close</text>
+  <path d="M165,102 H185" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M317,102 H337" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M469,102 H489" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M621,102 H641" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M773,102 H793" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <text x="100" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">ro dupcheck first,</text>
+  <text x="100" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">then claim the item</text>
+  <text x="252" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">next useful test;</text>
+  <text x="252" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">long jobs: ro launch</text>
+  <text x="404" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">discoveries.md,</text>
+  <text x="404" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">reviewed per policy</text>
+  <text x="556" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">handoff.md event</text>
+  <text x="556" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">points to the discovery</text>
+  <text x="708" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">new plan items, or</text>
+  <text x="708" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">"none — reason"</text>
+  <text x="860" y="154" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">remove the item</text>
+  <text x="860" y="170" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">from plan.md</text>
+  <path d="M708,180 V206 H18 V102 H33" stroke="#2f855a" stroke-width="1.8" fill="none" stroke-dasharray="6 4" marker-end="url(#green)" />
+  <text x="363" y="224" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">follow-ups re-enter the queue in plan.md</text>
+  <text x="36" y="264" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="11.5px">Work profile: discoveries only for reusable results; one session event lists the completed items.</text>
+</svg>

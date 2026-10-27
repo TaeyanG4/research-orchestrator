@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: direct-install-reviewer
+expected_outcome: |
+  A skill-only installation resolves the verification and reviewer instructions internally.
+  It distinguishes the renamed standalone skill from plugin hook installation.
+  The review challenges the contradicted claim with a citation and states that eligibility cannot be established without a host session identity.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,1 @@
+Use host Cedar Shell, user operator, and one slot. The phase clock is start 2020-01-01, deadline 2020-01-31. Shared state Milestones: 10 blocked; 25 pendng; 75 complete. The middle checkpoint has not been done; correct pendng to pending. Do not change the clock or turn off applicability. No work requires a strategy review.

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: launch-item-ownership
+expected_outcome: |
+  Slot A cannot launch an item in classic slot B's section, a unified item claimed by B, or an unclaimed unified item. Refusal leaves the sequence and registry byte-identical and creates no worker artifact. Slot A's own classic item and its claim on an item whose ID belongs to B both launch and complete under monitoring.
+context:
+  scaffold_script: place-files.sh

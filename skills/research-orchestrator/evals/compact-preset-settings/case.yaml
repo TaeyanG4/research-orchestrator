@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: compact-preset-settings
+expected_outcome: |
+  Quick setup keeps inactive settings collapsed, active choices visible, and reconfiguration preserves policy and project rules.
+context:
+  scaffold_script: place-files.sh

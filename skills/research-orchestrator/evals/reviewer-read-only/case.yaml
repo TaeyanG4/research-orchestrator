@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: reviewer-read-only
+expected_outcome: |
+  The reviewer resolves the installed verification policy, challenges the contradicted rate claim, accepts the supported completeness claim with evidence, and returns a read-only review without inventing an identity or execution result.
+context:
+  scaffold_script: place-files.sh

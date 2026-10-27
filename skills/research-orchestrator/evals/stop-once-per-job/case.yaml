@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: stop-once-per-job
+expected_outcome: |
+  Stop denies once for each unmonitored owned job in one session, then warns without denying; a newly listed job receives its own first denial.
+context:
+  scaffold_script: place-files.sh

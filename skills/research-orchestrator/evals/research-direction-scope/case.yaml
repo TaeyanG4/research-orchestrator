@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: research-direction-scope
+expected_outcome: |
+  A first research review records the evidence gap, decisions and data audit; competition-shaped omissions are advice until full review parts are explicitly required.
+context:
+  scaffold_script: place-files.sh

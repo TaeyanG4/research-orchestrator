@@ -1,0 +1,14 @@
+{
+  "shared": {"user": "operator", "platforms": "Shell", "language": "en", "guards": "off", "git": "off"},
+  "solo": {"preset": "solo-research", "collector": "off"},
+  "team": {"preset": "team-research", "agents": 2, "collector": "off", "ordering": "queue"},
+  "collector": {"preset": "team-research", "agents": 2, "collector": "Shell/worker"},
+  "team_item": {
+    "title": "Reconcile the archive index",
+    "hypothesis": "The published index counts agree with the source inventory.",
+    "evidence": "Two index tables give different totals for the same collection.",
+    "next_test": "Recount each inventory section and compare the totals.",
+    "sources": "none",
+    "improvement": "none"
+  }
+}

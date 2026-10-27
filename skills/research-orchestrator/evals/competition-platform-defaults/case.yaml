@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: competition-platform-defaults
+expected_outcome: |
+  Adapter defaults follow the declared competition platform, unknown platforms start with none and actionable inactive-gate guidance, inherited defaults change with the platform, and explicit patterns remain intact.
+context:
+  scaffold_script: place-files.sh

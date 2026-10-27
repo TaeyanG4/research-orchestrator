@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: hook-portability
+expected_outcome: |
+  Setup instructions include reversible installer commands and the missing-self-test remedy without claiming live host delivery.
+  The project brief reports that hooks never ran before any self-test record exists.
+  Setup notes use shipped portable wrappers and distinguish command support from
+  installed-host verification, including Antigravity's command-only support.
+context:
+  scaffold_script: place-files.sh

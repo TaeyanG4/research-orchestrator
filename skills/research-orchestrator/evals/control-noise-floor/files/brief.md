@@ -1,0 +1,1 @@
+A policy search selected a routing improvement of 0.004 using an independently calibrated instrument. The same instrument and budget select a 0.006 gain among placebo candidates. Use the research profile with G1 enabled. The placebo artifact is artifacts/placebo.csv. Also explain how this record applies to a work project and a competition.

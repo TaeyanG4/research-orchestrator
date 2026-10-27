@@ -1,0 +1,86 @@
+# {{PROJECT_NAME}} — Plan
+
+{{#if ordering=queue}}
+Ordering: queue
+
+Queue position chooses the next item; scores and Priority are optional because the order already expresses the next useful work.
+
+{{/if}}
+Active unfinished plan items only. Read `<skill-root>/references/plan-items.md` for item format, duplicate checks and priority; `<skill-root>/SKILL.md` for the item lifecycle; and {{#if workflow=classic}}`<skill-root>/references/workflow-classic.md`{{/if}}{{#if workflow=unified}}`<skill-root>/references/workflow-unified.md`{{/if}} for ownership.
+
+{{#if planshape=compact}}
+Use queue position or an optional `Next: H-A-01` in this header to order work. Scores and Priority are optional; still check the discovery index and queued goals for duplicates. Add Sources, Improvement or routing only when useful; omitted Resource/Parallel/Other mean CPU/NO/NONE. Goal and Hypothesis are aliases. Item format:
+
+```markdown
+### H-A-01 — Short title
+{{#if workflow=unified}}
+- Claimed: none | A since YYYY-MM-DD HH:MM
+{{/if}}
+- Goal: <goal or question>
+- Evidence: <observations or context>
+- Next test: <next step>
+{{#if itemsize=staged}}
+- Stages: s1 <name> | s2 <name>
+{{/if}}
+```
+{{/if}}
+
+{{#if planshape=full}}
+{{#if workflow=classic}}
+Each slot keeps its items in its own `## Agent: <name>` section. Item format:
+
+```markdown
+### H-A-01 — Short title
+- Sources: D-B-001, D-A-004 / none
+- Hypothesis: ...
+- Evidence: ...
+- Improvement: ...
+{{#if ordering=priority}}
+- Impact: 0-3
+- Information: 0-3
+- Confidence: 0-3
+- Unblock: 0-3
+- Diversity: 0-3
+- Cost: 0-3
+- Priority: ...
+{{/if}}
+- Resource: CPU | GPU | EITHER
+- Parallel: YES | NO
+- Other: NONE | <external executor>
+- Next test: ...
+{{#if itemsize=staged}}
+- Stages: s1 <name> | s2 <name>
+{{/if}}
+```
+{{/if}}
+{{#if workflow=unified}}
+All items live in the one `## Queue` section below. Item format:
+
+```markdown
+### H-A-01 — Short title
+- Claimed: none | A since YYYY-MM-DD HH:MM
+- Sources: D-B-001, D-A-004 / none
+- Hypothesis: ...
+- Evidence: ...
+- Improvement: ...
+{{#if ordering=priority}}
+- Impact: 0-3
+- Information: 0-3
+- Confidence: 0-3
+- Unblock: 0-3
+- Diversity: 0-3
+- Cost: 0-3
+- Priority: ...
+{{/if}}
+- Resource: CPU | GPU | EITHER
+- Parallel: YES | NO
+- Other: NONE | <external executor>
+- Next test: ...
+{{#if itemsize=staged}}
+- Stages: s1 <name> | s2 <name>
+{{/if}}
+```
+{{/if}}
+{{/if}}
+
+{{PLAN_SECTIONS}}

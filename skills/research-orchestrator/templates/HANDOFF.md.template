@@ -1,0 +1,82 @@
+# {{PROJECT_NAME}} — Handoff
+
+This file records events and resume points. Read `<skill-root>/references/records.md` for record formats, `<skill-root>/references/sessions.md` for slot lifecycle, and `<skill-root>/references/compute.md` for `Active compute`.
+
+`Resource` and `Active compute` describe local compute; named exclusive resources belong in the item's `Other` field so sessions can avoid conflicting use.
+
+## Shared state
+
+- Active agent(s): {{AGENT_NAMES}}
+- Users: {{USERS}}
+- Current project state: initialized
+{{#if phaseclock=on}}
+- Milestones: {{MILESTONES}}
+{{/if}}
+{{#if profile=competition}}
+- Current best: none yet
+- Active compute: none
+- Plan collection: idle
+{{/if}}
+{{#if profile=work,research}}
+{{#if collector=on}}
+- Current best: none yet
+- Active compute: none
+- Plan collection: idle
+{{/if}}
+{{/if}}
+- Open consistency issues: none
+{{#if guards=light,strict}}
+- Not applicable: none
+{{/if}}
+
+{{#if instruments=on}}
+## Instruments
+
+{{/if}}
+{{#if externalactions=on}}
+## External actions
+
+{{/if}}
+
+## Active handoff — Agent sections
+
+Each slot edits only its own section; other sessions read only its `Current host`, `Current user`, and `Current thread` lines, plus the limited startup metadata in `<skill-root>/references/sessions.md` when choosing a slot.
+
+{{HANDOFF_AGENT_SECTIONS}}
+## Completed / review log
+
+Preserve earlier sessions.
+
+{{#if profile=work}}
+Maintain one session summary as items finish and finalize it at close. Preserve each changed stage in a separate dated event as `references/staged-items.md` describes, so summary edits cannot erase its review obligation. Record reusable decisions, dead ends and verified facts in discoveries; routine completions need only the summary. Add artifact paths, discovery links, review verdicts, resource details and follow-up IDs when relevant; omit empty fields. Summary format:
+
+```markdown
+### YYYY-MM-DD HH:MM — A — session
+- Host: <host>
+- User: <user name>
+- Action: <completed work and any stage progress>
+- Result: <outcome and what remains>
+- Completed: H-A-01, H-A-02 / none
+```
+{{/if}}
+{{#if profile=research,competition}}
+Append an event per completed item. Event format:
+
+```markdown
+### YYYY-MM-DD HH:MM — A — H-A-01
+- Host: Claude Code | Codex | Antigravity | <other>
+- User: <user name>
+- Action: ...
+- Result: <one line>; see <discovery ID>
+- Artifacts: <paths> / none
+- Discovery updates: D-A-001 / none — <reason>
+- Review verdict: <discovery ID> CLOSED | HOLD | CHALLENGED / none
+- Resource: CPU | GPU | Other | none
+- Other executor: <executor> / none
+- New plan items: H-A-02, H-A-03 / none — <reason>
+```
+{{/if}}
+
+## Archived history
+
+When this file becomes hard to scan, move older completed-log detail to `docs/<focused-name>.md` and leave a short summary and link here.

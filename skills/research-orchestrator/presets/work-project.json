@@ -1,0 +1,21 @@
+{
+  "name": "work-project",
+  "summary": "a multi-day work project with gap-and-decisions direction reviews",
+  "profile": "work",
+  "workflow": "unified",
+  "verification": "independent-review",
+  "item_size": "staged",
+  "guards": "light",
+  "enforcement": "block",
+  "block": "shell.background, shell.heredoc, jobs.mutate-bound, publish.scan",
+  "platform_mode": "single",
+  "platforms": null,
+  "collector": "off",
+  "queue_limits": "stop at 50, resume at 5",
+  "reviewer": "off",
+  "fallback": "same-host",
+  "asks": [
+    "platforms",
+    "git"
+  ]
+}

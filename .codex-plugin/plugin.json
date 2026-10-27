@@ -1,27 +1,39 @@
 {
   "name": "research-orchestrator",
-  "version": "5.1.0",
-  "description": "Hypothesis-driven research orchestration with scored plans, independent discovery review, adaptive workers, resource-aware execution, and durable handoffs.",
+  "version": "6.0.0",
+  "description": "Coordinate work projects, research, and competitions with presets, classic or unified workflows, configurable guards, operational hooks, and durable handoffs.",
   "author": {
     "name": "TaeyanG4",
     "url": "https://github.com/TaeyanG4"
   },
-  "homepage": "https://github.com/TaeyanG4/research-orchestrator-skill",
-  "repository": "https://github.com/TaeyanG4/research-orchestrator-skill",
+  "homepage": "https://github.com/TaeyanG4/research-orchestrator",
+  "repository": "https://github.com/TaeyanG4/research-orchestrator",
   "license": "MIT",
-  "keywords": ["research", "multi-agent", "hypothesis", "experiments", "handoff", "peer-review"],
+  "keywords": [
+    "research",
+    "multi-agent",
+    "hypothesis",
+    "experiments",
+    "handoff",
+    "peer-review"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Research Orchestrator",
-    "shortDescription": "Orchestrate agent research",
-    "longDescription": "Coordinate hypothesis-driven research with scored per-agent queues, discoveries cross-checked once by a different host, adaptive workers, resource-aware CPU/GPU/Other execution, and durable handoff history.",
+    "shortDescription": "Work, research, and competitions",
+    "longDescription": "Coordinate work projects, research, and competitions through six presets and classic or unified workflows. Track plans, discoveries, and handoffs with configurable guards, operational commands, and optional host hooks.",
     "developerName": "TaeyanG4",
     "category": "Productivity",
-    "capabilities": ["Prioritize hypotheses", "Review discoveries", "Route experiments", "Resume research"],
-    "websiteURL": "https://github.com/TaeyanG4/research-orchestrator-skill",
+    "capabilities": [
+      "Queue and prioritize work",
+      "Preserve findings",
+      "Route long jobs",
+      "Resume any project"
+    ],
+    "websiteURL": "https://github.com/TaeyanG4/research-orchestrator",
     "defaultPrompt": [
       "Initialize Research Orchestrator for this project.",
-      "Review discoveries, generate scored hypotheses, and work the highest-priority item.",
+      "Review findings, prioritize the work queue, and complete the next useful item.",
       "Resume this project from the handoff and continue my agent's plan."
     ],
     "brandColor": "#1687D9"

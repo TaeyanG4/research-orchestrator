@@ -1,0 +1,1 @@
+Use two empty disposable directories. Set CLAUDECODE=1 and remove CODEX_THREAD_ID and GEMINI_* from the test environment. The first project uses initializer defaults; the second uses custom and an explicit verification=independent-review override. Use a neutral user label and never touch the real home.

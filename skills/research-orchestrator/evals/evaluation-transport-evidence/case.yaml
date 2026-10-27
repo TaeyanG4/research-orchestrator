@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: evaluation-transport-evidence
+expected_outcome: |
+  Terminal host limits receive three fresh-session retries before reset waits; quoted diagnostics and recovered failures do not trigger retries.
+  Terminal model-capacity and upstream bridge errors, plus failed output capture, are excluded despite stale success/failure grades; quotations and recovered outages do not cause false exclusions.
+  Recorded chronology and event channels determine eligibility, with source evidence preserved.
+context:
+  scaffold_script: place-files.sh

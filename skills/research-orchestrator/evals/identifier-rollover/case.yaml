@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: identifier-rollover
+expected_outcome: |
+  Identifiers widen beyond their padding without truncation or reuse, and the resulting instrument, insight, measurement, plan reference and prepared external action pass the checker.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: research-queue-optional-summaries
+expected_outcome: |
+  Reconfiguration restores missing collector summaries without rewriting existing state.
+  Both research presets omit optional shared summaries with collection off. Team queue initialization retains the hypothesis, evidence and next test without requiring scores. An enabled collector still requires the shared summaries.
+context:
+  scaffold_script: place-files.sh

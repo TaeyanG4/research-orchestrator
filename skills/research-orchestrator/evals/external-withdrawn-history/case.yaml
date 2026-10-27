@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: external-withdrawn-history
+expected_outcome: |
+  Durable attempt history prevents a new action ID from repeating the same artifact and destination after withdrawal or omission. The agent restores omitted history, obtains documented non-acceptance, and makes an explicit retry before the local stub can run. Never-attempted withdrawn preparations do not block new work.
+context:
+  scaffold_script: place-files.sh

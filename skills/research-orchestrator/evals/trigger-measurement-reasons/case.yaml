@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: trigger-measurement-reasons
+expected_outcome: |
+  Classify clean positive, negative and recovered-repeat measurements while retaining missing or invalid measurements as unknown, each with a reason and repeat number.
+  Contamination takes precedence over timeout; observed selection cannot retroactively convert a full-task timeout to success. Keep the input unchanged and provide a calculation dependent on its contents.
+context:
+  scaffold_script: place-files.sh

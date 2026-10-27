@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: read-hook-opt-in
+expected_outcome: |
+  The default plugin omits read tools. Read bound on plus a project installer run
+  creates one read matcher while preserving plugin deduplication and unrelated hooks.
+  Turning the policy off and rerunning removes only that read registration.
+context:
+  scaffold_script: place-files.sh

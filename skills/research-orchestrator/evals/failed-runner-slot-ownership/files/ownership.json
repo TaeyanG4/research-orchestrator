@@ -1,0 +1,23 @@
+{
+  "clock": "2026-10-27T12:00:00",
+  "slots": [
+    {
+      "slot": "A",
+      "last_activity": "2026-10-27T08:00:00",
+      "status": "launch-failed",
+      "descendants": "live"
+    },
+    {
+      "slot": "B",
+      "last_activity": "2026-10-27T08:00:00",
+      "status": "launch-failed",
+      "descendants": "unverified"
+    },
+    {
+      "slot": "C",
+      "last_activity": "2026-10-27T08:00:00",
+      "status": "launch-failed",
+      "descendants": "proven-ended"
+    }
+  ]
+}

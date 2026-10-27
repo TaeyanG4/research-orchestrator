@@ -1,0 +1,1 @@
+Scenarios: registered interpreter missing, RO_HOOK_PYTHON usable; both missing, python3 usable; python3 unavailable, python usable; only py -3 usable; no usable interpreter; registered interpreter runs scanner returning 17. Use synthetic interpreter names, mock subprocess.run, and synthetic refs bytes ending in CRLF. Verify no alternate scanner runs after exit 17.

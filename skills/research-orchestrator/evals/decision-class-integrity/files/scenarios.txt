@@ -1,0 +1,21 @@
+Use a research project with G1 enabled. Current records are after activation.
+Register I-A-01 with Provenance: own-lineage, Coverage: held-out,
+Measures: extraction quality, Agreement: unmeasured, Resolution: unmeasured,
+Not for: outcome-definition-change, method-change.
+Each discovery cites I-A-01 and has ordinary required fields.
+
+Cases: Decision class: model-changes; MODEL-CHANGE; method-change; model-change.
+Run each separately with light and strict guards.
+The first two labels are intentional input errors and must stay unchanged during audit.
+The latter two identify the same decision; neither can be decided by its own lineage.
+
+Control: use Decision class: data-change with an independent instrument,
+Coverage: complete, Agreement: unmeasured, Resolution: unmeasured, Not for: none,
+and Control: not applicable — exhaustive archive; alternative: full-record checksum.
+Another control records Decision class: other with no instrument.
+
+Repeat malformed model-changes with guards off, with G1 declared inapplicable,
+and with its record date before activation. These do not receive the active schema error.
+
+With G1 enabled but G3 disabled, put Not applicable: G3 — no comparable series
+in Shared state. Capture the unused-exemption diagnostic without changing guard settings.

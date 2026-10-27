@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: external-retry-chain
+expected_outcome: |
+  Three chronological attempts with matching artifact identity and documented non-acceptance after each prior attempt but before its retry form a valid retry chain; invalid ancestry cannot execute, and a completed attempt cannot execute twice. Their journals retain the same service idempotency key.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: competition-direction-review
+expected_outcome: |
+  Gap size and selection-control evidence determine the direction and explicit micro-variant budget, beyond field completeness.
+  Recognize repeated scores within instrument resolution, record a complete direction review, and change the plan to a materially distinct family or a justified saturation exit.
+context:
+  scaffold_script: place-files.sh

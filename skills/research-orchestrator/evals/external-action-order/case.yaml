@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: external-action-order
+expected_outcome: |
+  Record a candidate hash, destination, and prospective expected outcome before invoking the local outward-action simulator once, then reconcile its observed result under the same ledger ID.
+context:
+  scaffold_script: place-files.sh

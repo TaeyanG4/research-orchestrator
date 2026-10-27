@@ -1,0 +1,16 @@
+# {{PROJECT_NAME}} — Agent Rules
+<!-- ro-template: v3.4 -->
+
+{{SUMMARY}}
+
+## Project settings
+
+{{SETTINGS_BLOCK}}
+
+## Rules for this project
+
+`<skill-root>` contains `SKILL.md`. At startup read only that core, this file, the discovery index (`ro index`), and needed records. The core's operation table owns the general reading list; open its references when doing the operation.
+
+These pointers cover active choices that differ from defaults:
+
+{{READING_POINTERS}}

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: plugin-shim-availability
+expected_outcome: |
+  Plugin users receive a usable ro shim pointing to the plugin checkout, with no copied skill, unchanged hook registration and actionable brief guidance.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,10 @@
+{
+  "research": [
+    {"id": "D-A-001", "title": "Revise the extraction procedure", "finding": "Changing the paragraph extraction procedure reduced missing citations on the same held-out archive.", "evidence": "The supplied audit measured 12 missing citations before and 3 afterward; the input documents and outcome definition were unchanged."},
+    {"id": "D-A-002", "title": "Replace corrupted source files", "finding": "Replacing truncated scans with complete scans restored the missing appendix entries.", "evidence": "The same extraction procedure recovered every appendix entry from the replacement files; the procedure and outcome definition were unchanged."}
+  ],
+  "competition": [
+    {"id": "D-A-001", "title": "Correct the outcome definition", "finding": "The project will count the announced horizon instead of the mistakenly configured shorter horizon.", "evidence": "The public rules specify a seven-day horizon, while the existing evaluation used one day."},
+    {"id": "D-A-002", "title": "Combine the candidate approaches", "finding": "A fixed weighted combination improved the held-out score over either constituent.", "evidence": "The two constituents scored 0.71 and 0.73; their fixed weighted combination scored 0.75 on the same held-out evaluation."}
+  ]
+}

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: competition-runtime-observations
+expected_outcome: |
+  The dated authoritative runtime limit and measured candidate runtime justify a hold.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: installer-runtime-selection
+expected_outcome: |
+  A Codex-only upgrade selects the updated runtime for the shared CLI and project publication gate. Removing a project installation leaves the CLI executable through the surviving global registration.
+context:
+  scaffold_script: place-files.sh

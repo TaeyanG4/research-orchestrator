@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hook-basename-dispatch
+expected_outcome: |
+  Basename and PATH invocations resolve the adjacent installed runner, preserve event arguments and terminate.
+context:
+  scaffold_script: place-files.sh

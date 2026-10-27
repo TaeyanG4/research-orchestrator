@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: launch-root-binding
+expected_outcome: |
+  Shared immutable inputs allow concurrent jobs with distinct outputs; any output overlap remains refused.
+  A job launched from the project root protects only its worker and explicit input; live edit checks allow the three coordination files, and the job is stopped, monitored and closed without changing its inputs.
+context:
+  scaffold_script: place-files.sh

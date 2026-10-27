@@ -1,0 +1,305 @@
+{
+  "path_variables": {
+    "source": "source",
+    "workspace": "workspace/evals",
+    "project": "workspace/evals/_runs/own/project",
+    "runtime": "workspace/evals/_runs/own/skill",
+    "installed": "host/skills/installed"
+  },
+  "existing_files": {
+    "{source}/README.md": "Source instructions",
+    "{runtime}/SKILL.md": "Assigned skill",
+    "{runtime}/graders/answer.md": "Private assertion",
+    "{workspace}/_runs/other/project/answer.md": "Other result",
+    "{installed}/SKILL.md": "Installed skill"
+  },
+  "scenarios": [
+    {
+      "name": "python-flags",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "@'\nfrom pathlib import Path\nprint(Path(r'{runtime}/SKILL.md').read_text())\n'@ | python -B -u -",
+            "exit_code": 0,
+            "aggregated_output": "Assigned skill"
+          }
+        }
+      ],
+      "previous_findings": [
+        {
+          "reason": "eval_or_grader_path",
+          "path": "@\nfrom pathlib import Path\nprint(Path(r{runtime}/SKILL.md).read_text())\n@",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        }
+      ]
+    },
+    {
+      "name": "python-implicit-stdin",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "@'\nfrom pathlib import Path\nprint(Path(r'{runtime}/SKILL.md').read_text())\n'@ | python ",
+            "exit_code": 0,
+            "aggregated_output": "Assigned skill"
+          }
+        }
+      ],
+      "previous_findings": [
+        {
+          "reason": "eval_or_grader_path",
+          "path": "@\nfrom pathlib import Path\nprint(Path(r{runtime}/SKILL.md).read_text())\n@",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        }
+      ]
+    },
+    {
+      "name": "unparsed-command",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "powershell -Command \"@'\nfrom pathlib import Path\np=Path(r'{runtime}/SKILL.md')\n'@ | python -B -",
+            "exit_code": 0,
+            "aggregated_output": "Assigned skill"
+          }
+        }
+      ],
+      "previous_findings": [
+        {
+          "reason": "eval_or_grader_path",
+          "path": "powershell -Command \"@'\nfrom pathlib import Path\np=Path(r'{runtime}/SKILL.md')\n'@ | python -B -",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        }
+      ]
+    },
+    {
+      "name": "ancestor-array",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "$parents = @('../../..', '.'); foreach ($parent in $parents) { $rules = Join-Path $parent 'AGENTS.md'; if (Test-Path -LiteralPath $rules) { Write-Output $rules; Get-Content -LiteralPath $rules -Raw } }",
+            "exit_code": 0,
+            "aggregated_output": ""
+          }
+        }
+      ],
+      "previous_findings": [
+        {
+          "reason": "eval_or_grader_path",
+          "path": "../../..,",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        }
+      ]
+    },
+    {
+      "name": "python-source",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "@'\nfrom pathlib import Path\nprint(Path(r'{source}/README.md').read_text())\n'@ | python -B -",
+            "exit_code": 0,
+            "aggregated_output": "Source instructions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "python-installed",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "@'\nfrom pathlib import Path\nprint(Path(r'{installed}/SKILL.md').read_text())\n'@ | python ",
+            "exit_code": 0,
+            "aggregated_output": "Installed skill"
+          }
+        }
+      ]
+    },
+    {
+      "name": "python-other-run",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "@'\nfrom pathlib import Path\nprint(Path(r'{workspace}/_runs/other/project/answer.md').read_text())\n'@ | python -u -",
+            "exit_code": 0,
+            "aggregated_output": "Other result"
+          }
+        }
+      ]
+    },
+    {
+      "name": "unparsed-grader",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "powershell -Command \"@'\nfrom pathlib import Path\np=Path(r'{runtime}/graders/answer.md')\n'@ | python -B -",
+            "exit_code": 0,
+            "aggregated_output": "Private assertion"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ancestor-present",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "$parents = @('../../..', '.'); foreach ($parent in $parents) { $rules = Join-Path $parent 'AGENTS.md'; if (Test-Path -LiteralPath $rules) { Write-Output $rules; Get-Content -LiteralPath $rules -Raw } }",
+            "exit_code": 0,
+            "aggregated_output": "{workspace}/AGENTS.md\nPrivate workspace instructions"
+          }
+        }
+      ],
+      "extra_files": {
+        "{workspace}/AGENTS.md": "Private workspace instructions"
+      }
+    },
+    {
+      "name": "ancestor-comma-filename",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "$parents = @('../../..,', '.'); foreach ($parent in $parents) { $rules = Join-Path $parent 'AGENTS.md'; if (Test-Path -LiteralPath $rules) { Write-Output $rules; Get-Content -LiteralPath $rules -Raw } }",
+            "exit_code": 0,
+            "aggregated_output": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "missing-trace",
+      "events": [],
+      "previous_findings": [
+        {
+          "reason": "eval_or_grader_path",
+          "path": "{runtime}/SKILL.md",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        }
+      ]
+    },
+    {
+      "name": "python-data-literals",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "@'\nimport shutil\nfrom pathlib import Path\nfolder = Path('local-skill')\nvalue = 'prefix'\ncount = 4\n# The evals component is only fixture data\nassert folder.name != 'evals'\nchanged = value.replace('workspace/evals', 'recorded/area')\nignore = shutil.ignore_patterns('evals', '*.pyc')\nprint(f'Copied {count} files; no evals directory.')\n'@ | python -B -",
+            "exit_code": 0,
+            "aggregated_output": "Copied 4 files; no evals directory."
+          }
+        }
+      ],
+      "previous_findings": [
+        {
+          "reason": "eval_or_grader_path",
+          "path": "evals",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        },
+        {
+          "reason": "eval_or_grader_path",
+          "path": "workspace/evals",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        }
+      ]
+    },
+    {
+      "name": "powershell-name-filter",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "Get-ChildItem . -Recurse -Directory | Where-Object { $_.Name -eq 'evals' }",
+            "exit_code": 0,
+            "aggregated_output": ""
+          }
+        }
+      ],
+      "previous_findings": [
+        {
+          "reason": "eval_or_grader_path",
+          "path": "evals",
+          "operation": "command_execution",
+          "evidence": "events.jsonl:1",
+          "contaminating": true,
+          "outcome": "attempted_access"
+        }
+      ]
+    },
+    {
+      "name": "python-data-then-read",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "@'\nimport shutil\nfrom pathlib import Path\nfolder = Path('local-skill')\nvalue = 'prefix'\ncount = 4\n# The evals component is only fixture data\nassert folder.name != 'evals'\nchanged = value.replace('workspace/evals', 'recorded/area')\nignore = shutil.ignore_patterns('evals', '*.pyc')\nprint(f'Copied {count} files; no evals directory.')\nfrom pathlib import Path\nprint(Path('evals/answer.md').read_text())\n'@ | python -B -",
+            "exit_code": 0,
+            "aggregated_output": "Private assertion"
+          }
+        }
+      ],
+      "extra_files": {
+        "{project}/evals/answer.md": "Private assertion"
+      }
+    },
+    {
+      "name": "filter-then-read",
+      "events": [
+        {
+          "type": "item.completed",
+          "item": {
+            "type": "command_execution",
+            "command": "Get-ChildItem . -Recurse -Directory | Where-Object { $_.Name -eq 'evals' }; Get-Content 'evals/answer.md'",
+            "exit_code": 0,
+            "aggregated_output": "Private assertion"
+          }
+        }
+      ],
+      "extra_files": {
+        "{project}/evals/answer.md": "Private assertion"
+      }
+    }
+  ]
+}

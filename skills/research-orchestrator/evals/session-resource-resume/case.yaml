@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: session-resource-resume
+expected_outcome: |
+  Commands retain host-session and slot identity; exclusive resources are recorded separately from local compute and timestamp tolerance is five minutes.
+context:
+  scaffold_script: place-files.sh

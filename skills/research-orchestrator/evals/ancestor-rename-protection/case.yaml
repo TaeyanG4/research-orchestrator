@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: ancestor-rename-protection
+expected_outcome: |
+  Relative and absolute Rename-Item sources that are ancestors of a live bound directory are denied; a sibling rename is allowed without executing any rename and the owned worker is stopped cleanly.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: close-recorded-scope
+expected_outcome: |
+  Reusable findings are written even though close cannot inspect chat; close reports recorded follow-up status without claiming automatic agent-output tracking.
+context:
+  scaffold_script: place-files.sh

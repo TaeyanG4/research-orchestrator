@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: host-runner-diagnostics
+expected_outcome: |
+  Runner diagnostics establish warning/benign decisions while missing diagnostics remain inconclusive and synthetic evidence is not promoted to a real host measurement.
+context:
+  scaffold_script: place-files.sh

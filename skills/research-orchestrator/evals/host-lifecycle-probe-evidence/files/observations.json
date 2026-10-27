@@ -1,0 +1,7 @@
+[
+  {"id": "stop-matching", "target_event": "Stop", "target_check": "jobs.unmonitored", "status": "completed", "tool_exit": 0, "diagnostic": {"event": "Stop", "checks": ["jobs.unmonitored"], "decision": "warned"}},
+  {"id": "post-matching", "target_event": "PostToolUse", "target_check": "records.timestamp", "status": "completed", "tool_exit": 0, "future_record_written": true, "diagnostic": {"event": "PostToolUse", "checks": ["records.timestamp"], "decision": "warned"}},
+  {"id": "post-wrong-event", "target_event": "PostToolUse", "target_check": "records.timestamp", "status": "completed", "tool_exit": 0, "future_record_written": true, "diagnostic": {"event": "Stop", "checks": ["records.timestamp"], "decision": "warned"}},
+  {"id": "post-no-mutation", "target_event": "PostToolUse", "target_check": "records.timestamp", "status": "completed", "tool_exit": 0, "future_record_written": false, "diagnostic": {"event": "PostToolUse", "checks": ["records.timestamp"], "decision": "warned"}},
+  {"id": "stop-no-diagnostic", "target_event": "Stop", "target_check": "jobs.unmonitored", "status": "completed", "tool_exit": 0, "diagnostic": null}
+]

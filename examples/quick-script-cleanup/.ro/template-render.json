@@ -1,0 +1,4 @@
+{
+  "version": "v3.4",
+  "render_key": "profile=work workflow=classic verification=self itemsize=short guards=off guardset=auto mode=single git=off instruments=off externalactions=off collector=off preset=quick external_actions_source=default pointers=hooks"
+}

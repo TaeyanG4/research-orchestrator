@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: exclusive-license-routing
+expected_outcome: |
+  A non-compute licensed seat is recorded as an exclusive Other resource, with a shared reservation outside the local launcher before export.
+context:
+  scaffold_script: place-files.sh

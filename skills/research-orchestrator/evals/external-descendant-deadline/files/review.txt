@@ -1,0 +1,8 @@
+Completed independent review
+Author session: fixture-author-session
+Reviewer session: fixture-review-session
+Artifact: release-note.txt
+Verdict: PASS
+Scope: X-A-001; Destination: mock://archive/success
+Scope: X-A-002; Destination: mock://archive/uncertain
+The unchanged note meets both identity-preservation contracts. Both approvals cover the supplied local mock only, once per destination.

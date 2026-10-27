@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: repair-missing-coordination
+expected_outcome: |
+  Conflicting repair options fail without changing any file. Repair recovers the roster from reliable surviving records or requires it explicitly, refuses to invent missing project settings, preserves surviving bytes and user lists, and leaves the recovered projects with zero checker errors and warnings.
+  Reconfiguration preserves the exact bytes of the Project rules region, including mixed line endings and trailing whitespace.
+context:
+  scaffold_script: place-files.sh

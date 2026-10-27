@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: automatic-session-registration
+expected_outcome: |
+  An identified startup selects only one eligible free or same-user slot, persists the route for later commands, and leaves ambiguous, other-user and unidentified sessions unregistered without rewriting handoff ownership.
+context:
+  scaffold_script: place-files.sh

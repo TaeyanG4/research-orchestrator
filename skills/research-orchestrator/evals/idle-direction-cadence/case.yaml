@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: idle-direction-cadence
+expected_outcome: |
+  Idle work/research stay INFO without dated item activity, competition retains cadence, and empty idle close writes Paused.
+context:
+  scaffold_script: place-files.sh

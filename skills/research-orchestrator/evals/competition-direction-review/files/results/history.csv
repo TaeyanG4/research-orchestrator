@@ -1,0 +1,6 @@
+attempt,family,error,instrument,cohort
+1,threshold-tuning,0.400,I-A-01,current
+2,threshold-tuning,0.401,I-A-01,current
+3,threshold-tuning,0.399,I-A-01,current
+4,threshold-tuning,0.400,I-A-01,current
+5,threshold-tuning,0.400,I-A-01,current

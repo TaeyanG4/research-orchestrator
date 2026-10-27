@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: milestone-state-validation
+expected_outcome: |
+  Malformed and overdue unfinished milestones are diagnosed; completed controls remain clean without rewriting uncompleted work as complete.
+context:
+  scaffold_script: place-files.sh

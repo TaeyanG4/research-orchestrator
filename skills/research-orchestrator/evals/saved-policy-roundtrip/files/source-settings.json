@@ -1,0 +1,20 @@
+{
+  "preset": "team-research",
+  "platforms": "Claude Code, Codex",
+  "environment": "linux/bash",
+  "language": "ko",
+  "autonomy": "away",
+  "guards": "strict since 2001-01-01",
+  "guard_set": "G5,E1",
+  "guard_thresholds": "saturation=3, direction-review=2d, insight-due=12h, effort=60%, milestones=15/40/80",
+  "enforcement": "block",
+  "block": "external.gate, publish.scan",
+  "read_bound": "on",
+  "external_actions": "deploytool publish; release-client send",
+  "publish_scan": "secrets; literal:INTERNAL-ONLY",
+  "brief_requirements": "work: Acceptance",
+  "git": "off",
+  "competition": "hub/cedar-origin",
+  "phase_clock": "2001-01-01,2001-02-01",
+  "queue_freeze": "until 2099-12-31"
+}

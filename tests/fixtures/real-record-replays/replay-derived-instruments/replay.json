@@ -1,0 +1,8 @@
+{
+  "provenance": "anonymised from a past project's records",
+  "records": ["D-A-042", "D-A-083", "D-A-112", "D-A-166", "D-A-235"],
+  "decision": "D-A-083",
+  "override": "D-A-166",
+  "insight": "D-A-235",
+  "checks": ["guard.instrument.circular", "guard.override.recheck", "guard.insight.overdue"]
+}

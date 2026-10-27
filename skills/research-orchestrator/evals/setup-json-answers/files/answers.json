@@ -1,0 +1,7 @@
+{
+  "preset": "work-project",
+  "user": "operator",
+  "platforms": "local",
+  "environment": "linux/bash",
+  "language": "fr"
+}

@@ -1,0 +1,13 @@
+{
+  "upgrade": {
+    "setup": "Create a disposable home and Git project; install Claude Code only into the project.",
+    "older_runtime": "Replace that installed Claude scripts/ro.py with a script that exits unsuccessfully, simulating an unusable previous version.",
+    "action": "Install Codex only into the same project, then invoke the shared ro shim with --help.",
+    "inspect": "Read the shared shim and the project pre-push registration."
+  },
+  "fallback": {
+    "setup": "Create another disposable home and project; install Claude Code globally, then Codex into the project.",
+    "action": "Uninstall Codex from the project, then invoke the shared ro shim with --help.",
+    "inspect": "Read the shared shim and confirm the global Claude runtime still exists."
+  }
+}

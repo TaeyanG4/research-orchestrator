@@ -1,0 +1,8 @@
+[
+  {"id": "python-options", "command": "python tools/ro.py --project workspace --slot A --session fixture external -- release-tool publish artifact.txt"},
+  {"id": "env-options", "command": "env MODE=test python3 -S tools/ro.py --session fixture --project=workspace --slot=A external -- release-tool publish artifact.txt"},
+  {"id": "shim-options", "command": "ro --project workspace --slot A --session fixture external -- release-tool publish artifact.txt"},
+  {"id": "direct", "command": "release-tool publish artifact.txt"},
+  {"id": "lookalike", "command": "release-tool publish ro.py external artifact.txt"},
+  {"id": "second-statement", "command": "ro --project workspace external -- safe-tool; release-tool publish artifact.txt"}
+]

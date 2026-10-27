@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: host-name-detection
+expected_outcome: |
+  Antigravity is explicitly named, while hook support remains command-only.
+context:
+  scaffold_script: place-files.sh

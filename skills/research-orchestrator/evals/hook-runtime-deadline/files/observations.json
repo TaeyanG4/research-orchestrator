@@ -1,0 +1,10 @@
+{
+  "observations": [
+    {"id": "configured-watchdog", "configured_interpreter_matches": true, "python_processes": 1, "watchdog": "os._exit", "deadline_seconds": 9, "p95_ms": 100, "hook_output_correct": true},
+    {"id": "fallback-child", "configured_interpreter_matches": false, "python_processes": 2, "killable_child": true, "deadline_seconds": 9, "p95_ms": 200, "hook_output_correct": true},
+    {"id": "unbounded-inline", "configured_interpreter_matches": true, "python_processes": 1, "watchdog": null, "p95_ms": 60, "hook_output_correct": true},
+    {"id": "ordinary-timeout", "event": "PreToolUse", "deadline_seconds": 9, "timed_out": true, "exit": 0, "visible_failure": true},
+    {"id": "publication-timeout", "event": "pre-push", "deadline_seconds": 9, "timed_out": true, "exit": 0, "visible_failure": true},
+    {"id": "linux-unmeasured", "os": "Linux", "p95_ms": null}
+  ]
+}

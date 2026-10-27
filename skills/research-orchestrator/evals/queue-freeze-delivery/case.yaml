@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: queue-freeze-delivery
+expected_outcome: |
+  A valid optional delivery date and queue freeze are recorded; the checker warns only after the inclusive freeze date; existing work remains actionable without new scope.
+context:
+  scaffold_script: place-files.sh

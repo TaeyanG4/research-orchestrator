@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: release-ci-matrix
+expected_outcome: |
+  The review identifies the three operating systems, Python 3.12, pytest setup, release validator command, and read-only permissions without claiming a remote CI pass.
+context:
+  scaffold_script: place-files.sh

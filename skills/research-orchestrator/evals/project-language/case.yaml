@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: project-language
+expected_outcome: |
+  Complete the timing comparison in the existing Korean-language project, write new free text and the final reply in Korean, retain English structural tokens, use a compact self-verified discovery and a Next step work follow-up, and close with zero checker ERROR findings.
+context:
+  scaffold_script: place-files.sh

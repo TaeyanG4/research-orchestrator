@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: v2-rules-upgrade
+expected_outcome: |
+  Upgrade the small released-v2 project to the solo-research preset and unified workflow without losing a byte of Project rules, its queued hypothesis, discovery, or completed history.
+context:
+  scaffold_script: place-files.sh

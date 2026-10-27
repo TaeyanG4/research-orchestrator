@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: dangling-instrument-evidence
+expected_outcome: |
+  Active applicable instrument references report missing IDs even alongside valid evidence; structural outcomes enforce rejection evidence across prose languages, missing or invalid outcomes are reported, and historical and inapplicable records retain their exemptions.
+context:
+  scaffold_script: place-files.sh

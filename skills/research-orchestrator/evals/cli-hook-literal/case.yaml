@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: cli-hook-literal
+expected_outcome: |
+  The ordinary literal hook remains usable as a search term, observation value, project/session value, and child argument; the actual hook subcommand still returns a valid response.
+context:
+  scaffold_script: place-files.sh

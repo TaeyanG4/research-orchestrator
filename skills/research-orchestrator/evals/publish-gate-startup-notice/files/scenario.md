@@ -1,0 +1,3 @@
+# Local fixture
+
+Create isolated Git checkouts with ordinary and custom core.hooksPath values; keep Git config, home, host-detection variables and clock controlled. Capture SessionStart and ro brief for selected and unselected sessions with no registration, a registration for another checkout, and a matching registration under research-orchestrator/registrations/<scope-sha256>.json as install.py computes it. A fixture registration only tests notice detection, not an installed gate. Include a non-Git directory and a standalone runtime without install.py. Leave existing hooks and policy unchanged.

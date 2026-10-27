@@ -1,0 +1,15 @@
+{
+  "trials": [
+    {"remove": "claude-code", "survivor": ".codex", "project": "literal-$team-'quote-`tick"},
+    {"remove": "codex", "survivor": ".claude", "project": "second-project"}
+  ],
+  "gate_input": "malformed refs\n",
+  "audit_schema": {
+    "trials": [{"removed": "host name", "survivor": "host directory", "gate_exists": true, "gate_exit": 1, "gate_decision": "deny"}],
+    "literal_path_roundtrip": true,
+    "shim_help_exit": 0,
+    "prefix_help_exit": 0,
+    "portable_host": "claude-code",
+    "codex_reinstall_after_move": true
+  }
+}

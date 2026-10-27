@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: stop-absent-job-registry
+expected_outcome: |
+  Both wrappers return quietly without Python only when the primary and recovery job registries are absent; a recovery-only registry preserves runtime checking and wrappers leave host stdin for the runtime.
+context:
+  scaffold_script: place-files.sh

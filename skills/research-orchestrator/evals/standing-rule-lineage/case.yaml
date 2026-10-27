@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: standing-rule-lineage
+expected_outcome: |
+  The standing policy uses Replaces to connect the schema-change snapshot rule to the retired nightly rule, marks offline documentation as a new requirement with none, and preserves unrelated policy and settings.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: installer-plugin-deduplication
+expected_outcome: |
+  The active Claude plugin leaves exactly one research-orchestrator hook provider after reinstall.
+context:
+  scaffold_script: place-files.sh

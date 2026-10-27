@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 350" width="960" height="350" role="img" aria-labelledby="title desc">
+  <title id="title">Research Orchestrator setup flow</title>
+  <desc id="desc">Choose a preset and name; answer only unresolved questions, with detected defaults reported. The initializer then writes agents.md, plan.md, discoveries.md, and handoff.md. Rendering metadata is stored in .ro/template-render.json.</desc>
+  <defs>
+    <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#616e7c" />
+    </marker>
+  </defs>
+  <rect x="1" y="1" width="958" height="348" rx="14" fill="#f5f7fa" stroke="#cbd2d9" />
+  <text x="24" y="32" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">Choose preset and name; ask only unresolved questions</text>
+  <rect x="24" y="48" width="176" height="164" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <circle cx="46" cy="72" r="12" fill="#2f6fde" />
+  <text x="46" y="77" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#ffffff" font-size="13px" font-weight="700">1</text>
+  <text x="66" y="77" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="15px" font-weight="600">Choose a preset</text>
+  <text x="40" y="104" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="12.5px">quick</text>
+  <text x="40" y="122" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="12.5px">work-project</text>
+  <text x="40" y="140" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="12.5px">solo-research</text>
+  <text x="40" y="158" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="12.5px">team-research</text>
+  <text x="40" y="176" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="12.5px">competition-solo</text>
+  <text x="40" y="194" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="12.5px">competition-team</text>
+  <rect x="220" y="48" width="176" height="164" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <circle cx="242" cy="72" r="12" fill="#2f6fde" />
+  <text x="242" y="77" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#ffffff" font-size="13px" font-weight="700">2</text>
+  <text x="262" y="77" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="15px" font-weight="600">Your name</text>
+  <text x="236" y="104" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">one word, such as user1</text>
+  <text x="236" y="122" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">recorded as the user</text>
+  <text x="236" y="140" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">of this session</text>
+  <rect x="416" y="48" width="176" height="164" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <circle cx="438" cy="72" r="12" fill="#2f6fde" />
+  <text x="438" y="77" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#ffffff" font-size="13px" font-weight="700">3</text>
+  <text x="458" y="77" font-family="Helvetica, Arial, sans-serif" fill="#1f2933" font-size="15px" font-weight="600">Preset questions</text>
+  <text x="432" y="104" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">Platforms</text>
+  <text x="432" y="122" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">Environment: detected</text>
+  <text x="432" y="140" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">Language: inferred; en default</text>
+  <text x="432" y="158" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">Competition, phase clock</text>
+  <text x="432" y="176" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">(competition presets)</text>
+  <text x="432" y="194" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">Git sync (in a repository)</text>
+  <path d="M201,130 H217" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M397,130 H413" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M593,130 H633" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <rect x="636" y="98" width="300" height="64" rx="10" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <text x="786" y="126" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="13px" font-weight="600">init_research_orchestrator.py</text>
+  <text x="786" y="147" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">flags only; reports the defaults it used</text>
+  <path d="M786,162 V222 H662 V234" stroke="#616e7c" stroke-width="1.8" fill="none" />
+  <path d="M110,234 H662" stroke="#616e7c" stroke-width="1.8" fill="none" />
+  <path d="M110,234 V254" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M294,234 V254" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M478,234 V254" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <path d="M662,234 V254" stroke="#616e7c" stroke-width="1.8" fill="none" marker-end="url(#head)" />
+  <text x="846" y="229" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px"><tspan x="846">render metadata at setup;</tspan><tspan x="846" dy="16">jobs/receipts on demand</tspan></text>
+  <rect x="24" y="258" width="172" height="72" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="110" y="287" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="13px" font-weight="600">agents.md</text>
+  <text x="110" y="309" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">settings, project rules</text>
+  <rect x="208" y="258" width="172" height="72" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="294" y="287" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="13px" font-weight="600">plan.md</text>
+  <text x="294" y="309" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">unfinished items</text>
+  <rect x="392" y="258" width="172" height="72" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="478" y="287" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="13px" font-weight="600">discoveries.md</text>
+  <text x="478" y="309" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">findings, review state</text>
+  <rect x="576" y="258" width="172" height="72" rx="10" fill="#ffffff" stroke="#2f6fde" stroke-width="1.5" />
+  <text x="662" y="287" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="13px" font-weight="600">handoff.md</text>
+  <text x="662" y="309" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">state, events, resume</text>
+  <rect x="760" y="258" width="172" height="72" rx="10" stroke-dasharray="5 4" fill="#ffffff" stroke="#9aa5b1" stroke-width="1.5" />
+  <text x="846" y="287" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, Menlo, monospace" fill="#1f2933" font-size="13px" font-weight="600">.ro/</text>
+  <text x="846" y="309" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" fill="#52606d" font-size="12px">render key, jobs, receipts</text>
+</svg>

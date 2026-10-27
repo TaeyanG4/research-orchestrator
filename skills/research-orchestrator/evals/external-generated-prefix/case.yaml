@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: external-generated-prefix
+expected_outcome: |
+  Actual generated Bash and PowerShell prefixes containing -E -S pass the external-action gate when they invoke ro.py external, while a separate trailing direct release command is denied in either dialect under the same blocking regex policy.
+context:
+  scaffold_script: place-files.sh

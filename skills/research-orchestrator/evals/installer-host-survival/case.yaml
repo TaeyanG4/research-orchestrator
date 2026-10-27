@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: installer-host-survival
+expected_outcome: |
+  Both partial-uninstall orders leave an executable gate pointing to the surviving runtime; shell-special paths stay literal, the optional shim and reported command prefix execute, and portability claims distinguish the host configurations.
+context:
+  scaffold_script: place-files.sh

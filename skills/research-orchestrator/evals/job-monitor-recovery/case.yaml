@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: job-monitor-recovery
+expected_outcome: |
+  A monitor restarted after heartbeat recovery remains active until the job finishes, retains the stall incident, and records successful terminal completion.
+context:
+  scaffold_script: place-files.sh

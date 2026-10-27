@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: unified-research-resume
+expected_outcome: |
+  Resume slot A, claim H-A-01 before analysis, record the measured source imbalance as a discovery, create the justified H-A-02 follow-up, remove H-A-01, and close without leaving a claim.
+context:
+  scaffold_script: place-files.sh

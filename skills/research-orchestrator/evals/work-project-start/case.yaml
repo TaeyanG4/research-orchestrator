@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: work-project-start
+expected_outcome: |
+  A work-project preset creates the four coordination files, a compact unified queue ordered by position or an explicit Next pointer, staged unfinished work, and one useful setup-session event without a routine setup discovery or changes to the source brief. Useful Ready by and Important stages fields remain compatible with compact items; duplicate fields and redundant bookkeeping do not.
+context:
+  scaffold_script: place-files.sh

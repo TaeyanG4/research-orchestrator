@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"/absolute/path/to/plugin/hooks/ro-hook.sh\" SessionStart --general",
+            "commandWindows": "& \"/absolute/path/to/plugin/hooks/ro-hook.cmd\" SessionStart --general",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"/absolute/path/to/plugin/hooks/ro-hook.sh\" PreToolUse",
+            "commandWindows": "& \"/absolute/path/to/plugin/hooks/ro-hook.cmd\" PreToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"/absolute/path/to/plugin/hooks/ro-hook.sh\" PostToolUse --general",
+            "commandWindows": "& \"/absolute/path/to/plugin/hooks/ro-hook.cmd\" PostToolUse --general",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"/absolute/path/to/plugin/hooks/ro-hook.sh\" Stop --general",
+            "commandWindows": "& \"/absolute/path/to/plugin/hooks/ro-hook.cmd\" Stop --general",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

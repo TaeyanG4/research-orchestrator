@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: active-record-history
+expected_outcome: |
+  Claim, release, launch, brief and close operate on live sections even beside archived copies of the same IDs and slot. The checker uses the current operator without duplicate findings from history, the current item launches despite archived compute, and a real Shared state compute conflict still refuses launch without reserving an ID. Historical-only IDs are refused and archived bytes survive closure.
+context:
+  scaffold_script: place-files.sh

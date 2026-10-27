@@ -1,0 +1,4 @@
+[
+  {"name":"undeclared-bash","dialect":"bash","declared_shell":"powershell","command":"rm runs/job-a/input.txt; worker &","reason":"Known tool dialects retain bound-file and background checks across project shell defaults."},
+  {"name":"undeclared-powershell","dialect":"powershell","declared_shell":"bash","command":"Remove-Item runs/job-a/input.txt; worker &","reason":"Known tool dialects retain bound-file and background checks across project shell defaults."}
+]

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: review-session-chronology
+expected_outcome: |
+  The older independent session remains eligible for its later review, while a future session start and a future review time cannot support VERIFIED states through cross-host eligibility or legacy records. Offset-bearing review times compare as instants against the discovery day in the checker's timezone.
+context:
+  scaffold_script: place-files.sh

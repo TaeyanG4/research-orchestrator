@@ -1,0 +1,8 @@
+All current records are dated after guard activation.
+A: X-A-001 and X-A-002 each have Family: parser-a; Final picks names both without rationale.
+B: As A, but X-A-002 has Family: parser-b.
+C: As A, with rationale: separate deployment constraints justify their shared implementation risk.
+D: As A, but X-A-002 has no Family; Final picks includes (families: parser-a, parser-b).
+E: Final picks cites X-A-001 and absent X-A-099.
+F: As A, but Final picks falsely claims (families: parser-a, parser-b), without rationale.
+Controls: selected actions before guard activation, including one without Family; G11 declared not applicable with a reason.

@@ -1,0 +1,3 @@
+# PostToolUse scenarios
+
+Use four coordination files (agents.md, plan.md, discoveries.md, handoff.md), with Enforcement: warn. Establish a records snapshot using the installed adapter, then call the runner twice without changes. Count coordination-body reads and child launches separately; warming the small snapshot cache is allowed. Next change discoveries.md to introduce a duplicate heading ID and submit PostToolUse. Finally create a warnings.log entry with the text "pending operational warning" and submit PostToolUse. Report the JSON replies and observed counts for each phase. Preserve the fixture project for inspection.

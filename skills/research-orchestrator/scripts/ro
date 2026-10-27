@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+"""Short entry point for the operational commands."""
+import sys
+
+previous_no_bytecode = sys.dont_write_bytecode
+sys.dont_write_bytecode = True
+from ro_hook_runner import CACHE_OPTIONS
+sys.dont_write_bytecode = previous_no_bytecode or "-B" in CACHE_OPTIONS
+from ro import main
+
+raise SystemExit(main())

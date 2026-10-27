@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: hook-root-termination
+expected_outcome: |
+  Real hook wrappers finish their ancestor searches within three seconds for both host project hints and Windows path spellings. Drive and separator-free fixed points terminate, UNC traversal stops at the share, and valid project ancestors still dispatch once with unchanged stdin and cwd. The report distinguishes native execution, injected physical paths, and unavailable wrappers.
+context:
+  scaffold_script: place-files.sh

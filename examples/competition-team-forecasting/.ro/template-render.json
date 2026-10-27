@@ -1,0 +1,4 @@
+{
+  "version": "v3.4",
+  "render_key": "profile=competition workflow=classic verification=hybrid itemsize=short guards=light guardset=auto mode=multi git=off instruments=on externalactions=on collector=off preset=competition-team external_actions_source=explicit pointers=verification,research-guards,decision-guards,competition,external-actions,hooks"
+}

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: default-cli-shim
+expected_outcome: |
+  Default installs provide a usable ro shim, --no-shim suppresses its creation, and the explicit --shim compatibility option still works.
+context:
+  scaffold_script: place-files.sh

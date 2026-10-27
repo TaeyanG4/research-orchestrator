@@ -1,0 +1,325 @@
+{
+  "candidates": [
+    {
+      "name": "valid-partial",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "execution_metrics": null,
+        "user_notes_summary": null,
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "Uncertainty was calculated.",
+            "passed": false,
+            "evidence": "replication.json has only mean_difference=2.5; no interval, standard error, or uncertainty calculation is present in the result or analysis.py."
+          }
+        ],
+        "summary": {
+          "passed": 1,
+          "failed": 1,
+          "total": 2,
+          "pass_rate": 0.5
+        }
+      },
+      "timing": {
+        "total_duration_seconds": null,
+        "total_tokens": null
+      }
+    },
+    {
+      "name": "valid-perfect",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "Uncertainty was calculated.",
+            "passed": true,
+            "evidence": "replication.json reports ci95=[1.159384, 3.840616], matching the independent interval calculation."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      },
+      "timing": {
+        "total_duration_seconds": 12,
+        "total_tokens": 120
+      }
+    },
+    {
+      "name": "empty-perfect",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [],
+        "summary": {
+          "passed": 99,
+          "failed": 0,
+          "total": 99,
+          "pass_rate": 1
+        }
+      }
+    },
+    {
+      "name": "inconsistent-summary",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "Uncertainty was calculated.",
+            "passed": false,
+            "evidence": "replication.json has only mean_difference=2.5; no interval, standard error, or uncertainty calculation is present in the result or analysis.py."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "missing",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "duplicate",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "nonboolean",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "Uncertainty was calculated.",
+            "passed": "true",
+            "evidence": "replication.json reports ci95=[1.159384, 3.840616], matching the independent interval calculation."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "no-evidence",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "Uncertainty was calculated.",
+            "passed": true,
+            "evidence": "   "
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "substituted-assertion",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "The report has a title."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "The report has a title.",
+            "passed": true,
+            "evidence": "Trace: report starts with a title."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "oversized-rate",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "Uncertainty was calculated.",
+            "passed": true,
+            "evidence": "replication.json reports ci95=[1.159384, 3.840616], matching the independent interval calculation."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        }
+      },
+      "timing": {
+        "total_duration_seconds": 12,
+        "total_tokens": 120
+      }
+    },
+    {
+      "name": "nonfinite-duration",
+      "metadata": {
+        "assertions": [
+          "All input rows were analyzed.",
+          "Uncertainty was calculated."
+        ]
+      },
+      "grading": {
+        "expectations": [
+          {
+            "text": "All input rows were analyzed.",
+            "passed": true,
+            "evidence": "analysis.log records input_rows=8, analyzed_rows=8, skipped_rows=0."
+          },
+          {
+            "text": "Uncertainty was calculated.",
+            "passed": true,
+            "evidence": "replication.json reports ci95=[1.159384, 3.840616], matching the independent interval calculation."
+          }
+        ],
+        "summary": {
+          "passed": 2,
+          "failed": 0,
+          "total": 2,
+          "pass_rate": 1.0
+        }
+      },
+      "timing": {
+        "total_duration_seconds": 1e999,
+        "total_tokens": 120
+      }
+    }
+  ]
+}

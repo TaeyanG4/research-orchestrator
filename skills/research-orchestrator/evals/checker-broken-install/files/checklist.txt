@@ -1,0 +1,6 @@
+Copy the skill's scripts directory into three scratch directories.
+In one copy remove only ro_ids.py; in another remove only ro_markdown.py.
+Invoke each check_project.py with Python isolated mode (-I) and --help.
+Capture exit code, stdout and stderr separately.
+The third copy stays intact: invoke it the same way as a control.
+Do not edit the installed skill, and do not substitute fake dependency modules.

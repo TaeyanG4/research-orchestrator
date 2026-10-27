@@ -1,0 +1,1 @@
+Fixture review attestation: reviewer-session independently reviewed artifact.txt for local-stub-contract and destination local stub. Verdict PASS. The exact reviewed payload is: Release fixture: reviewed immutable local payload. The author session is author-session. This supplied attestation permits recording the fixture receipt without claiming a new independent review.

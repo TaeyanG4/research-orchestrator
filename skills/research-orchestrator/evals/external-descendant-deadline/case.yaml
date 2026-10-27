@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: external-descendant-deadline
+expected_outcome: |
+  A local external action whose launcher exits while descendants hold its pipes reaches the deadline and remains unknown.
+  The wrapper terminates its owned process tree, leaving no live grandchild or delayed local effect, and refuses replay of the unresolved action.
+context:
+  scaffold_script: place-files.sh

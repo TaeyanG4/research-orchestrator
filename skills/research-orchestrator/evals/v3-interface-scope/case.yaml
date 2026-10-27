@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: v3-interface-scope
+expected_outcome: |
+  The review accurately quotes the shipped interface metadata, demonstrating coverage of work projects, research, and competitions plus resuming existing state.
+context:
+  scaffold_script: place-files.sh

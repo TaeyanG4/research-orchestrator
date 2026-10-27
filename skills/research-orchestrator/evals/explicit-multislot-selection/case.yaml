@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: explicit-multislot-selection
+expected_outcome: |
+  An unregistered command cannot allocate under A in a project with A and B; selecting and registering B permits later unqualified allocation under B.
+context:
+  scaffold_script: place-files.sh

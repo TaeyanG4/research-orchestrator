@@ -1,0 +1,11 @@
+# Disposable root probes
+
+Use an installed skill runtime that includes hooks/ alongside scripts/, or the shipped repository wrappers when evaluating directly in a checkout. A staged skill-only subtree without hooks/ is insufficient: record that setup as unavailable instead of recreating a wrapper from memory or treating it as a pass.
+
+Clear inherited CLAUDE_PROJECT_DIR, CODEX_PROJECT_DIR, RO_HOOK_PYTHON, PWD and shell startup-file variables before configuring each child. Use a temporary unrelated cwd, an empty PATH and an interpreter sentinel that records calls, cwd and stdin. A private project contains agents.md above two nested directories; the unrelated layout contains no marker. Supply a newline-terminated JSON payload.
+
+For each available wrapper and each host project-directory variable, exercise an existing absolute directory with forward slashes and backslashes, a bare drive designator, drive roots with both separators, the POSIX root, and UNC-style share roots and descendants with both separators. Derive the drive from the temporary directory. Use a unique nonexistent share on numeric loopback for negative UNC probes so no external server is involved. No-project invocations should return JSON {}, exit zero and leave the sentinel untouched. Project hints with both slash styles should find the ancestor marker, call the sentinel once and preserve cwd and stdin.
+
+Some Git shells normalize physical PWD to a POSIX mount path and hide the drive fixed point. On Windows, also source the unmodified wrapper from a shell driver whose cd function calls the real builtin and then converts PWD with the absolute cygpath executable in mixed mode. Run both hints and both slash styles, with and without a marker. This changes only the equivalent spelling of a real directory; label it in the evidence.
+
+For uncommon physical roots, a separate shell driver may supply cd's PWD result while sourcing the unmodified wrapper. Trace marker probes for a drive designator, a drive root, a separator-free value, the POSIX root and a loopback UNC share/child. The walk should stop at a fixed point and at the UNC share without probing its server or an unrelated local root. Keep these synthetic path results separate from native wrapper invocations; they do not establish live network-share access.

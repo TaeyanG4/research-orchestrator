@@ -1,0 +1,4719 @@
+{
+  "provenance": "anonymised from a past project's records",
+  "discoveries": [
+    {
+      "id": "D-A-002",
+      "title": "Group adjustments do not explain the pooled quality gap",
+      "heading_numbers": [
+        "-002",
+        "384"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-06",
+          "numbers": [
+            "2026",
+            "-10",
+            "-06"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-06"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "VERIFIED",
+          "numbers": [],
+          "states": [
+            "VERIFIED"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "Two cross-fitted centering methods fail to improve quality; a small positive is exploratory.",
+          "numbers": [
+            "5",
+            "888",
+            "−0.0021",
+            "−0.0047",
+            "−0.0054",
+            "−0.0005",
+            "−0.0012",
+            "−0.0032",
+            "−0.0032",
+            "+0.0013",
+            "384",
+            "−0.0019",
+            "−0.0050",
+            "−0.0047",
+            "−0.0007",
+            "−0.0021",
+            "−0.0048",
+            "−0.0028",
+            "+0.0015",
+            "+0.0013",
+            "+0.0015",
+            "2026",
+            "-10",
+            "-07",
+            "16",
+            "48",
+            "5",
+            "888",
+            "6",
+            "8%",
+            "1%",
+            "888"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-07 16:48 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "092",
+            "092",
+            "084",
+            "34",
+            "20261003"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "The review narrows the conclusion to the measured adjustment methods.",
+          "numbers": [
+            "-042",
+            "-039",
+            "2026",
+            "-10",
+            "-07",
+            "16",
+            "48",
+            "888"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-07 16:48 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-07",
+            "13",
+            "46",
+            "16",
+            "888",
+            "32",
+            "0.8933965283111673",
+            "384",
+            "0.8953547410264552",
+            "+0.0013319393486085351",
+            "+0.001456391287537162",
+            "888",
+            "-20261007",
+            "-1333"
+          ],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": [
+            "2026-10-07 13:46 KST"
+          ]
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-07",
+            "17",
+            "42",
+            "16",
+            "48",
+            "16",
+            "888",
+            "-20261007",
+            "-1333",
+            "-20261007",
+            "-1730"
+          ],
+          "states": [
+            "CLOSED"
+          ],
+          "dates": [
+            "2026-10-07 17:42 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-042",
+      "title": "Comparable instrument benchmark and provisional transfer rule",
+      "heading_numbers": [
+        "-042",
+        "12",
+        "9",
+        "0.74",
+        "0.83",
+        "5",
+        "1",
+        "0.0166",
+        "0.0005"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-07",
+          "numbers": [
+            "2026",
+            "-10",
+            "-07"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-07"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "VERIFIED",
+          "numbers": [],
+          "states": [
+            "VERIFIED"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "Multiple proxy instruments order the same items similarly; the apparent transfer applies to a narrow comparable subset.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-07",
+            "23",
+            "07",
+            "22",
+            "47",
+            "1",
+            "888",
+            "9",
+            "0.893",
+            "0.917",
+            "5",
+            "2",
+            "13",
+            "58",
+            "2",
+            "58",
+            "0.74",
+            "0.83",
+            "20",
+            "22",
+            "25",
+            "0.0081",
+            "0.016",
+            "0.0077",
+            "0.83",
+            "+0.027",
+            "58",
+            "+0.005",
+            "0.009",
+            "34",
+            "+0.020",
+            "+0.027",
+            "5",
+            "+0.017",
+            "0.030",
+            "+0.006",
+            "1",
+            "224",
+            "384",
+            "1",
+            "5",
+            "5",
+            "5",
+            "1",
+            "0.0019",
+            "224",
+            "5",
+            "+0.0034",
+            "+0.004",
+            "224",
+            "384",
+            "+0.0020",
+            "+0.003",
+            "384",
+            "1",
+            "+0.0038",
+            "+0.004",
+            "224",
+            "−0.0136",
+            "−0.017",
+            "5",
+            "5",
+            "5",
+            "+0.003",
+            "0.000",
+            "0.0021",
+            "5",
+            "4,343",
+            "0.0004",
+            "0.0060",
+            "0.0028",
+            "888",
+            "4,343",
+            "0.0009",
+            "0.0018",
+            "2",
+            "4",
+            "2",
+            "58",
+            "0.520",
+            "0.397",
+            "2026",
+            "-10",
+            "-07",
+            "23",
+            "56",
+            "888",
+            "0.0166",
+            "0.0017",
+            "0.0173",
+            "0.0005",
+            "0.0166",
+            "0.0005",
+            "888",
+            "58",
+            "13",
+            "1",
+            "−0.0009",
+            "0.83",
+            "58",
+            "+0.004"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-07 23:07 KST",
+            "22:47",
+            "2026-10-07 23:56 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "-20261007",
+            "58",
+            "22",
+            "47",
+            "22",
+            "52",
+            "20261008",
+            "23",
+            "04",
+            "49",
+            "9",
+            "12",
+            "0.007",
+            "0.010",
+            "-016"
+          ],
+          "states": [],
+          "dates": [
+            "22:47 KST",
+            "22:52",
+            "23:04"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Use comparable controls; target changes need independent evidence and the small expert set remains diagnostic.",
+          "numbers": [
+            "1",
+            "5",
+            "36",
+            "+0.004",
+            "2",
+            "0",
+            "0",
+            "0.914",
+            "0.010",
+            "2",
+            "5",
+            "0.005",
+            "0.027",
+            "-0",
+            "-0",
+            "3",
+            "0.01",
+            "0.02",
+            "4",
+            "122",
+            "58",
+            "2026",
+            "-10",
+            "-08",
+            "5",
+            "0.918",
+            "0.908",
+            "0.927",
+            "5",
+            "5",
+            "0.925",
+            "0.916",
+            "0.935",
+            "5",
+            "0.909",
+            "0.895",
+            "0.923",
+            "5",
+            "5",
+            "0.914",
+            "5"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-08"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-07",
+            "23",
+            "56",
+            "-6",
+            "0.7395",
+            "0.8320",
+            "0.00806",
+            "0.01607",
+            "0.00772",
+            "5",
+            "2",
+            "888",
+            "0.01658",
+            "0.00170",
+            "0.01725",
+            "0.000487",
+            "0.0166",
+            "0.0005",
+            "888",
+            "58",
+            "13",
+            "1",
+            "−0.00093",
+            "+0.004",
+            "0.83",
+            "58"
+          ],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": [
+            "2026-10-07 23:56 KST"
+          ]
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-08",
+            "00",
+            "07",
+            "-6",
+            "0.0165825",
+            "0.0017004",
+            "0.0172535",
+            "0.0004872",
+            "58",
+            "−0.0009316",
+            "888"
+          ],
+          "states": [
+            "CLOSED"
+          ],
+          "dates": [
+            "2026-10-08 00:07 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-074",
+      "title": "Two assisted readers compared with a small expert set",
+      "heading_numbers": [
+        "-074",
+        "58",
+        "+0.0148",
+        "58",
+        "38",
+        "50",
+        "0.935",
+        "0.938"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-09",
+          "numbers": [
+            "2026",
+            "-10",
+            "-09"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-09"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "HOLD",
+          "numbers": [],
+          "states": [
+            "HOLD"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "An assisted-reader package improves agreement in one fresh subset; a second reader does not replicate.",
+          "numbers": [
+            "01",
+            "45",
+            "145",
+            "1.1.0",
+            "20",
+            "58",
+            "20261009",
+            "15",
+            "64",
+            "4",
+            "12",
+            "1",
+            "50",
+            "144",
+            "58",
+            "0.9554",
+            "-6",
+            "4",
+            "0.9448",
+            "4",
+            "0.9377",
+            "4",
+            "0.9208",
+            "0.9569",
+            "0.9545",
+            "0.9231",
+            "0.8893",
+            "0.797",
+            "0.974",
+            "0.891",
+            "0.979",
+            "0.04",
+            "2",
+            "80",
+            "5",
+            "1",
+            "30",
+            "5",
+            "1",
+            "1.5"
+          ],
+          "states": [],
+          "dates": [
+            "01:45 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Finding (phase 2, updated 02:04 KST, rule registered before reading)",
+          "text": "An assisted-reader package improves agreement in one fresh subset; a second reader does not replicate.",
+          "numbers": [
+            "2",
+            "02",
+            "04",
+            "58",
+            "58",
+            "0.9154",
+            "4",
+            "0.8991",
+            "0.9139",
+            "+0.0148",
+            "+0.0007",
+            "+0.0292",
+            "2,000",
+            "−0.0015",
+            "−0.0221",
+            "+0.0196",
+            "0.9072",
+            "+0.0081",
+            "−0.0062",
+            "+0.0232",
+            "-1",
+            "0.9142",
+            "+0.0151",
+            "+0.0005",
+            "+0.0306",
+            "58",
+            "38",
+            "+0.0189",
+            "+0.0006",
+            "+0.0376",
+            "+0.0022",
+            "+0.0140",
+            "0",
+            "+0.047",
+            "+0.067",
+            "+0.030",
+            "+0.028",
+            "−0.020",
+            "−0.009",
+            "1",
+            "50",
+            "0.9376",
+            "0.9345",
+            "0.9348",
+            "0.9154",
+            "+0.02",
+            "0.035"
+          ],
+          "states": [
+            "EFFECTIVE",
+            "EFFECTIVE"
+          ],
+          "dates": [
+            "02:04 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "145",
+            "145"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "The inputs are confounded and the exploratory combined scores do not establish downstream benefit.",
+          "numbers": [
+            "20",
+            "0.05",
+            "0.1",
+            "20",
+            "58",
+            "0.955",
+            "0.915",
+            "2",
+            "38",
+            "58",
+            "0.6",
+            "0.25",
+            "4,407",
+            "70",
+            "26",
+            "2026",
+            "-10",
+            "-09",
+            "02",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-09"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Amendment (recorded 2026-10-13 15:04 KST; reviewer 4)",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-13",
+            "15",
+            "04",
+            "-4",
+            "58",
+            "38",
+            "+0.0189",
+            "+0.0006",
+            "+0.0376",
+            "58",
+            "58"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-13 15:04 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "-4",
+            "2026",
+            "-10",
+            "-13",
+            "15",
+            "04",
+            "-4",
+            "58"
+          ],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": [
+            "2026-10-13 15:04 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-083",
+      "title": "A minority target-source mix advances on dependent proxy instruments",
+      "heading_numbers": [
+        "-083",
+        "25",
+        "2",
+        "1",
+        "50",
+        "+0.0048",
+        "+0.0058",
+        "+0.0035",
+        "1",
+        "−0.0058",
+        "−0.054",
+        "3",
+        "1",
+        "+0.0022"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-09",
+          "numbers": [
+            "2026",
+            "-10",
+            "-09"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-09"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "HOLD",
+          "numbers": [],
+          "states": [
+            "HOLD"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A minority mix improves the proxy panel while replacing the source loses; the panel shares ancestry with the changed targets.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-09",
+            "14",
+            "34",
+            "149",
+            "149",
+            "0",
+            "+1",
+            "1,752",
+            "36",
+            "300",
+            "20261003",
+            "0",
+            "127",
+            "1",
+            "42",
+            "0",
+            "134",
+            "1",
+            "42",
+            "1",
+            "0",
+            "138",
+            "42",
+            "0",
+            "1",
+            "4070",
+            "1",
+            "1",
+            "−0.0058",
+            "−0.0106",
+            "−0.0014",
+            "−0.0178",
+            "−0.0057",
+            "+0.0027",
+            "0",
+            "1",
+            "+0.0099",
+            "+0.0190",
+            "58",
+            "−0.0098",
+            "−0.054",
+            "−0.024",
+            "−0.010",
+            "-078",
+            "2",
+            "0.75",
+            "0.25",
+            "+0.0048",
+            "+0.0021",
+            "+0.0075",
+            "0",
+            "+0.0058",
+            "+0.0031",
+            "+0.0081",
+            "+0.0035",
+            "+0.0014",
+            "+0.0053",
+            "1",
+            "+0.0067",
+            "+0.0011",
+            "0",
+            "+0.0091",
+            "58",
+            "+0.0035",
+            "+0.005",
+            "+0.0035",
+            "+0.0037",
+            "+0.0014",
+            "3",
+            "2",
+            "1",
+            "+0.0057",
+            "+0.0034",
+            "+0.0080",
+            "+0.0059",
+            "+0.0034",
+            "+0.0020",
+            "58",
+            "+0.0030",
+            "−0.0036",
+            "−0.0053",
+            "−0.0057",
+            "2",
+            "+0.0115",
+            "1",
+            "138",
+            "0",
+            "+0.0022",
+            "+0.0006",
+            "+0.0042",
+            "+0.0014",
+            "+0.0051",
+            "+0.0002",
+            "−0.0006",
+            "58",
+            "+0.0050",
+            "20",
+            "0"
+          ],
+          "states": [
+            "HOLD",
+            "ADVANCES",
+            "ADVANCES",
+            "ADVANCES"
+          ],
+          "dates": [
+            "2026-10-09 14:34 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "149",
+            "58",
+            "149",
+            "1",
+            "2",
+            "3",
+            "1",
+            "42",
+            "0,1",
+            "10",
+            "42",
+            "149",
+            "1",
+            "256",
+            "56516",
+            "2"
+          ],
+          "states": [],
+          "dates": [
+            "10:42"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Carry the minority mix forward under the registered decision while retaining the dependence caveat.",
+          "numbers": [
+            "1",
+            "2",
+            "2",
+            "3",
+            "1",
+            "3",
+            "2",
+            "1",
+            "4070",
+            "134",
+            "138",
+            "4",
+            "143",
+            "2",
+            "2",
+            "0.75",
+            "0.25",
+            "-63",
+            "149",
+            "58",
+            "5",
+            "+0.002",
+            "0.003",
+            "2",
+            "50",
+            "0.5",
+            "-080",
+            "2026",
+            "-10",
+            "-09",
+            "21",
+            "02",
+            "149",
+            "2",
+            "−0.0093",
+            "+0.021",
+            "+0.013",
+            "+0.012",
+            "2026",
+            "-10",
+            "-10",
+            "06",
+            "58",
+            "4",
+            "4",
+            "+0.0058",
+            "3",
+            "2",
+            "1",
+            "1",
+            "3",
+            "0.5",
+            "5",
+            "-080"
+          ],
+          "states": [
+            "HOLD",
+            "HOLD"
+          ],
+          "dates": [
+            "2026-10-09 21:02 KST",
+            "2026-10-10 06:58 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Update",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-09",
+            "21",
+            "24",
+            "3",
+            "1",
+            "57005184",
+            "154",
+            "0.8",
+            "0.949",
+            "0.1",
+            "0.1",
+            "1",
+            "5",
+            "2",
+            "36",
+            "0.950",
+            "3",
+            "1",
+            "0.950",
+            "-080",
+            "0.1",
+            "50",
+            "1",
+            "1",
+            "0.1",
+            "0.949",
+            "+0.001",
+            "1",
+            "3",
+            "3",
+            "0.951",
+            "143",
+            "2",
+            "0.949",
+            "-087"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-09 21:24 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "-6",
+            "2026",
+            "-10",
+            "-14",
+            "01",
+            "26",
+            "2",
+            "156",
+            "44"
+          ],
+          "states": [
+            "CLOSED"
+          ],
+          "dates": [
+            "2026-10-14 01:26 KST"
+          ]
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-09",
+            "21",
+            "02",
+            "2",
+            "−0.0093",
+            "3",
+            "2026",
+            "-10",
+            "-09",
+            "21",
+            "02"
+          ],
+          "states": [
+            "CHALLENGED",
+            "PENDING"
+          ],
+          "dates": [
+            "2026-10-09 21:02 KST",
+            "2026-10-09 21:02 KST"
+          ]
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-10",
+            "06",
+            "58",
+            "2",
+            "2",
+            "+0.004846",
+            "−0.009283",
+            "4"
+          ],
+          "states": [
+            "HOLD"
+          ],
+          "dates": [
+            "2026-10-10 06:58 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-112",
+      "title": "Per-target instrument adequacy map",
+      "heading_numbers": [
+        "-112",
+        "1.0.1",
+        "58"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-10",
+          "numbers": [
+            "2026",
+            "-10",
+            "-10"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-10"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "CLOSED",
+          "numbers": [
+            "2026",
+            "-10",
+            "-11",
+            "11",
+            "06"
+          ],
+          "states": [
+            "CLOSED"
+          ],
+          "dates": [
+            "2026-10-11 11:06"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "Aggregate agreement with a small expert set assigns adequacy levels; some targets lack adequate proxy instruments.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-10",
+            "18",
+            "47",
+            "1.0.1",
+            "2",
+            "8",
+            "1",
+            "58",
+            "108",
+            "12",
+            "4",
+            "2",
+            "4"
+          ],
+          "states": [
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-10 18:47 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "1"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "The map supports diagnostic screening and needs comparison with later external readings.",
+          "numbers": [
+            "-65",
+            "-88",
+            "58",
+            "58",
+            "-42",
+            "5",
+            "6"
+          ],
+          "states": [
+            "FAIL"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-11",
+            "11",
+            "06",
+            "-1011",
+            "108",
+            "56",
+            "58",
+            "55",
+            "58",
+            "58"
+          ],
+          "states": [
+            "CLOSED"
+          ],
+          "dates": [
+            "2026-10-11 11:06 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-123",
+      "title": "The existing target-source share survives a matched comparison",
+      "heading_numbers": [
+        "-123",
+        "25",
+        "2",
+        "-0",
+        "2",
+        "4",
+        "42",
+        "0",
+        "−0.0069",
+        "-11",
+        "−0.0065",
+        "−0.0096",
+        "−0.0032",
+        "−0.013",
+        "−0.011",
+        "−0.010",
+        "50",
+        "−0.0004",
+        "-11",
+        "−0.0001",
+        "−0.0024",
+        "+0.0022",
+        "-4",
+        "−0.0003",
+        "−0.0024"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-11",
+          "numbers": [
+            "2026",
+            "-10",
+            "-11"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-11"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "HOLD",
+          "numbers": [],
+          "states": [
+            "HOLD"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "Removing the minority source loses across the proxy instruments; doubling the share is flat in one matched comparison.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-11",
+            "10",
+            "30",
+            "184",
+            "-91",
+            "184",
+            "4",
+            "184",
+            "4",
+            "0",
+            "25",
+            "50",
+            "4",
+            "184",
+            "300",
+            "20261003",
+            "0",
+            "25",
+            "50",
+            "25",
+            "+0.0067",
+            "+0.0077",
+            "+0.0052",
+            "+0.0028",
+            "−0.0086",
+            "−0.0039",
+            "−0.0039",
+            "−0.0036",
+            "−0.0024",
+            "−0.0017",
+            "−0.0025"
+          ],
+          "states": [
+            "HOLD_REVIEW",
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-11 10:30 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "184",
+            "1",
+            "184"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Keep the tested default within its measured scope; a universal optimum is unproven.",
+          "numbers": [
+            "25",
+            "2",
+            "0.007",
+            "888",
+            "-91",
+            "0",
+            "-100"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Amendment (recorded 2026-10-13 15:04 KST; reviewer 5)",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-13",
+            "15",
+            "04",
+            "-5",
+            "0.25",
+            "2",
+            "-0",
+            "-42",
+            "0.00",
+            "0.50",
+            "0.25",
+            "2"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-13 15:04 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "-5",
+            "2026",
+            "-10",
+            "-13",
+            "15",
+            "04",
+            "-5"
+          ],
+          "states": [
+            "HOLD"
+          ],
+          "dates": [
+            "2026-10-13 15:04 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-164",
+      "title": "Canonical item transformation does not improve the partner",
+      "heading_numbers": [
+        "-164",
+        "0",
+        "−0.0013",
+        "−0.0035",
+        "+0.0010",
+        "−0.0009",
+        "−0.0022",
+        "+0.0008",
+        "+0.0081",
+        "+0.0019",
+        "+0.0150"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-13",
+          "numbers": [
+            "2026",
+            "-10",
+            "-13"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-13"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "HOLD",
+          "numbers": [],
+          "states": [
+            "HOLD"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "Two matched repeats show a negative proxy delta while a separate small panel is positive.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-13",
+            "09",
+            "00",
+            "-123",
+            "4",
+            "-122",
+            "2",
+            "36",
+            "2",
+            "4,410",
+            "1,915",
+            "2,154",
+            "341",
+            "98.2",
+            "4070",
+            "123",
+            "4",
+            "2,3",
+            "2",
+            "40",
+            "37",
+            "122",
+            "4",
+            "2,3",
+            "1",
+            "43",
+            "123",
+            "1",
+            "888",
+            "-0",
+            "300",
+            "4",
+            "4",
+            "2",
+            "1",
+            "−0.0013",
+            "2",
+            "−0.0009",
+            "3",
+            "−0.0004",
+            "4",
+            "+0.003",
+            "3",
+            "4",
+            "+0.0025",
+            "5",
+            "−0.0012",
+            "6",
+            "7",
+            "−0.0003",
+            "956",
+            "7",
+            "557",
+            "259",
+            "294",
+            "4",
+            "+0.0081",
+            "+0.0019",
+            "+0.0150",
+            "−0.0009",
+            "−0.001",
+            "−0.0005",
+            "−0.010",
+            "−0.0041"
+          ],
+          "states": [
+            "PASS",
+            "FAIL",
+            "FAIL",
+            "FAIL",
+            "FAIL",
+            "FAIL",
+            "FAIL",
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-13 09:00 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "-5",
+            "123",
+            "1",
+            "1",
+            "-5",
+            "123",
+            "1",
+            "123",
+            "4",
+            "2,3",
+            "2",
+            "123"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Drop the tested arm while preserving the exposed exploratory scope.",
+          "numbers": [
+            "5",
+            "-123"
+          ],
+          "states": [
+            "DROP"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Amendment (recorded 2026-10-13 15:04 KST; reviewer 3)",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-13",
+            "15",
+            "04",
+            "-3",
+            "0",
+            "42",
+            "-0.00190749",
+            "43",
+            "+0.000196895",
+            "4",
+            "+0.00253194",
+            "3",
+            "-4"
+          ],
+          "states": [
+            "DROP"
+          ],
+          "dates": [
+            "2026-10-13 15:04 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "-3",
+            "2026",
+            "-10",
+            "-13",
+            "15",
+            "04",
+            "-3",
+            "4"
+          ],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": [
+            "2026-10-13 15:04 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-166",
+      "title": "Changed target-source shares are dropped despite a registered-rule pass",
+      "heading_numbers": [
+        "-166",
+        "0.60",
+        "58",
+        "−0.0041",
+        "−0.0067",
+        "−0.0019",
+        "−0.0021",
+        "−0.0037",
+        "−0.0001",
+        "58",
+        "−0.005",
+        "42",
+        "+0.006"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-13",
+          "numbers": [
+            "2026",
+            "-10",
+            "-13"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-13"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "VERIFIED",
+          "numbers": [],
+          "states": [
+            "VERIFIED"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "The changed shares lose on dependent proxy instruments and a small expert set; another panel improves.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-13",
+            "15",
+            "28",
+            "-130",
+            "5",
+            "2",
+            "1",
+            "7",
+            "+0.024",
+            "−0.032",
+            "−0.024",
+            "−0.042",
+            "−0.073",
+            "5",
+            "-122",
+            "130",
+            "4",
+            "2,3",
+            "0",
+            "1",
+            "4070",
+            "42",
+            "14",
+            "04",
+            "14",
+            "43",
+            "12",
+            "53",
+            "43",
+            "14",
+            "43",
+            "15",
+            "21",
+            "122",
+            "4",
+            "2,3",
+            "130",
+            "1",
+            "4",
+            "557",
+            "58",
+            "58",
+            "1",
+            "−0.0041",
+            "0",
+            "2",
+            "−0.0021",
+            "0",
+            "3",
+            "+0.0034",
+            "4",
+            "5",
+            "−0.0027",
+            "0",
+            "6",
+            "−0.0005",
+            "0",
+            "7",
+            "+0.0015",
+            "+0.0060",
+            "42",
+            "58",
+            "−0.0013",
+            "−0.0050",
+            "42",
+            "−0.027",
+            "−0.014",
+            "−0.001",
+            "+0.011",
+            "+0.006",
+            "58",
+            "58",
+            "42",
+            "−0.0018",
+            "−0.0021"
+          ],
+          "states": [
+            "FAIL",
+            "FAIL",
+            "FAIL"
+          ],
+          "dates": [
+            "2026-10-13 15:28 KST",
+            "14:04",
+            "14:43",
+            "12:53",
+            "14:43",
+            "15:21"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "130",
+            "130",
+            "1",
+            "130",
+            "1",
+            "1",
+            "130",
+            "130",
+            "4",
+            "2,3",
+            "0",
+            "1"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "The holistic decision is DROP; the later review distinguishes GO_RULE_MET from generic guard failures.",
+          "numbers": [
+            "58",
+            "5",
+            "-164",
+            "165",
+            "161",
+            "10",
+            "-13"
+          ],
+          "states": [
+            "DROP"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "none",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "-1",
+            "2026",
+            "-10",
+            "-14",
+            "01",
+            "16",
+            "32",
+            "42",
+            "43",
+            "1",
+            "−0.004148",
+            "2",
+            "−0.002068",
+            "+0.0015",
+            "7",
+            "+0.001516",
+            "+0.003356",
+            "58",
+            "−0.001341",
+            "12",
+            "−0.001966",
+            "−0.004985",
+            "+0.001745",
+            "−0.000523"
+          ],
+          "states": [
+            "CORRECTED",
+            "GO_RULE_MET",
+            "HOLD",
+            "DROP"
+          ],
+          "dates": [
+            "2026-10-14 01:16 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-180",
+      "title": "Imitation targets do not produce a materially stronger item",
+      "heading_numbers": [
+        "-180",
+        "7",
+        "-0",
+        "50",
+        "50",
+        "+0.0030",
+        "+0.0001",
+        "+0.0060",
+        "−0.0002"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-14",
+          "numbers": [
+            "2026",
+            "-10",
+            "-14"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-14"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "VERIFIED",
+          "numbers": [],
+          "states": [
+            "VERIFIED"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A global mix yields a small proxy gain without independent-panel gain; filling absent cells is harmful.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-14",
+            "19",
+            "26",
+            "-146",
+            "1.1.6",
+            "7",
+            "0",
+            "977",
+            "3,190",
+            "42",
+            "2",
+            "0",
+            "2",
+            "42",
+            "43",
+            "4070",
+            "75",
+            "11",
+            "38",
+            "19",
+            "18",
+            "12",
+            "+0.0030",
+            "+0.0001",
+            "+0.0060",
+            "+0.0035",
+            "+0.0003",
+            "+0.0066",
+            "+0.0014",
+            "+0.0006",
+            "−0.0036",
+            "−0.0078",
+            "−0.0002",
+            "−0.0002",
+            "−0.0046",
+            "+0.0045",
+            "+0.0020",
+            "−0.0006",
+            "+0.0047",
+            "4",
+            "58",
+            "−0.0017",
+            "−0.0022",
+            "−0.0047",
+            "−0.0079",
+            "−0.0014",
+            "−0.010",
+            "−0.015",
+            "−0.004",
+            "58",
+            "−0.009",
+            "−0.021",
+            "0",
+            "0.906",
+            "0.898",
+            "0.926",
+            "0.969"
+          ],
+          "states": [
+            "EXPOSED_EXPLORATORY",
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-14 19:26 KST",
+            "11:38",
+            "19:18"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "4",
+            "-146",
+            "115",
+            "116",
+            "-145",
+            "113",
+            "-3",
+            "1.1.5",
+            "1.1.6",
+            "116"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Neither tested arm satisfies the registered advance rule; a broader impossibility is unproven.",
+          "numbers": [
+            "7",
+            "224",
+            "1",
+            "7",
+            "-130",
+            "166",
+            "7",
+            "85",
+            "7",
+            "15",
+            "1.4.0",
+            "1.5.0",
+            "-150",
+            "-149",
+            "7",
+            "2"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "-6",
+            "2026",
+            "-10",
+            "-14",
+            "19",
+            "30",
+            "18",
+            "977",
+            "3,190",
+            "42",
+            "176",
+            "+0.0030",
+            "+0.0020",
+            "+0.0005",
+            "0.925"
+          ],
+          "states": [
+            "CORRECTED",
+            "NO_GO"
+          ],
+          "dates": [
+            "2026-10-14 19:30 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-187",
+      "title": "Standalone item fails its registered visible-score rule",
+      "heading_numbers": [
+        "-187",
+        "-151",
+        "0.944",
+        "0.946"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-15",
+          "numbers": [
+            "2026",
+            "-10",
+            "-15"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-15"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "CHALLENGED",
+          "numbers": [],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A standalone item scores below its parent and the registered rule returns DEAD.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-15",
+            "05",
+            "45",
+            "143",
+            "2",
+            "-384",
+            "0.7",
+            "7",
+            "0.3",
+            "42",
+            "10",
+            "-15",
+            "4070",
+            "143",
+            "2",
+            "4",
+            "151",
+            "1",
+            "2",
+            "0.944",
+            "57193756",
+            "143",
+            "2",
+            "0.946",
+            "0.950",
+            "0.947",
+            "44",
+            "-180",
+            "7",
+            "+0.0030",
+            "4",
+            "-0.0002",
+            "7",
+            "7"
+          ],
+          "states": [
+            "CORRECTED",
+            "DEAD",
+            "NO_GO"
+          ],
+          "dates": [
+            "2026-10-15 05:45 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Panel 7 update (recorded 2026-10-15 20:3x; version 1.1.1; execution 18:37–19:40; reviewer 6 PASS)",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "7",
+            "2026",
+            "-10",
+            "-15",
+            "20",
+            "3",
+            "1.1.1",
+            "18",
+            "37",
+            "19",
+            "40",
+            "-6",
+            "-1015",
+            "111",
+            "58",
+            "95",
+            "58",
+            "-151",
+            "143",
+            "2",
+            "−0.0149",
+            "−0.0304",
+            "−0.0004",
+            "−0.0086",
+            "−0.0440",
+            "+0.0236"
+          ],
+          "states": [
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-15",
+            "18:37",
+            "19:40"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "57193756",
+            "0.944",
+            "151",
+            "1.0.2",
+            "120",
+            "151",
+            "1",
+            "151",
+            "1"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "The structural redundancy explanation is plausible but unproven; one noisy score does not establish a real loss.",
+          "numbers": [
+            "85",
+            "7",
+            "384",
+            "-156",
+            "2",
+            "143",
+            "2",
+            "-157",
+            "1",
+            "0",
+            "4070",
+            "-153",
+            "44",
+            "0.004"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Cause analysis (recorded 2026-10-15 11:36 KST; independent review PASS)",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-15",
+            "11",
+            "36",
+            "-1015",
+            "2",
+            "1",
+            "16",
+            "4,352",
+            "0",
+            "1.144",
+            "0.785",
+            "97",
+            "2",
+            "−0.002",
+            "0.004",
+            "3",
+            "7",
+            "12",
+            "7",
+            "0.80",
+            "0.90",
+            "0.904",
+            "0.902",
+            "0.862",
+            "7",
+            "0.67",
+            "0.92",
+            "2",
+            "0.51",
+            "0.83",
+            "7",
+            "0.425",
+            "85",
+            "7",
+            "58"
+          ],
+          "states": [
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-15 11:36 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Discard",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "-3",
+            "7",
+            "7"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Instruments",
+          "text": "A later scope correction retains the bounded result and recorded decision.",
+          "numbers": [
+            "1",
+            "6",
+            "7",
+            "58",
+            "4070"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "review",
+          "name": "",
+          "text": "Independent review preserves the recorded verdict and narrows its scope.",
+          "numbers": [
+            "-3",
+            "2026",
+            "-10",
+            "-15",
+            "15",
+            "48",
+            "1015",
+            "42",
+            "0",
+            "350",
+            "18",
+            "43",
+            "4,352",
+            "0",
+            "0.80",
+            "0.90",
+            "-1015",
+            "151",
+            "1"
+          ],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": [
+            "2026-10-15 15:48 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-235",
+      "title": "Strategy hypothesis for a new blinded expert source",
+      "heading_numbers": [
+        "-235"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host B",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-19",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "PENDING",
+          "numbers": [],
+          "states": [
+            "PENDING"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A new independent expert source is proposed; existing assisted-reader work overlaps the broad mechanism and no efficacy result exists.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "14",
+            "36",
+            "040",
+            "112"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 14:36 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "040",
+            "078",
+            "051",
+            "103",
+            "112",
+            "161",
+            "165",
+            "046",
+            "215",
+            "103",
+            "58",
+            "4",
+            "109",
+            "161",
+            "165"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Preparation remains a reserve: readers, access, eligibility, timing and budget are unresolved.",
+          "numbers": [
+            "58"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A new independent expert source is proposed; existing assisted-reader work overlaps the broad mechanism and no efficacy result exists.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "14",
+            "36"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 14:36 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "Review history retained below.",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Follow-ups",
+          "text": "Follow-up state retained; no unrecorded efficacy claim.",
+          "numbers": [
+            "0.959",
+            "0.960"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A new independent expert source is proposed; existing assisted-reader work overlaps the broad mechanism and no efficacy result exists.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "20",
+            "074",
+            "077",
+            "078",
+            "051",
+            "083",
+            "095",
+            "098",
+            "111",
+            "2"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:20 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "20",
+            "-20261019",
+            "1.1.0",
+            "96",
+            "600",
+            "256",
+            "083",
+            "123",
+            "166",
+            "103",
+            "109"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:20 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Preparation remains a reserve: readers, access, eligibility, timing and budget are unresolved.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "20",
+            "600",
+            "196",
+            "-294h",
+            "3",
+            "-5",
+            "10",
+            "-22"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:20 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "Review history retained below.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "20"
+          ],
+          "states": [
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-19 15:20 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Follow-ups",
+          "text": "Follow-up state retained; no unrecorded efficacy claim.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "20",
+            "209",
+            "211",
+            "210",
+            "235"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:20 KST"
+          ]
+        },
+        {
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A new independent expert source is proposed; existing assisted-reader work overlaps the broad mechanism and no efficacy result exists.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "33",
+            "213",
+            "96",
+            "16",
+            "48",
+            "32",
+            "200",
+            "18",
+            "15",
+            "9",
+            "6"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:33 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "33",
+            "96",
+            "-20261019",
+            "1",
+            "1.0.0",
+            "11",
+            "105",
+            "20",
+            "50",
+            "4343",
+            "1",
+            "2",
+            "75%",
+            "+25%",
+            "3174",
+            "16",
+            "96",
+            "1",
+            "96",
+            "1152"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:33 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Preparation remains a reserve: readers, access, eligibility, timing and budget are unresolved.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "33",
+            "0",
+            "58",
+            "4343",
+            "200",
+            "0.959"
+          ],
+          "states": [
+            "READER_RELEASE_HOLD"
+          ],
+          "dates": [
+            "2026-10-19 15:33 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "Review history retained below.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "33",
+            "96",
+            "-20261019"
+          ],
+          "states": [
+            "PASS"
+          ],
+          "dates": [
+            "2026-10-19 15:33 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Follow-ups",
+          "text": "Follow-up state retained; no unrecorded efficacy claim.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "33",
+            "213",
+            "16",
+            "210"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:33 KST"
+          ]
+        },
+        {
+          "shape": "blank",
+          "name": "",
+          "text": "",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-19",
+            "15",
+            "51",
+            "214",
+            "237",
+            "16",
+            "96",
+            "16"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-19 15:51 KST"
+          ]
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-246",
+      "title": "Share changes fail to transfer to the external board",
+      "heading_numbers": [
+        "-246",
+        "224",
+        "0.958",
+        ".25",
+        "0.957",
+        "58"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-20",
+          "numbers": [
+            "2026",
+            "-10",
+            "-20"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-20"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "PENDING",
+          "numbers": [],
+          "states": [
+            "PENDING"
+          ],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "One removal ties at displayed precision but ranks below the parent; raising another share loses.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-20",
+            "11",
+            "33",
+            "218",
+            "6",
+            "958",
+            "224",
+            "1",
+            "3",
+            "224",
+            "0",
+            "0.958",
+            "208",
+            "3",
+            "219",
+            "6",
+            "958",
+            "224",
+            "25",
+            "1",
+            "224",
+            "0",
+            ".25",
+            "0.957",
+            "6.92",
+            "6.72",
+            "10"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-20 11:33 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "10",
+            "-20",
+            "11",
+            "30",
+            "1"
+          ],
+          "states": [],
+          "dates": [
+            "11:30 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Keep the prior shares; gains on the exposed small expert set do not establish external transfer.",
+          "numbers": [
+            "58",
+            "224",
+            "+.0011",
+            ".25",
+            "+.0005",
+            "+.0028",
+            ".20",
+            "58",
+            "-195",
+            "224",
+            "224",
+            ".35",
+            ".15",
+            "224",
+            "1",
+            "224",
+            "1",
+            "3",
+            "20",
+            "2",
+            "58",
+            "976",
+            "1",
+            "6.5",
+            "-6.9",
+            "1",
+            "3",
+            "1.5",
+            "8",
+            "1",
+            "1"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "Review history retained below.",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Follow-ups",
+          "text": "Follow-up state retained; no unrecorded efficacy claim.",
+          "numbers": [
+            "1",
+            "20",
+            "1",
+            "2",
+            "20",
+            "1",
+            "3",
+            "20",
+            "2"
+          ],
+          "states": [],
+          "dates": []
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-251",
+      "title": "Per-target share changes lose against a flat-share item",
+      "heading_numbers": [
+        "-251",
+        "1",
+        "2",
+        ".5",
+        "2",
+        "0.957",
+        ".20",
+        "1",
+        "0.958"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-21",
+          "numbers": [
+            "2026",
+            "-10",
+            "-21"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-21"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "CHALLENGED",
+          "numbers": [
+            "-5",
+            "3",
+            "0.958",
+            "1",
+            "1",
+            "58",
+            "0",
+            "2026",
+            "-10",
+            "-21",
+            "04",
+            "14",
+            "-1021"
+          ],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": [
+            "2026-10-21 04:14 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "A vector of shares loses on visible score while the flat-share item ties the parent; execution and stride explanations are confounded.",
+          "numbers": [
+            "01",
+            "03",
+            "10",
+            "-21",
+            "6",
+            "958",
+            "1",
+            "3",
+            "2",
+            "2",
+            "1",
+            "1",
+            "57429713",
+            "3",
+            "1",
+            "3",
+            "2",
+            "0",
+            "1",
+            "1",
+            "2",
+            "2",
+            ".1",
+            ".2",
+            ".2",
+            ".5",
+            ".35",
+            ".5",
+            ".35",
+            ".35",
+            ".5",
+            ".2",
+            ".15",
+            ".35",
+            "7",
+            "0.957",
+            "1",
+            "3",
+            "3",
+            "0.958",
+            "1",
+            "1",
+            "-2",
+            "1",
+            "3",
+            "20",
+            "2",
+            ".20",
+            "3",
+            "0.958",
+            "7.27",
+            "-7.35",
+            "1",
+            "0.45",
+            "1",
+            "3",
+            "2",
+            "7.98",
+            "1",
+            "20",
+            "7.04"
+          ],
+          "states": [],
+          "dates": [
+            "01:03 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "2026",
+            "-10",
+            "-21",
+            "01",
+            "0",
+            "-248",
+            "976",
+            "7",
+            "0",
+            "58",
+            "0"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-21"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "Retain the flat share and improve the underlying item; the mechanism remains uncertain.",
+          "numbers": [
+            "976",
+            "7",
+            "0",
+            "1",
+            "1",
+            "-246",
+            ".25",
+            "0.957",
+            ".15",
+            "-.20",
+            "1",
+            ".20",
+            "2",
+            "1",
+            "2",
+            "3",
+            "3"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "Review history retained below.",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Follow-ups",
+          "text": "Follow-up state retained; no unrecorded efficacy claim.",
+          "numbers": [
+            "-.20",
+            "3",
+            "2"
+          ],
+          "states": [],
+          "dates": []
+        }
+      ],
+      "heading_dates": []
+    },
+    {
+      "id": "D-A-259",
+      "title": "An additional proxy collection fails the external ordering test",
+      "heading_numbers": [
+        "-259",
+        "11",
+        "58"
+      ],
+      "lines": [
+        {
+          "shape": "field",
+          "name": "Source",
+          "text": "A",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Host",
+          "text": "Host B",
+          "numbers": [
+            "5"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "User",
+          "text": "reader-a",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Date",
+          "text": "2026-10-21",
+          "numbers": [
+            "2026",
+            "-10",
+            "-21"
+          ],
+          "states": [],
+          "dates": [
+            "2026-10-21"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Cross-check",
+          "text": "CHALLENGED",
+          "numbers": [
+            "2",
+            "1",
+            "1",
+            ".97",
+            "-1.00",
+            "0",
+            "7",
+            "6",
+            "58",
+            "0",
+            ".84",
+            "0",
+            "1",
+            "2026",
+            "-10",
+            "-21",
+            "04",
+            "02",
+            "-1021"
+          ],
+          "states": [
+            "CHALLENGED"
+          ],
+          "dates": [
+            "2026-10-21 04:02 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Finding",
+          "text": "No tested proxy instrument gets both known external orderings right; a pair also changes another factor.",
+          "numbers": [
+            "02",
+            "32",
+            "10",
+            "-21",
+            "-11",
+            "2",
+            "29",
+            "4.0",
+            "2",
+            "12",
+            "976",
+            "11",
+            "1",
+            ".20",
+            "3",
+            "3",
+            "2",
+            "3",
+            "2",
+            "0.958",
+            "0.957",
+            "-.0016",
+            "-.0025",
+            "-.0008",
+            "-.0025",
+            "-.0036",
+            "-.0014",
+            "-.0016",
+            "2",
+            "1",
+            "7",
+            "0",
+            "3",
+            "+.0061",
+            "+.0142",
+            "0",
+            "7",
+            "11",
+            ".97",
+            "-.99"
+          ],
+          "states": [],
+          "dates": [
+            "02:32 KST"
+          ]
+        },
+        {
+          "shape": "field",
+          "name": "Evidence",
+          "text": "An archived receipt records the observation and its limits.",
+          "numbers": [
+            "-1021",
+            "64"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Implication",
+          "text": "The additional collection is not adopted; high correlation does not establish decision validity.",
+          "numbers": [
+            "1",
+            "58",
+            "-248",
+            "-246",
+            "-251",
+            "1",
+            "1",
+            "1",
+            "2",
+            "3"
+          ],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Reviews",
+          "text": "Review history retained below.",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        },
+        {
+          "shape": "field",
+          "name": "Follow-ups",
+          "text": "Follow-up state retained; no unrecorded efficacy claim.",
+          "numbers": [],
+          "states": [],
+          "dates": []
+        }
+      ],
+      "heading_dates": []
+    }
+  ],
+  "external_actions": [
+    {
+      "date": "2026-09-11T19:47:53.033000",
+      "visible score": "0.941",
+      "final score": "0.923",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56171899,
+      "description": "Item 1; fixed item composition or operational adjustment; numeric receipt: 0.941 22"
+    },
+    {
+      "date": "2026-09-12T13:50:11.067000",
+      "visible score": "0.941",
+      "final score": "0.923",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56186685,
+      "description": "Item 2; fixed item composition or operational adjustment; numeric receipt: 018 22 0.20"
+    },
+    {
+      "date": "2026-09-12T21:20:06.753000",
+      "visible score": "0.940",
+      "final score": "0.923",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56193096,
+      "description": "Item 3; fixed item composition or operational adjustment; numeric receipt: 031 22 0.00"
+    },
+    {
+      "date": "2026-09-12T21:26:38.667000",
+      "visible score": "0.941",
+      "final score": "0.923",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56193164,
+      "description": "Item 4; fixed item composition or operational adjustment; numeric receipt: 034 22"
+    },
+    {
+      "date": "2026-09-12T21:32:33.233000",
+      "visible score": "0.940",
+      "final score": "0.922",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56193237,
+      "description": "Item 5; fixed item composition or operational adjustment; numeric receipt: 035 22"
+    },
+    {
+      "date": "2026-09-12T21:39:36.123000",
+      "visible score": "0.941",
+      "final score": "0.923",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56193318,
+      "description": "Item 6; fixed item composition or operational adjustment; numeric receipt: 036 22 8"
+    },
+    {
+      "date": "2026-09-13T17:50:38.450000",
+      "visible score": "0.909",
+      "final score": "0.891",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56212481,
+      "description": "Item 7; fixed item composition or operational adjustment; numeric receipt: 045 288 5"
+    },
+    {
+      "date": "2026-09-30T05:15:57.817000",
+      "visible score": "0.943",
+      "final score": "0.927",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56698016,
+      "description": ""
+    },
+    {
+      "date": "2026-09-30T07:15:28.720000",
+      "visible score": "0.942",
+      "final score": "0.926",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56700502,
+      "description": ""
+    },
+    {
+      "date": "2026-10-01T01:53:20.210000",
+      "visible score": "0.922",
+      "final score": "0.899",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56740910,
+      "description": ""
+    },
+    {
+      "date": "2026-10-01T01:53:29.520000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56740912,
+      "description": ""
+    },
+    {
+      "date": "2026-10-01T01:53:39.337000",
+      "visible score": "0.942",
+      "final score": "0.928",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56740913,
+      "description": ""
+    },
+    {
+      "date": "2026-10-02T12:00:29.743000",
+      "visible score": "0.943",
+      "final score": "0.927",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56773226,
+      "description": "Item 13; fixed item composition or operational adjustment; numeric receipt: -2 4 0.943 34 1"
+    },
+    {
+      "date": "2026-10-03T11:46:11.480000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56796964,
+      "description": "Item 14; fixed item composition or operational adjustment; numeric receipt: 01 1 90% 0.943 10% 2 5"
+    },
+    {
+      "date": "2026-10-04T00:09:01.283000",
+      "visible score": "0.913",
+      "final score": "0.895",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56809595,
+      "description": "Item 15; fixed item composition or operational adjustment; numeric receipt: 3 3 90 10 2"
+    },
+    {
+      "date": "2026-10-04T11:06:16.303000",
+      "visible score": "0.902",
+      "final score": "0.890",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56822098,
+      "description": "Item 16; fixed item composition or operational adjustment; numeric receipt: 2 072 5 224 1"
+    },
+    {
+      "date": "2026-10-04T11:07:18.930000",
+      "visible score": "0.904",
+      "final score": "0.889",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56822115,
+      "description": "Item 17; fixed item composition or operational adjustment; numeric receipt: 1 061 5 224 2"
+    },
+    {
+      "date": "2026-10-06T14:24:16.380000",
+      "visible score": "0.910",
+      "final score": "0.897",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56883086,
+      "description": "Item 18; fixed item composition or operational adjustment; numeric receipt: -13 224 084 1 3 384"
+    },
+    {
+      "date": "2026-10-06T14:41:50.693000",
+      "visible score": "0.913",
+      "final score": "0.898",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56883480,
+      "description": "Item 19; fixed item composition or operational adjustment; numeric receipt: -13 384 088 384 1 4 3 224"
+    },
+    {
+      "date": "2026-10-06T14:41:54.237000",
+      "visible score": "0.917",
+      "final score": "0.904",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56883481,
+      "description": "Item 20; fixed item composition or operational adjustment; numeric receipt: -12 1 224 384 -001 3.1"
+    },
+    {
+      "date": "2026-10-06T17:22:43.447000",
+      "visible score": "0.893",
+      "final score": "0.881",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56886996,
+      "description": "Item 21; fixed item composition or operational adjustment; numeric receipt: -18 095 8 0.5 0.5 34 16 4 24 -0.012"
+    },
+    {
+      "date": "2026-10-06T17:22:47.663000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.ERROR",
+      "ref": 56886999,
+      "description": "Item 22; fixed item composition or operational adjustment; numeric receipt: -18 090 16 16 4 24 -18"
+    },
+    {
+      "date": "2026-10-07T00:01:30",
+      "visible score": "0.942",
+      "final score": "0.926",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56893781,
+      "description": "Item 23; fixed item composition or operational adjustment; numeric receipt: -15 0.943 5 36 0.7 34 5 36 0.3 0.8 0.2"
+    },
+    {
+      "date": "2026-10-07T00:01:34.877000",
+      "visible score": "0.914",
+      "final score": "0.897",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56893801,
+      "description": "Item 24; fixed item composition or operational adjustment; numeric receipt: -19 -2 224 8 5 4,343 1 36 5 0.8875"
+    },
+    {
+      "date": "2026-10-07T00:01:39.003000",
+      "visible score": "0.914",
+      "final score": "0.899",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56893812,
+      "description": "Item 25; fixed item composition or operational adjustment; numeric receipt: -19 5 36 0.7 34 5 36 0.3 5 0.8905"
+    },
+    {
+      "date": "2026-10-07T00:01:42.497000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.ERROR",
+      "ref": 56893827,
+      "description": "Item 26; fixed item composition or operational adjustment; numeric receipt: -18 56886999 090 16 4 24"
+    },
+    {
+      "date": "2026-10-07T00:29:18.237000",
+      "visible score": "0.912",
+      "final score": "0.898",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56895283,
+      "description": "Item 27; fixed item composition or operational adjustment; numeric receipt: -20 -2 224 8 5 0.5 0.5 34 5 1 36 5"
+    },
+    {
+      "date": "2026-10-07T09:37:22.807000",
+      "visible score": "0.913",
+      "final score": "0.900",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56907117,
+      "description": "Item 28; fixed item composition or operational adjustment; numeric receipt: -28 1 -2 224 8 5 1.1 4,349 36 5"
+    },
+    {
+      "date": "2026-10-08T00:02:25.133000",
+      "visible score": "0.925",
+      "final score": "0.912",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56924947,
+      "description": "Item 29; fixed item composition or operational adjustment; numeric receipt: -31 50 3 5 36 6 0.930 0.914 -0.930"
+    },
+    {
+      "date": "2026-10-08T00:03:28.703000",
+      "visible score": "0.925",
+      "final score": "0.912",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56925075,
+      "description": "Item 30; fixed item composition or operational adjustment; numeric receipt: -31 50 3 5 36 6 0.930 0.914 -0.930"
+    },
+    {
+      "date": "2026-10-08T00:05:35.867000",
+      "visible score": "0.925",
+      "final score": "0.912",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56925301,
+      "description": "Item 31; fixed item composition or operational adjustment; numeric receipt: -31 50 3 5 36 6 0.930 0.914 -0.930"
+    },
+    {
+      "date": "2026-10-08T00:07:00.653000",
+      "visible score": "0.926",
+      "final score": "0.912",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56925392,
+      "description": "Item 32; fixed item composition or operational adjustment; numeric receipt: -31 5 50 5 36 6 0.8990 +0.0115 5 0.920 0"
+    },
+    {
+      "date": "2026-10-08T00:08:04.697000",
+      "visible score": "0.926",
+      "final score": "0.912",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56925454,
+      "description": "Item 33; fixed item composition or operational adjustment; numeric receipt: -31 5 50 5 36 6 0.8990 +0.0115 5 0.920 0"
+    },
+    {
+      "date": "2026-10-08T06:34:38.287000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56939432,
+      "description": ""
+    },
+    {
+      "date": "2026-10-08T06:34:46.900000",
+      "visible score": "0.900",
+      "final score": "0.879",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56939441,
+      "description": ""
+    },
+    {
+      "date": "2026-10-08T06:34:55.040000",
+      "visible score": "0.900",
+      "final score": "0.879",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56939447,
+      "description": ""
+    },
+    {
+      "date": "2026-10-08T06:35:03.990000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56939458,
+      "description": ""
+    },
+    {
+      "date": "2026-10-08T06:35:16.730000",
+      "visible score": "0.900",
+      "final score": "0.879",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56939468,
+      "description": ""
+    },
+    {
+      "date": "2026-10-09T00:03:20.993000",
+      "visible score": "0.931",
+      "final score": "0.916",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56979603,
+      "description": "Item 39; fixed item composition or operational adjustment; numeric receipt: -34 140 1 -34 140 1 1 50 2 5 0.938 -0.941 0.932 1"
+    },
+    {
+      "date": "2026-10-09T00:05:37.850000",
+      "visible score": "0.950",
+      "final score": "0.933",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 56979856,
+      "description": "Item 40; fixed item composition or operational adjustment; numeric receipt: -58 3 1 -58 3 1 0.8 0.949 0.1 0.1 1 50 2 0.950 -0.955"
+    },
+    {
+      "date": "2026-10-09T10:09:22.743000",
+      "visible score": "0.946",
+      "final score": "0.934",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57005140,
+      "description": "Item 41; fixed item composition or operational adjustment; numeric receipt: -63 152 143 2 0.949 2 0.75 +0.25 14 11 12 94 320 58 0.935"
+    },
+    {
+      "date": "2026-10-09T10:10:09.833000",
+      "visible score": "0.951",
+      "final score": "0.936",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57005163,
+      "description": "Item 42; fixed item composition or operational adjustment; numeric receipt: -63 152 0.5 143 2 0.5 0.949 58 0.935"
+    },
+    {
+      "date": "2026-10-09T10:10:54.573000",
+      "visible score": "0.950",
+      "final score": "0.933",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57005184,
+      "description": "Item 43; fixed item composition or operational adjustment; numeric receipt: -58 154 3 1 3 1 0.8 0.949 0.1 0.1 1 1 50 5 5 2 36"
+    },
+    {
+      "date": "2026-10-09T11:03:34.350000",
+      "visible score": "0.898",
+      "final score": "0.877",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57006667,
+      "description": ""
+    },
+    {
+      "date": "2026-10-09T11:03:43.897000",
+      "visible score": "0.898",
+      "final score": "0.877",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57006675,
+      "description": ""
+    },
+    {
+      "date": "2026-10-09T11:03:52.050000",
+      "visible score": "0.901",
+      "final score": "0.879",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57006680,
+      "description": ""
+    },
+    {
+      "date": "2026-10-09T11:03:59.700000",
+      "visible score": "0.901",
+      "final score": "0.879",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57006687,
+      "description": ""
+    },
+    {
+      "date": "2026-10-09T11:04:05.773000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57006693,
+      "description": ""
+    },
+    {
+      "date": "2026-10-10T01:35:07.750000",
+      "visible score": "0.951",
+      "final score": "0.937",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57027225,
+      "description": "Item 49; fixed item composition or operational adjustment; numeric receipt: -63 155 3 -63 155 3 1 3 0.949 143 2 155"
+    },
+    {
+      "date": "2026-10-10T01:41:13.977000",
+      "visible score": "0.946",
+      "final score": "0.933",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57027378,
+      "description": "Item 50; fixed item composition or operational adjustment; numeric receipt: -63 155 -63 155 155 143 2 2 14 11 12"
+    },
+    {
+      "date": "2026-10-10T03:12:56.503000",
+      "visible score": "0.951",
+      "final score": "0.936",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57029300,
+      "description": "Item 51; fixed item composition or operational adjustment; numeric receipt: -78 169 102 169 1.0.2 0.85 3 0.949 143 2 155 0.15 2 50 2"
+    },
+    {
+      "date": "2026-10-10T10:04:24.640000",
+      "visible score": "0.890",
+      "final score": "0.869",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57039024,
+      "description": ""
+    },
+    {
+      "date": "2026-10-10T11:48:24.397000",
+      "visible score": "0.549",
+      "final score": "0.530",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57041296,
+      "description": ""
+    },
+    {
+      "date": "2026-10-10T12:00:59.100000",
+      "visible score": "0.537",
+      "final score": "0.527",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57041553,
+      "description": ""
+    },
+    {
+      "date": "2026-10-10T12:02:20.093000",
+      "visible score": "0.532",
+      "final score": "0.524",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57041582,
+      "description": ""
+    },
+    {
+      "date": "2026-10-10T12:12:49.300000",
+      "visible score": "0.522",
+      "final score": "0.534",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57041815,
+      "description": ""
+    },
+    {
+      "date": "2026-10-10T13:19:54.770000",
+      "visible score": "0.951",
+      "final score": "0.937",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57043290,
+      "description": "Item 57; fixed item composition or operational adjustment; numeric receipt: -78 169 172 202 172 2.0.2 0.85 3 0.15 2 50 2 0.951 0.950 -0.952"
+    },
+    {
+      "date": "2026-10-10T14:20:37.767000",
+      "visible score": "0.948",
+      "final score": "0.935",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57044556,
+      "description": "Item 58; fixed item composition or operational adjustment; numeric receipt: -35 169 172 202 172 2.0.2 0.70 143 2 0.30 2 0.948 0.947 -0.949"
+    },
+    {
+      "date": "2026-10-11T05:56:03.360000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57064136,
+      "description": ""
+    },
+    {
+      "date": "2026-10-11T05:56:10.783000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57064139,
+      "description": ""
+    },
+    {
+      "date": "2026-10-11T05:56:18.933000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57064142,
+      "description": ""
+    },
+    {
+      "date": "2026-10-11T05:56:27.517000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57064147,
+      "description": ""
+    },
+    {
+      "date": "2026-10-11T05:56:36.097000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57064151,
+      "description": ""
+    },
+    {
+      "date": "2026-10-11T07:34:24.660000",
+      "visible score": "0.951",
+      "final score": "0.937",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57066639,
+      "description": "Item 64; fixed item composition or operational adjustment; numeric receipt: -35 169 4 413 4 4.1.3 0.85 0.949 42 43 155 0.15 50 4 0.951 0.950 -0.953"
+    },
+    {
+      "date": "2026-10-11T07:35:04.640000",
+      "visible score": "0.946",
+      "final score": "0.933",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57066656,
+      "description": "Item 65; fixed item composition or operational adjustment; numeric receipt: -35 169 4 413 4 4.1.3 0.35 42 43 0.35 174 0.30 50 4 0.949 0.947 -0.950"
+    },
+    {
+      "date": "2026-10-11T11:18:50.587000",
+      "visible score": "0.952",
+      "final score": "0.938",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57072195,
+      "description": "Item 66; fixed item composition or operational adjustment; numeric receipt: 169 5 -172 5 -1.2.0 5 5 1.2.0 0.85 954 42 43 155 0.15 172 954 0.70 0.30 6"
+    },
+    {
+      "date": "2026-10-11T11:19:28.497000",
+      "visible score": "0.954",
+      "final score": "0.940",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57072216,
+      "description": "Item 67; fixed item composition or operational adjustment; numeric receipt: 169 5 -172 5 -1.2.0 5 5 1.2.0 0.85 6 143 2 155 0.15 172 0.954 0.952 -0.957"
+    },
+    {
+      "date": "2026-10-11T15:18:29.190000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57078140,
+      "description": "Item 68; fixed item composition or operational adjustment; numeric receipt: 169 6 6 -1.2.1 6 6 1.2.1 0.85 6 42 43 155 0.15 7 50 4 10 0.954 0.952 -0.9"
+    },
+    {
+      "date": "2026-10-12T02:07:29.963000",
+      "visible score": "0.954",
+      "final score": "0.938",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57092115,
+      "description": "Item 69; fixed item composition or operational adjustment; numeric receipt: 169 956 -1.0.1 956 1.0.1 0.5 0.949 0.5 6 -7"
+    },
+    {
+      "date": "2026-10-12T04:48:56.673000",
+      "visible score": "0.514",
+      "final score": "0.509",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57095888,
+      "description": ""
+    },
+    {
+      "date": "2026-10-12T05:11:06.930000",
+      "visible score": "0.566",
+      "final score": "0.539",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57096396,
+      "description": ""
+    },
+    {
+      "date": "2026-10-12T05:11:15.087000",
+      "visible score": "0.507",
+      "final score": "0.499",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57096403,
+      "description": ""
+    },
+    {
+      "date": "2026-10-12T05:32:01.303000",
+      "visible score": "0.577",
+      "final score": "0.554",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57096866,
+      "description": ""
+    },
+    {
+      "date": "2026-10-12T05:32:07.303000",
+      "visible score": "0.521",
+      "final score": "0.503",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57096870,
+      "description": ""
+    },
+    {
+      "date": "2026-10-12T09:44:07.550000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57103205,
+      "description": "Item 75; fixed item composition or operational adjustment; numeric receipt: 169 85 -1.0.2 85 1.0.2 85% 956 15%"
+    },
+    {
+      "date": "2026-10-12T09:45:04.823000",
+      "visible score": "0.954",
+      "final score": "0.939",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57103231,
+      "description": "Item 76; fixed item composition or operational adjustment; numeric receipt: 169 956 -1.0.0 956 1.0.0 2 50 50 6"
+    },
+    {
+      "date": "2026-10-12T15:15:57.043000",
+      "visible score": "0.955",
+      "final score": "0.939",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57111261,
+      "description": "Item 77; fixed item composition or operational adjustment; numeric receipt: 169 85 -1.0.4 85 1.0.4 0.85 956 0.15 17 143 2 17 155 12 5"
+    },
+    {
+      "date": "2026-10-12T17:18:17.263000",
+      "visible score": "0.954",
+      "final score": "0.939",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57114164,
+      "description": "Item 78; fixed item composition or operational adjustment; numeric receipt: 169 956 2 -1.1.0 956 +2 1.1.0 0.5 +2 43 44 0.5 6"
+    },
+    {
+      "date": "2026-10-13T00:02:10.957000",
+      "visible score": "0.955",
+      "final score": "0.940",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57122974,
+      "description": "Item 79; fixed item composition or operational adjustment; numeric receipt: 116 -1.1.2 1.1.2 0.70 956 +2 0.30 17 143 2 43 17 155 12 7 50 4 10 -13 00 4"
+    },
+    {
+      "date": "2026-10-13T00:02:50.870000",
+      "visible score": "0.955",
+      "final score": "0.940",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57123084,
+      "description": "Item 80; fixed item composition or operational adjustment; numeric receipt: 116 -1.1.2 1.1.2 0.70 956 +2 0.30 11 143 2 43 11 155 18 7 50 4 10 -13 00 4"
+    },
+    {
+      "date": "2026-10-13T02:12:27.220000",
+      "visible score": "0.882",
+      "final score": "0.856",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57127269,
+      "description": ""
+    },
+    {
+      "date": "2026-10-13T02:12:37.257000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57127272,
+      "description": ""
+    },
+    {
+      "date": "2026-10-13T02:12:47.540000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57127281,
+      "description": ""
+    },
+    {
+      "date": "2026-10-13T02:12:59.017000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57127287,
+      "description": ""
+    },
+    {
+      "date": "2026-10-13T02:13:08.410000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57127291,
+      "description": ""
+    },
+    {
+      "date": "2026-10-13T03:36:25.613000",
+      "visible score": "0.957",
+      "final score": "0.941",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57129135,
+      "description": "Item 86; fixed item composition or operational adjustment; numeric receipt: 169 85 7 -1.0.0 85 7 1.0.0 0.85 7 0.5 0.5 7 8 7 666 0.15 17 143 2 17 155 12 5 85 1.0"
+    },
+    {
+      "date": "2026-10-13T06:19:03.437000",
+      "visible score": "0.957",
+      "final score": "0.941",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57133175,
+      "description": "Item 87; fixed item composition or operational adjustment; numeric receipt: 169 85 7 -1.1.0 85 7 1.1.0 85 7 1.0.0 3.2.6"
+    },
+    {
+      "date": "2026-10-13T08:22:07.587000",
+      "visible score": "0.956",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57136544,
+      "description": "Item 88; fixed item composition or operational adjustment; numeric receipt: 127 7 -1.2.0 7 1.2.0 0.70 0.5 2 0.5 7 0.30 17 2 17 155 12 7 46"
+    },
+    {
+      "date": "2026-10-14T01:18:44.983000",
+      "visible score": "0.899",
+      "final score": "0.878",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57162408,
+      "description": ""
+    },
+    {
+      "date": "2026-10-14T12:34:33.933000",
+      "visible score": "0.957",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57182285,
+      "description": "Item 90; fixed item composition or operational adjustment; numeric receipt: 116 15 -1.3.0 1.3.0 15 0.85 0.5 0.5 7 0.15 2"
+    },
+    {
+      "date": "2026-10-14T14:53:29.417000",
+      "visible score": "0.957",
+      "final score": "0.941",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57186249,
+      "description": "Item 91; fixed item composition or operational adjustment; numeric receipt: 169 85 7 -1.1.9 85 7 1.1.9 1.1.0 0.85 +0.15 0.5 +0"
+    },
+    {
+      "date": "2026-10-14T15:16:55.427000",
+      "visible score": "0.589",
+      "final score": "0.561",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57186861,
+      "description": ""
+    },
+    {
+      "date": "2026-10-14T15:29:09.207000",
+      "visible score": "0.957",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57187209,
+      "description": "Item 93; fixed item composition or operational adjustment; numeric receipt: 169 85 7 25 3 -1.1.18 85 7 25 1.1.18 1.1.0 0.75 +0.25 0.5 +0.5 7"
+    },
+    {
+      "date": "2026-10-14T15:33:31.340000",
+      "visible score": "0.956",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57187331,
+      "description": "Item 94; fixed item composition or operational adjustment; numeric receipt: 169 85 7 65 2 -1.1.19 85 7 65 1.1.19 1.1.0 0.85 +0.15 0.35 +0.65 7"
+    },
+    {
+      "date": "2026-10-14T19:47:46.500000",
+      "visible score": "0.944",
+      "final score": "0.927",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57193756,
+      "description": "Item 95; fixed item composition or operational adjustment; numeric receipt: -151 102 -151 143 2 -384 0.7 7 0.3 43"
+    },
+    {
+      "date": "2026-10-15T00:01:27.010000",
+      "visible score": "0.957",
+      "final score": "0.941",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57198522,
+      "description": "Item 96; fixed item composition or operational adjustment; numeric receipt: 169 85 7 -1.1.22 169 85 7 -1.1.22 85 7 1.1.0 7"
+    },
+    {
+      "date": "2026-10-15T00:02:13.403000",
+      "visible score": "0.948",
+      "final score": "0.932",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57198645,
+      "description": "Item 97; fixed item composition or operational adjustment; numeric receipt: -157 1 -157 -1.0.0 0.949 0.7 7 0.3 6"
+    },
+    {
+      "date": "2026-10-15T00:02:55.010000",
+      "visible score": "0.926",
+      "final score": "0.911",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57198732,
+      "description": "Item 98; fixed item composition or operational adjustment; numeric receipt: -156 2 1 -156 2 -1.0.0 143 2 96 -384 2.5 2 42"
+    },
+    {
+      "date": "2026-10-15T01:05:33.293000",
+      "visible score": "0.957",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57200805,
+      "description": "Item 99; fixed item composition or operational adjustment; numeric receipt: -164 224 -1.1.23 169 85 7 224 -1.1.23 85 7 1.1.0 -224 0.65 384 0.35 224"
+    },
+    {
+      "date": "2026-10-15T09:17:24.310000",
+      "visible score": "0.957",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57224580,
+      "description": "Item 100; fixed item composition or operational adjustment; numeric receipt: -167 224 -1.1.24 -167 224 -1.1.24 85 7 -224 .65 384 +.35 224 7 8.5h"
+    },
+    {
+      "date": "2026-10-16T02:17:50.483000",
+      "visible score": "0.957",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57251520,
+      "description": "Item 101; fixed item composition or operational adjustment; numeric receipt: -174 224 6 -1.1.30 -174 224 6 -1.1.30 -167 224 7 6 055406 58"
+    },
+    {
+      "date": "2026-10-16T02:18:47.223000",
+      "visible score": "0.957",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57251544,
+      "description": "Item 102; fixed item composition or operational adjustment; numeric receipt: -170 224 -1.1.26 -170 224 -1.1.26 -167 224 -224 170 32 +0.48"
+    },
+    {
+      "date": "2026-10-16T02:19:24.870000",
+      "visible score": "0.957",
+      "final score": "0.941",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57251559,
+      "description": "Item 103; fixed item composition or operational adjustment; numeric receipt: -168 -1.1.25 -168 -1.1.25 -224 15"
+    },
+    {
+      "date": "2026-10-16T03:51:23.877000",
+      "visible score": "0.934",
+      "final score": "0.924",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57253766,
+      "description": "Item 104; fixed item composition or operational adjustment; numeric receipt: -177 42 1 -177 42 1 42 0.950 0.946"
+    },
+    {
+      "date": "2026-10-16T09:26:02.017000",
+      "visible score": "0.957",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57263371,
+      "description": "Item 105; fixed item composition or operational adjustment; numeric receipt: -181 224 6 -1.1.34 -181 224 6 -1.1.34 -174 6 1 58"
+    },
+    {
+      "date": "2026-10-17T00:01:28.390000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57287199,
+      "description": "Item 106; fixed item composition or operational adjustment; numeric receipt: -189 6 958 -1.1.39 -189 6 958 -1.1.39 -174 6 0.958 .2 .6 .8 .35 .15"
+    },
+    {
+      "date": "2026-10-17T00:02:17.117000",
+      "visible score": "0.957",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57287346,
+      "description": "Item 107; fixed item composition or operational adjustment; numeric receipt: -185 6 -1.1.36 -185 6 -1.1.36 -181 6"
+    },
+    {
+      "date": "2026-10-17T00:03:05.193000",
+      "visible score": "0.956",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57287469,
+      "description": "Item 108; fixed item composition or operational adjustment; numeric receipt: -193 6 -1.1.42 -193 6 -1.1.42 -181 6 11 0.957 0.958"
+    },
+    {
+      "date": "2026-10-17T08:54:19.587000",
+      "visible score": "0.957",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57304161,
+      "description": "Item 109; fixed item composition or operational adjustment; numeric receipt: -195 6 958 -1.1.43 -195 6 958 -1.1.43 -189 0.958 -224 -179 170 0.958 .15"
+    },
+    {
+      "date": "2026-10-17T09:42:03.263000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57305798,
+      "description": "Item 110; fixed item composition or operational adjustment; numeric receipt: -190 6 958 -1.1.40 -190 6 958 -1.1.40 -189 0.958 2.5 0.958 .003 -.035 32 7.43 -7.6"
+    },
+    {
+      "date": "2026-10-18T08:29:29.310000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57346694,
+      "description": "Item 111; fixed item composition or operational adjustment; numeric receipt: 6 958 4 1 189 4"
+    },
+    {
+      "date": "2026-10-18T08:56:19.693000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57347501,
+      "description": "Item 112; fixed item composition or operational adjustment; numeric receipt: 6 958 3 1 189"
+    },
+    {
+      "date": "2026-10-18T09:00:10.010000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57347653,
+      "description": "Item 113; fixed item composition or operational adjustment; numeric receipt: 2 0 1 1 2 0 0 100"
+    },
+    {
+      "date": "2026-10-18T09:35:09.547000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57348901,
+      "description": "Item 114; fixed item composition or operational adjustment; numeric receipt: -182 3 10 1 90 10 189 1 2 0"
+    },
+    {
+      "date": "2026-10-18T10:05:02.067000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57349788,
+      "description": "Item 115; fixed item composition or operational adjustment; numeric receipt: 6 958 2 1 2 10 8 20 4 6 958"
+    },
+    {
+      "date": "2026-10-19T00:07:39.587000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57373841,
+      "description": "Item 116; fixed item composition or operational adjustment; numeric receipt: 2 0 1 1 2"
+    },
+    {
+      "date": "2026-10-19T00:09:11.533000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57373940,
+      "description": "Item 117; fixed item composition or operational adjustment; numeric receipt: 6 958 3 1 3 1 2 90 10"
+    },
+    {
+      "date": "2026-10-19T04:07:18.917000",
+      "visible score": "0.944",
+      "final score": "0.931",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57381398,
+      "description": "Item 118; fixed item composition or operational adjustment; numeric receipt: 2 0 1 1 2 32 32"
+    },
+    {
+      "date": "2026-10-19T18:59:46.307000",
+      "visible score": "0.958",
+      "final score": "0.942",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57406415,
+      "description": "Item 119; fixed item composition or operational adjustment; numeric receipt: 6 958 224 1 6 958 224 1 3 224 0 3 384"
+    },
+    {
+      "date": "2026-10-19T19:01:25.517000",
+      "visible score": "0.957",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57406444,
+      "description": "Item 120; fixed item composition or operational adjustment; numeric receipt: 6 958 224 25 1 6 958 224 25 1 3 224 0 .25 0.75 0.25"
+    },
+    {
+      "date": "2026-10-20T00:02:58.273000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57413601,
+      "description": "parent plus one auxiliary item; shared processing; fixed rank mixture; numeric receipt: 6 958 1 20 1 6 958 1 20 1 3 1 2 6 16 80 20 1"
+    },
+    {
+      "date": "2026-10-20T00:03:46.303000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57413731,
+      "description": "parent plus two auxiliary versions; shared processing; fixed rank mixture; numeric receipt: 6 958 1 2 20 1 6 958 1 2 20 1 3 1 2 2 3 1 6 16 80 20"
+    },
+    {
+      "date": "2026-10-20T01:03:57.083000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57415972,
+      "description": "parent plus three auxiliary versions; shared processing; rank mixture; runtime repair; numeric receipt: 6 958 1 3 20 2 6 958 1 3 20 2 3 1 3 2 3 0 3 1 6 16 80 20 5"
+    },
+    {
+      "date": "2026-10-20T07:11:45.407000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57427331,
+      "description": "parent and auxiliary per-target ranks combined with average ties and a complete roster; numeric receipt: 1 -315 2 7 566288 5 2 0.75 3 224 32 +0.25 1 16"
+    },
+    {
+      "date": "2026-10-20T08:28:40.590000",
+      "visible score": "0.957",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57429713,
+      "description": "Item 125; fixed item composition or operational adjustment; numeric receipt: 1 531 228 40124 11 28 1 3 32 1 16 0.1 0.2 0.2 0.5 0.35 0.5 0.35 0.3"
+    },
+    {
+      "date": "2026-10-21T00:00:58.620000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57456768,
+      "description": "parent and auxiliary per-target ranks combined with average ties and a complete roster; numeric receipt: 1 -2367 1988 9 87062 0.8 3 32 +0.2 1 16 32"
+    },
+    {
+      "date": "2026-10-21T00:16:23.190000",
+      "visible score": "0.957",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57458078,
+      "description": "Item 127; fixed item composition or operational adjustment; numeric receipt: 1 -5 7 8 05745 1813 08 0.75 3 224 32 +0.25 1 16"
+    },
+    {
+      "date": "2026-10-21T09:22:24.997000",
+      "visible score": "0.957",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57475409,
+      "description": "Item 128; fixed item composition or operational adjustment; numeric receipt: 1 -1 5 1 4874 76 86807 25 10 .75 .5 384 224 6 .25 1 2 3 0 1 2 10 900"
+    },
+    {
+      "date": "2026-10-21T13:39:55.523000",
+      "visible score": "0.956",
+      "final score": "0.941",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57484279,
+      "description": "Item 129; fixed item composition or operational adjustment; numeric receipt: 1 5 04247 1 8 283 25 10 5 .85 .15 5 5 3 .75 .25 1 2 3 0 1 2"
+    },
+    {
+      "date": "2026-10-21T23:40:14.853000",
+      "visible score": "0.955",
+      "final score": "0.940",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57500332,
+      "description": "Item 130; fixed item composition or operational adjustment; numeric receipt: 1 -2141 5 6 14 0 543 4 5 10 .85 .5 384 224 6 .15 5 5 3 .75"
+    },
+    {
+      "date": "2026-10-22T04:58:22.410000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57510427,
+      "description": "Item 131; fixed item composition or operational adjustment; numeric receipt: 1 -3152 76111 51 87 1.1.84 3 .85 +.15 1 2 .8 3 +.2 .75 +.25 .5 +.5 10"
+    },
+    {
+      "date": "2026-10-22T06:19:35.197000",
+      "visible score": "0.958",
+      "final score": "0.943",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57512878,
+      "description": "Item 132; fixed item composition or operational adjustment; numeric receipt: 1 440 2333 24387 3 0 4 1.1.85 .75 384 224 .35 6 5 .25 1 2 3 0 1 0"
+    },
+    {
+      "date": "2026-10-22T06:58:46.980000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57514281,
+      "description": "Item 133; fixed item composition or operational adjustment; numeric receipt: 1 8 0 74 5 8 3 9 4 1.1.86 3 .85 +.15 1 2 3 0 1 0 2 .8 3 +.2 .75 +.25 4 .5 +.5"
+    },
+    {
+      "date": "2026-10-22T13:38:44.737000",
+      "visible score": "",
+      "final score": "",
+      "status": "ActionStatus.COMPLETE",
+      "ref": 57526613,
+      "description": "Item 134; fixed item composition or operational adjustment; numeric receipt: 1 -98 359 86 202659 8 4 1.1.87 .75 .5 12 384 224 .35 6 5 .25 1 2 3 0 1"
+    }
+  ],
+  "integrity": {
+    "discovery_numeric_sha256": "606a5600c830ddf8bcc87efbe3fb09ee472df9c75fa3698b3b0be760cab0034b",
+    "discovery_structure_sha256": "7bfe47c8107669d503b0cb7291054c6b9746549d974caf683dcfe59af604cfc1",
+    "action_values_sha256": "da993a4d79bcd58d4ca524d9b7f0b21f1c79dd9942497306223b0118d7de1e0e",
+    "action_description_numeric_sha256": "47aec8d3981d0d5b3d4804c3c161df8b853202bb0ad0794272bf730785ca888f",
+    "discovery_dates_sha256": "bd722face0c40b6e0ea98bc25fe7c6a381b6db87c217767f07c40c882b898ecd"
+  }
+}

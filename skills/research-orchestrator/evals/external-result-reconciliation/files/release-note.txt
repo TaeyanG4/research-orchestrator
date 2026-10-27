@@ -1,0 +1,1 @@
+Reviewed archive note: preserve the release artifact identity during publication.

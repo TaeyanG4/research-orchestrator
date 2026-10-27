@@ -1,0 +1,9 @@
+{
+  "plugin_active": true,
+  "scenarios": [
+    {"id": "defaults", "settings": {"Autonomy": "present", "Brief requirements": "none", "Read bound": "off"}, "supplemental_matchers": []},
+    {"id": "opt-ins", "settings": {"Autonomy": "away", "Brief requirements": "reviewer: Scope", "Read bound": "on"}, "supplemental_matchers": []},
+    {"id": "complete", "settings": {"Autonomy": "away", "Brief requirements": "reviewer: Scope", "Read bound": "on"}, "supplemental_matchers": ["AskUserQuestion|Agent", "Glob|Grep|Read"]},
+    {"id": "partial-read", "settings": {"Read bound": "on"}, "supplemental_matchers": ["Glob|Read"]}
+  ]
+}

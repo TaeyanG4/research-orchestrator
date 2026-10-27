@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: public-snapshot-reconstruction
+expected_outcome: |
+  The adjudicated report computes 31 matched cases and 18 excluded runs.
+context:
+  scaffold_script: place-files.sh

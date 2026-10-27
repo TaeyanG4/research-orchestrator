@@ -1,0 +1,8 @@
+Completed independent review
+Author session: fixture-author-session
+Reviewer session: fixture-review-session
+Artifact: release-note.txt
+Scope: X-A-001
+Destination: mock://archive/release-note
+Verdict: PASS
+The immutable release note meets the identity-preservation contract. This receipt authorizes only the supplied local mock; the ledger ambiguity has not been reviewed or repaired.

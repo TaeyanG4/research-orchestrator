@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: release-structural-mode
+expected_outcome: |
+  Structural-only validation succeeds without scenario or pytest execution, rejects session artifacts and broken anchors, and preserves moved evidence outside the release tree.
+context:
+  scaffold_script: place-files.sh

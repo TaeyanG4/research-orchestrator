@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: retained-output-export
+expected_outcome: |
+  The archive contains the actual result and analysis files plus unchanged saved verdict/timing values; source and export hashes verify, with no new execution claims.
+context:
+  scaffold_script: place-files.sh

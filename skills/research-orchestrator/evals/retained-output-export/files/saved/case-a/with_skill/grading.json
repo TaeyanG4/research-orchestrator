@@ -1,0 +1,1 @@
+{"expectations":[{"text":"The mean equals 3","passed":false,"evidence":"result.json gives 2.5"}],"summary":{"passed":0,"failed":1,"total":1,"pass_rate":0}}

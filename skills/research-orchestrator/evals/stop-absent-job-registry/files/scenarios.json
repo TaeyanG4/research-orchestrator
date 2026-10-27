@@ -1,0 +1,11 @@
+{
+  "project_has_agents_md": true,
+  "interpreter_available": true,
+  "scenarios": [
+    {"id": "idle-posix", "wrapper": "sh", "jobs_registry": false, "recovery_registry": false},
+    {"id": "idle-cmd", "wrapper": "cmd", "jobs_registry": false, "recovery_registry": false},
+    {"id": "primary", "wrapper": "sh", "jobs_registry": true, "recovery_registry": false},
+    {"id": "recovery-only", "wrapper": "cmd", "jobs_registry": false, "recovery_registry": true}
+  ],
+  "consumes_stdin_definition": "Whether the wrapper itself reads host stdin before runtime dispatch"
+}
