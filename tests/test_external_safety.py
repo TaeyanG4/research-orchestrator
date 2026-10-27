@@ -71,7 +71,7 @@ def test_external_journals_before_spawn_and_releases_shared_lock(tmp_path, monke
         attempt = project.read_json("external-attempts/X-A-001.json", {})
         assert attempt["status"] == "in-flight"
         assert attempt["idempotency_key"] == key and len(key) == 64
-        assert "Status: in-flight" in (tmp_path / "handoff.md").read_text()
+        assert "Status: in-flight" in (tmp_path / "handoff.md").read_text(encoding="utf-8")
         assert held == {"external-X-A-001"}
         return subprocess.CompletedProcess(command, 0, "accepted", "")
 
@@ -163,9 +163,9 @@ def test_status_write_failures_never_allow_replay(tmp_path, monkeypatch, fail_at
 def test_retry_needs_prior_not_accepted_reconciliation(tmp_path, monkeypatch, reconciled):
     project = ready(tmp_path)
     ledger = tmp_path / "handoff.md"
-    ledger.write_text(ledger.read_text() + "- Reconciled: " + reconciled + "\n")
+    ledger.write_text(ledger.read_text(encoding="utf-8") + "- Reconciled: " + reconciled + "\n", encoding="utf-8")
     prepared(project, "artifact.txt", action="X-A-002", expected="2020-01-02 08:00")
-    ledger.write_text(ledger.read_text() + "- Retry of: X-A-001\n")
+    ledger.write_text(ledger.read_text(encoding="utf-8") + "- Retry of: X-A-001\n", encoding="utf-8")
     evidence.receipt_add(project, "artifact.txt", "reviewer", "PASS", "X-A-002", "release endpoint")
     monkeypatch.setattr(evidence, "_run_external", lambda *a: pytest.fail("unreconciled retry executed"))
     with pytest.raises(ValueError, match="Reconciled"):
@@ -179,9 +179,10 @@ def test_reconciled_retry_preserves_service_idempotency_key(tmp_path):
     with pytest.raises(ValueError, match="exit 7"):
         evidence.external(project, args)
     ledger = tmp_path / "handoff.md"
-    ledger.write_text(ledger.read_text() + "- Reconciled: not-accepted (observed 2020-01-01 09:00); service log\n")
+    ledger.write_text(ledger.read_text(encoding="utf-8")
+                      + "- Reconciled: not-accepted (observed 2020-01-01 09:00); service log\n", encoding="utf-8")
     prepared(project, "artifact.txt", action="X-A-002", expected="2020-01-02 08:00")
-    ledger.write_text(ledger.read_text() + "- Retry of: X-A-001\n")
+    ledger.write_text(ledger.read_text(encoding="utf-8") + "- Retry of: X-A-001\n", encoding="utf-8")
     evidence.receipt_add(project, "artifact.txt", "reviewer", "PASS", "X-A-002", "release endpoint")
     args = action_args(action="X-A-002")
     args.command = [sys.executable, "-c", "import os; print(os.environ['RO_IDEMPOTENCY_KEY'])"]

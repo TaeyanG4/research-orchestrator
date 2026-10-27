@@ -77,7 +77,8 @@ def test_safety_references_keep_constraint_groups_readable_and_bounded():
                  if not re.match(r"(?:#|- |\d+\.)", paragraph)]
         assert all(len(paragraph) <= 500 for paragraph in prose)
         assert re.search(r"\n[^\n]+\.\n\n- ", text)
-    fixed = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8").split("### Fixed\n", 1)[1].split("\n### ", 1)[0]
+    release = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8").split("\n## 6.0.0", 1)[1]
+    fixed = release.split("### Fixed\n", 1)[1].split("\n### ", 1)[0]
     assert len(re.findall(r"^- \*\*[^\n]+:\*\*", fixed, re.M)) == 6
     assert len(re.findall(r"^- ", fixed, re.M)) == 6
 

@@ -78,7 +78,8 @@ def test_three_configurations_and_report(tmp_path, monkeypatch, capsys):
     assert "| B: home JSON | completed | 0 | true |" in report
     assert "| C: home TOML | timeout | n/a | true |" in report
     assert "PreToolUse" in report and "error: timed out" in report
-    assert len(set(calls)) == 3 and all(path.is_relative_to(tmp_path / "_hook-probe") for path in calls)
+    # The probe works in a resolved scratch root (8.3 short names, /var -> /private/var).
+    assert len(set(calls)) == 3 and all(path.is_relative_to((tmp_path / "_hook-probe").resolve()) for path in calls)
     retained = calls[2].parent.parent / "done" / calls[2].parent.name
     assert (retained / "C" / "stdout.log").read_text() == "partial"
     assert (real_home / "config.toml").read_text() == original

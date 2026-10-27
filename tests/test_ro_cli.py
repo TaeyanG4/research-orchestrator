@@ -12,7 +12,7 @@ import platform
 
 import pytest
 
-from conftest import SCRIPTS, item, make_project, run_init, set_queue, unified_project
+from conftest import SCRIPTS, item, make_project, run_init, set_queue, unified_project, with_real_ps
 import ro
 import ro_hook_runner as runner
 import ro_hooks
@@ -98,7 +98,7 @@ def test_supervisor_child_failures_are_visible_and_fail_open(tmp_path, monkeypat
     project = project_at(tmp_path, mode)
     def failed(*args, **kwargs):
         return subprocess.CompletedProcess(args[0], returncode, output, b"child unavailable")
-    monkeypatch.setattr(subprocess, "run", failed)
+    monkeypatch.setattr(subprocess, "run", with_real_ps(failed))
     result, code = runner.run("PreToolUse", json.dumps(payload(project)).encode(), project)
     assert code == 0 and not denied(result)
     if mode == "off":
@@ -130,7 +130,7 @@ def test_supervisor_malformed_inputs_fail_open_without_starting_child(tmp_path, 
     project = project_at(tmp_path)
     def unexpected(*args, **kwargs):
         raise AssertionError("malformed stdin started a child")
-    monkeypatch.setattr(subprocess, "run", unexpected)
+    monkeypatch.setattr(subprocess, "run", with_real_ps(unexpected))
     result, code = runner.run("PreToolUse", raw, project, "external.gate")
     assert code == 0 and not denied(result)
 
@@ -142,7 +142,7 @@ def test_malformed_envelopes_fail_open_before_using_their_paths(tmp_path, monkey
     data = json.dumps(invalid).encode()
     def unexpected(*args, **kwargs):
         raise AssertionError("invalid envelope started a child")
-    monkeypatch.setattr(subprocess, "run", unexpected)
+    monkeypatch.setattr(subprocess, "run", with_real_ps(unexpected))
     result, code = runner.run("PreToolUse", data, project, "external.gate")
     assert code == 0 and not denied(result)
     args = ro.parser().parse_args(["--project", str(project.root), "hook", "PreToolUse", "--check", "external.gate"])

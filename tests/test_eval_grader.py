@@ -243,7 +243,8 @@ def test_numeric_replication_and_record_parser_reject_wrong_results(tmp_path):
 def execute_helper(ctx, script):
     with EvidenceBroker(ctx.case_dir, ctx.outputs, ctx.run_dir, Path(sys.executable)) as broker:
         responses = Path(broker.environment["RO_EVAL_EVIDENCE_DIR"])
-        assert responses.is_relative_to(ctx.outputs)
+        # The broker publishes a resolved directory (8.3 short names, /var -> /private/var).
+        assert responses.is_relative_to(ctx.outputs.resolve())
         endpoint = json.loads((ctx.outputs / ".eval-evidence" / "endpoint.json").read_text(encoding="utf-8"))
         assert endpoint["evidence"] == str(responses)
         result = subprocess.run([sys.executable, str(ctx.outputs / script)], cwd=ctx.outputs,

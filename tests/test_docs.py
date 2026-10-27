@@ -21,9 +21,16 @@ def test_every_reference_is_reachable():
 def test_stale_v2_assets_removed_and_readme_translations_share_structure():
     readmes = list(ROOT.glob("README*.md"))
     texts = [path.read_text(encoding="utf-8") for path in readmes]
+    # 5.1.0 diagrams return only as reviewed 6.0.0 versions (*-v6); setup.svg stays retired.
     for name in ("setup.svg", "hero.svg", "take-over.svg", "cross-host-check.svg"):
         assert not (ROOT / "assets" / "readme" / name).exists()
         assert all(f"assets/readme/{name}" not in text for text in texts)
+    # Every README image exists and every translation references it; no orphaned images remain.
+    assets = {path.name for path in (ROOT / "assets" / "readme").iterdir()}
+    assert {"hero-v6.svg", "why-use.webp", "hypothesis-relay.webp", "take-over-v6.svg",
+            "cross-host-check-v6.svg"} <= assets
+    for text in texts:
+        assert set(re.findall(r'<img[^>]+src="assets/readme/([^"]+)"', text)) == assets
     structures = [[len(match[1]) for match in re.finditer(r"^(#+) ", text, re.M)] for text in texts]
     assert all(structure == structures[0] for structure in structures)
 

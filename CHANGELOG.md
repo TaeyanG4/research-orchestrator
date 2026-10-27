@@ -1,5 +1,22 @@
 # Changelog
 
+## 6.0.1
+
+### Added
+
+- `references/review-loops.md`: rules for repeated review and fix rounds on one deliverable — a fixed exit criterion ("no BLOCKER or MAJOR finding and the checklist passes", not a score threshold), a round cap, an out-of-scope list given to every reviewer, carried-over findings, one reviewer per round, early cross-platform and publication checks, and the full test suite once at the final gate. The bundled reviewer instructions verify carried-over findings first and report only new BLOCKER or MAJOR findings.
+- README sections for a quick start, the four files, slots and sessions, record formats, compute and long jobs, the repository layout and the design principles, with reviewed versions of the 5.1.0 diagrams.
+
+### Fixed
+
+- Windows short (8.3) path names such as `C:\Users\RUNNER~1` were read as home-directory paths, so job-binding checks found nothing for projects under such paths; only a leading `~` now means the home directory.
+- The evaluation contamination audit read Python raw-string paths such as `r'/abs/path'` as relative paths on Linux and macOS.
+- Tests now pass on Linux, macOS and the GitHub Windows runner (resolved temporary paths, macOS process identity without `/proc`, `dash` sourcing, Git for Windows `sh` aliases, UTF-8 file reads); CI lists every failing test and keeps the full report as an artifact.
+
+### Changed
+
+- The README no longer has a "Why v3" section.
+
 ## 6.0.0 — skill design v3
 
 A major release after 5.1.0. "v3" names the skill design generation; the installable version is 6.0.0. Research Orchestrator is now a plugin for work projects, research, and competitions: one skill, host hooks, the `ro` command-line tool, and a read-only reviewer agent. Projects created with 5.1.0 keep working without changes; see Migration below. Earlier releases, up to 5.1.0, have no changelog entries; see the Git history.

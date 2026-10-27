@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from conftest import NOW, make_project
+from conftest import NOW, make_project, with_real_ps
 import check_project
 import ro_command
 import ro_hook_runner as runner
@@ -163,8 +163,8 @@ def test_publish_gate_notice_matches_checkout_scope(tmp_path, monkeypatch, route
     def git(command, **kwargs):
         calls.append(command)
         assert kwargs["timeout"] == 1
-        return SimpleNamespace(stdout=str(hooks_path) if custom else ".git-hooks\n")
-    monkeypatch.setattr(subprocess, "run", git)
+        return SimpleNamespace(returncode=0, stdout=str(hooks_path) if custom else ".git-hooks\n", stderr="")
+    monkeypatch.setattr(subprocess, "run", with_real_ps(git))
     monkeypatch.setattr(records.shutil, "which", lambda name: "ro")
     monkeypatch.setattr(records, "_checker_brief", lambda p: ({"ERROR": 0, "WARN": 0, "INFO": 0}, 0, {}))
     selected = not route.startswith("unselected")
@@ -173,11 +173,12 @@ def test_publish_gate_notice_matches_checkout_scope(tmp_path, monkeypatch, route
     assert ("publish gate not installed" in result) is (registration != "this")
     if registration != "this":
         assert "install.py" in result and "--project ." in result
-    assert calls == [["git", "-C", str(target), "rev-parse", "--git-path", "hooks"]]
+    # The project root is resolved (8.3 short names, /var -> /private/var symlinks).
+    assert calls == [["git", "-C", str(target.resolve()), "rev-parse", "--git-path", "hooks"]]
 
 
 def test_non_git_project_needs_no_gate_query(tmp_path, monkeypatch):
-    monkeypatch.setattr(subprocess, "run", lambda *a, **k: pytest.fail("non-Git project queried Git"))
+    monkeypatch.setattr(subprocess, "run", with_real_ps(lambda *a, **k: pytest.fail("non-Git project queried Git")))
     assert records.publish_gate_guidance(Project(tmp_path, slot="A"), "sh") == []
 
 

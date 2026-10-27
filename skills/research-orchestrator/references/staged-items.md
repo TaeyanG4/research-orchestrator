@@ -1,6 +1,6 @@
 # Staged items
 
-Read this when planning or completing a stage with `Item size: staged`. In `classic` the item stays in its owner's `## Agent:` section; in `unified` it stays in `## Queue` with its `Claimed:` line.
+Read this when planning or completing a stage with `Item size: staged`. For repeated review and fix rounds on one deliverable, also read [review loops](review-loops.md). In `classic` the item stays in its owner's `## Agent:` section; in `unified` it stays in `## Queue` with its `Claimed:` line.
 
 A long item may declare its stages after the ordinary item fields:
 

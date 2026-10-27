@@ -2,15 +2,23 @@
   <b>English</b> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a>
 </p>
 
+<p align="center">
+  <img src="assets/readme/hero-v6.svg" alt="Research Orchestrator: work projects, research, and competitions across sessions, hosts, and users, coordinated through agents.md, plan.md, discoveries.md, and handoff.md" width="100%">
+</p>
+
 # Research Orchestrator
 
 A plugin for Claude Code, Codex, and Google Antigravity that keeps work projects, research, and competitions moving across AI sessions. It bundles a skill, host hooks, the `ro` command-line tool, and a read-only reviewer agent. Four Markdown files hold the settings, the work queue, reusable findings, and a durable handoff. A preset decides how sessions share the queue, who reviews a finding, and which evidence checks apply.
 
-**Release 6.0.0 (skill design v3).** The changes from 5.1.0 are listed in [CHANGELOG.md](CHANGELOG.md). Existing projects keep working; read the migration section below before changing their settings.
+**Release 6.0.1.** The changes from 5.1.0 are listed in [CHANGELOG.md](CHANGELOG.md). Existing projects keep working; read the migration section below before changing their settings.
 
-## Why v3
+## Why use it
 
-Post-mortems of three past projects run with the previous design found strong execution and weak strategy. All three trusted measurements that could not see the final target, left a core approach untested, spent the final stretch on small variants, and recorded diagnoses that never changed the plan. One project also logged 28 operational mistakes, some repeated three or four times, while its checker findings grew from 234 to 452 and stopped being read. Version 6.0.0 turns these lessons into selectable workflows, evidence guards that check whether the evidence behind a decision was recorded, and a few deterministic safety checks. Small work gets lighter presets, and detailed rules load only when an operation needs them. The same workflow keeps work projects, such as a data migration, moving through a clear queue and durable handoffs.
+<p align="center">
+  <img src="assets/readme/why-use.webp" alt="Without orchestration, work loses context, repeats experiments, trusts a single model, and has no clear current best; with Research Orchestrator, agents.md, plan.md, discoveries.md, and handoff.md give shared memory, less duplication, cross-checked discoveries, and a clear current best with next hypotheses" width="100%">
+</p>
+
+Without shared records, each new AI session starts from scratch: context is lost, the same idea is tried twice, one model's unchecked claim steers the plan, and nobody can say which result is current. Research Orchestrator keeps that state in four plain files that any session, host, or user can read. Work resumes from a recorded resume point, a duplicate check comes before new items, findings can be reviewed by another session or host before others rely on them, and project-wide values such as the current best live in one place. The same holds for a multi-day work project, a research study, and a competition.
 
 ## Install
 
@@ -65,6 +73,34 @@ claude --plugin-dir <folder>
 
 Copy `skills/research-orchestrator/` into `<project>/.agents/skills/research-orchestrator/` or globally into `~/.gemini/config/skills/research-orchestrator/` (older CLI location: `~/.gemini/antigravity-cli/skills/research-orchestrator/`); `/skills` confirms discovery. Setup detects an Antigravity session and records it as the host. There is no installer target or hook adapter: use `ro` and install the [Git pre-push gate](skills/research-orchestrator/references/publication-safety.md) manually.
 
+## Quick start
+
+After installing, ask the agent to initialize Research Orchestrator in your project folder, or run the same steps yourself. `<skill-root>` is the installed folder that contains `SKILL.md`, and `ro` stands for `python <skill-root>/scripts/ro.py`:
+
+```text
+python <skill-root>/scripts/init_research_orchestrator.py . --preset work-project --user user1
+python <skill-root>/scripts/check_project.py .
+ro --slot A brief
+ro --slot A next-id H
+ro --slot A claim <item>
+ro --slot A close
+```
+
+The initializer writes the four files described next (`--list-presets` shows the other presets). `ro brief` restores the settings, hooks status, slot choice, claims, jobs, and checker counts. `ro next-id H` reserves an item ID for a new entry in `plan.md`; `ro claim` locks that item for your slot (unified workflow only); `ro close` releases idle claims, runs the checker, and reports what is left. In every session the agent repeats this cycle and records each finished item as the item lifecycle below describes.
+
+## The four files
+
+Every project keeps its coordination state in four lowercase Markdown files at the project root. `.ro/` holds tool state (jobs, receipts, reservations, locks, and the checker baseline), not coordination.
+
+| File | Holds | Who edits it |
+| --- | --- | --- |
+| `agents.md` | preset summary, settings, reading pointers, and the `## Project rules` region (standing rules, expiring overrides, one-line lessons) | the initializer writes settings and pointers, and `--reconfigure` applies values you edit; everything from `## Project rules` on belongs to the user and is never regenerated |
+| `plan.md` | unfinished items only; finished items leave the queue | classic: each slot its own `## Agent:` section, plus logged take-overs; unified: any slot, except items another active slot has claimed |
+| `discoveries.md` | reusable findings with their evidence and review state | the source slot writes and revises its entry; eligible reviewers add review lines and set `Cross-check` |
+| `handoff.md` | shared state, the event history, external actions, and each slot's resume point | each slot edits only its own `### Agent:` section; every session appends events and updates Shared state values |
+
+Before editing a shared file, re-read it and patch only the relevant section or append an entry, so a stale copy never overwrites another session's work. Store each fact once and point to it elsewhere. [Records and shared-file edits](skills/research-orchestrator/references/records.md).
+
 ## Presets
 
 A preset fills the settings block in `agents.md`; every value stays visible and editable there. *Profile* is the kind of work, *workflow* is how sessions share the queue, and *verification* is who must review a finding.
@@ -107,16 +143,7 @@ python <skill-root>/scripts/check_project.py .
   <img src="assets/readme/setup-flow.svg" alt="Setup: preset, name, unresolved questions only; detected defaults reported. Four coordination files and .ro/template-render.json." width="100%">
 </p>
 
-| File | Holds |
-| --- | --- |
-| `agents.md` | preset summary, settings, reading pointers, and the user-owned `## Project rules` region (standing rules, expiring overrides, one-line lessons) |
-| `plan.md` | unfinished items only; finished items leave the queue |
-| `discoveries.md` | reusable findings with their evidence and review state |
-| `handoff.md` | shared state, the event history, external actions, and each slot's resume point |
-
 The initializer writes the four coordination files and stores rendering metadata in `.ro/`. `Language` applies to free text only: headings, field names, IDs, status words, check IDs, and setting keys stay English so the checker, hooks, and `ro` keep working.
-
-**New sessions.** An explicit slot or continue/parallel intent is honoured, and a single eligible slot that is not stale is taken automatically. Otherwise SessionStart and `ro brief` list each candidate's owner, last activity, and running jobs, and the agent asks one question: continue a slot (reclaiming it if its session ended), start a parallel slot, or use a named slot. A taken slot is stale when it has no protected job and no event or claim within `Stale slot after` (default `2h`). Reclaiming is logged and keeps claims, resumable state, and jobs; `Autonomy: away` starts a new parallel slot without asking and records the choice for later. [Sessions](skills/research-orchestrator/references/sessions.md).
 
 ## Workflows
 
@@ -137,6 +164,111 @@ One `## Queue` holds every item, each starting with `Claimed: none` or `Claimed:
 In either workflow, `Item size: staged` lets a long item declare `Stages:` and log stage events. A stage listed in `Important stages:` launches only with an independent receipt for its exact `:before` scope, even under `Receipt policy: self`. A stage whose result changes a decision gets its own dated event with `Decision: changed`, a discovery, and an independent `:after` receipt before the item's next launch. [Staged items](skills/research-orchestrator/references/staged-items.md).
 
 Changing `Workflow` moves items, so it needs `--reconfigure --migrate`.
+
+## Slots and sessions
+
+A slot is named `A` to `Z`, then `AA` to `ZZ`; single-agent work uses `A`, and released slots are reused before a new one is created. Each slot has one `### Agent: <slot>` section in `handoff.md` with `Current host` (the platform, such as Claude Code or Codex, not the model), `Current user` (the person running it), `Current thread`, `Resumable state`, `Blocker`, and `Next action`. A slot is free only while `Current host` reads `unassigned` or `released`; any other value means taken, even when the session looks inactive.
+
+**New sessions.** An explicit slot or continue/parallel intent is honoured, and a single eligible slot that is not stale is taken automatically. Otherwise SessionStart and `ro brief` list each candidate's owner, last activity, and running jobs, and the agent asks one question: continue a slot (reclaiming it if its session ended), start a parallel slot, or use a named slot. A taken slot is stale when it has no protected job and no event or claim within `Stale slot after` (default `2h`). Reclaiming is logged and keeps claims, resumable state, and jobs; `Autonomy: away` starts a new parallel slot without asking and records the choice for later. [Sessions](skills/research-orchestrator/references/sessions.md).
+
+**Reading rule (classic).** A session reads its own plan and handoff sections in full. Of another active slot it reads only item metadata for dispatch or take-over, headings and `Hypothesis`/`Goal` lines for duplicate checks, and the `Current host`, `Current user`, and `Current thread` lines; resumable state and detailed evidence stay unread so each line of reasoning stays independent. New items and follow-ups go into your own section under your own IDs.
+
+**Take-over (classic).** When your own queue runs out, re-read your section, take an eligible review, then take over a queued item from a same-host slot: one whose `Current host` is your host and that your own user runs, or a released or unassigned slot whose latest event came from your host or that has no events yet. Never take the owner's `Current thread`, an item under an `Active compute` claim, or anything from a slot another user is actively running. Move the item into your own section under your next ID with the old ID in the title (`H-A-05 — Retry policy for the nightly import (from H-C-03)`), retire the old ID, reconsider and rescore it, and log the take-over as a handoff event. One cross-host item may be taken by judgment, only from an idle slot after nearer work is exhausted.
+
+<p align="center">
+  <img src="assets/readme/take-over-v6.svg" alt="Classic workflow: slot A on Claude Code has an empty queue, so it takes over H-C-02 from released slot C, whose latest event came from Claude Code, as H-A-04 and retires the old ID; slot B runs on Codex with another active user, so its items stay with B" width="100%">
+</p>
+
+**Cross-host verification.** Under `cross-host-once`, every discovery records its `Host`, and a session on a different host reviews it once, because sessions on the same host share blind spots. The reviewer first claims the review (`Cross-check: REVIEWING <host> (<slot>)`) so no other session picks it up, then adds a dated review line and sets the state. The source slot never reviews its own discovery; a same-host review counts only in single mode or under the adaptive `Cross-check fallback: same-host`, and starts with `same host —`.
+
+<p align="center">
+  <img src="assets/readme/cross-host-check-v6.svg" alt="Under cross-host-once, slot A on Claude Code reviews D-B-003 from Codex and marks it VERIFIED; slot B on Codex has claimed the review of D-A-002 from Claude Code; slot C is released and reused first" width="100%">
+</p>
+
+[Classic workflow](skills/research-orchestrator/references/workflow-classic.md), [verification](skills/research-orchestrator/references/verification.md).
+
+## Record formats
+
+Field names, IDs, and status words stay English; free text follows `Language`. Reserve IDs with `ro next-id`: items are `H-<slot>-<NN>` and discoveries `D-<slot>-<NNN>`, numbered by the creating slot and never reused.
+
+**Plan item, compact shape** (work profile, or any plan with `Ordering: queue`). `Claimed` appears only in the unified workflow:
+
+```markdown
+### H-A-02 — Retry policy for the nightly import
+- Claimed: A since 2026-10-27 09:10
+- Goal: make the nightly import retry transient failures
+- Evidence: two of the last ten runs failed on a network timeout
+- Next test: add bounded retries and replay one failed day
+```
+
+**Plan item, scored shape** (research and competition ranked by priority). Each factor is an integer from 0 to 3, and `Priority = 2*Impact + 2*Information + Confidence + Unblock + Diversity + (3-Cost)` (0–24). The highest score goes first; ties go to lower `Cost`, then higher `Information`. Omitted routing fields mean `CPU`, `NO`, and `NONE`:
+
+```markdown
+### H-A-04 — Repeat the speed-up with a cold cache
+- Sources: D-A-003
+- Hypothesis: the new parser keeps its lead when the cache is cleared before each run
+- Evidence: D-A-003 (VERIFIED) measured a 30% shorter median run time, but every run reused a warm cache
+- Improvement: clears the cache before each of 20 runs, which D-A-003 did not
+- Impact: 2
+- Information: 3
+- Confidence: 2
+- Unblock: 1
+- Diversity: 1
+- Cost: 1
+- Priority: 16
+- Resource: CPU
+- Parallel: NO
+- Other: NONE
+- Next test: 20 cold-cache runs of each parser on one machine; compare the medians
+```
+
+**Discovery.** `Session:` records the source session, which `independent-review` and `hybrid` need. Each review line names the reviewer's host and slot, the verdict, and the review time:
+
+```markdown
+## D-A-003 — The new parser shortens warm runs by 30%
+- Source: A
+- Host: Claude Code
+- User: user1
+- Date: 2026-10-27
+- Session: claude-code:A@2026-10-27T09:10
+- Cross-check: VERIFIED
+- Finding: the new parser cuts the median run time from 12.0 s to 8.4 s over 20 warm-cache runs each
+- Evidence: runs/parser-bench/summary.csv; reproduce with scripts/bench.py --runs 20
+- Implication: adopt the new parser for warm runs; cold-cache behaviour is still untested
+- Reviews:
+  - Claude Code (A): CLOSED — reviewer subagent:ro-reviewer@2026-10-27T10:02 — reviewed 2026-10-27T10:15 — reran the benchmark: 8.5 s median
+```
+
+**Handoff event.** Research and competition append one per completed item; the heading ends with the item ID:
+
+```markdown
+### 2026-10-27 10:20 — A — H-A-03
+- Host: Claude Code
+- User: user1
+- Action: benchmarked the new parser against the old one (20 warm-cache runs each)
+- Result: 30% shorter median run time; see D-A-003
+- Artifacts: runs/parser-bench/summary.csv
+- Discovery updates: D-A-003
+- Review verdict: D-A-003 CLOSED
+- Resource: CPU
+- Other executor: none
+- New plan items: H-A-04
+```
+
+The work profile keeps one session summary instead, updated as items finish:
+
+```markdown
+### 2026-10-27 17:40 — A — session
+- Host: Claude Code
+- User: user1
+- Action: added bounded retries to the nightly import and replayed one failed day
+- Result: the replayed day completed; the export schema check remains queued
+- Completed: H-A-02
+```
+
+**Before adding an item**, run `ro dupcheck <terms>` and read the discovery index (`ro index`). A `VERIFIED` result with the same claim allows only a materially different follow-up with an `Improvement`, a `CHALLENGED` one waits until its challenge is resolved, and a `PENDING` one is better reviewed than repeated. Scan queued headings and `Hypothesis`/`Goal` lines too, then re-read `plan.md` just before writing; if the same item appeared meanwhile, keep the earlier one.
+
+[Item fields, priority, and follow-ups](skills/research-orchestrator/references/plan-items.md), [records](skills/research-orchestrator/references/records.md).
 
 ## Item lifecycle
 
@@ -159,6 +291,12 @@ The work profile (`quick`, `work-project`) is lighter. Scores and Priority are o
 
 `solo-research` generates `Ordering: queue`; other research and competition projects can also select it. Supplied scores remain validated.
 
+<p align="center">
+  <img src="assets/readme/hypothesis-relay.webp" alt="From evidence to hypothesis H1, branched into sub-hypotheses H1a and H1b tested separately; cross-checking reduces hallucination risk, the results merge into a grounded insight, and new hypotheses H2 and H3 follow" width="100%">
+</p>
+
+In research the loop compounds: evidence suggests a hypothesis, its sub-hypotheses run as separate items, reviews check each finding, and the grounded result seeds the next hypotheses through follow-ups.
+
 ## Guards
 
 Guards check that the evidence behind a decision was recorded; they do not judge its quality. `Guards: light` reports gaps as warnings, `strict` turns each guard's listed checks into errors, and `off` disables them. Activation is dated (`light since YYYY-MM-DD`), so earlier records are exempt. A guard can be declared `not applicable — <reason>` once in Shared state, and thresholds are configurable. Optional discovery `Control` records a placebo/noise-floor artifact and selection gain. Missing control is the exception: `guard.control.missing` is INFO in light mode and WARN in strict mode.
@@ -176,6 +314,27 @@ Guards check that the evidence behind a decision was recorded; they do not judge
 | E1 External actions | an expectation written before an outward action, the artifact hash, and no unmarked duplicates | all profiles |
 
 [Research guards](skills/research-orchestrator/references/research-guards.md), [decision guards](skills/research-orchestrator/references/decision-guards.md), [external actions](skills/research-orchestrator/references/external-actions.md), [competition profile](skills/research-orchestrator/references/competition.md).
+
+## Compute and long jobs
+
+Queue order or Priority decides what runs next; routing decides where. `Resource: CPU | GPU | EITHER` is the local compute class, `Parallel: YES | NO` says whether the item may share it, and `Other: NONE | <name>` names an exclusive non-compute resource or external executor, such as a shared database, a licensed seat, or a cloud batch runner. Start with two parallel slots when that helps, and add more only while independent high-value items and resource headroom remain.
+
+Before using an exclusive resource, re-read `handoff.md` and check the machine's real usage, add a claim to the `Active compute` line in Shared state, and launch through `ro launch`, which also reserves the item's local resource under the project lock:
+
+```markdown
+- Active compute: CPU — A (H-A-04, since 2026-10-27 14:05)
+```
+
+```text
+ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python scripts/bench.py --runs 20 --cold
+ro monitor <job>
+ro jobs
+ro kill <job>
+```
+
+Start the printed monitor command at once: a confirmed launch only proves that the job started. `ro monitor` follows the job until it completes, matches an error pattern, falls silent past a configured heartbeat limit, or runs twice the expected time; `ro jobs` lists jobs and monitor state, and `ro kill` stops an identity-verified process tree that your slot owns. Append the printed Job line to `handoff.md`, inspect the artifacts, and remove the claim only after the job has verifiably ended. While a needed resource is busy, take independent work or an eligible review, or record a `Blocker:`. Two items share a resource only when both are `Parallel: YES` and measured capacity fits; `Other` resources need their own lock or scheduler reservation, because `ro launch` reserves only local CPU and GPU.
+
+[Workers and exclusive resources](skills/research-orchestrator/references/compute.md), [launch, monitor, and stop](skills/research-orchestrator/references/operations-safety.md#lookup-launch-monitor-and-stop).
 
 ## The `ro` CLI
 
@@ -262,7 +421,40 @@ GitHub Actions runs the full check on Windows, Ubuntu, and macOS with Python 3.1
 
 ## Evidence
 
-Behaviour evidence is historical (saved runs, not this exact release), Codex hooks were verified only with per-invocation trust, Windows timings are local, and CI results stay pending until publication; see the [evidence and limits](docs/evals/README.md).
+Behaviour evidence is historical (saved runs, not this exact release), Codex hooks were verified only with per-invocation trust, Windows timings are local, and CI passes on Windows, Ubuntu and macOS with installed-hook p95 of about 45–60 ms; see the [evidence and limits](docs/evals/README.md).
+
+## Repository layout
+
+```text
+.claude-plugin/  .codex-plugin/  .agents/   plugin and marketplace manifests
+agents/ro-reviewer.md          read-only reviewer agent for Claude Code
+assets/readme/                 README images
+docs/                          plans, evaluation evidence, and host dry runs
+examples/                      one worked project per preset
+hooks/                         host hook wrappers and the Git pre-push gate
+scripts/                       release validation, evaluation and trigger tooling, host dry runs
+skills/research-orchestrator/
+  SKILL.md                     the core instructions (12 KB budget)
+  references/                  one file per operation, read when that operation runs
+  templates/                   the four project files, plus earlier versions for migration
+  presets/                     the six built-in presets
+  scripts/                     initializer, checker, ro CLI, and hook runner
+  agents/openai.yaml           Codex interface metadata
+  evals/                       behaviour cases (not installed)
+tests/                         deterministic test suite
+install.py                     installer for Claude Code, Codex, or both
+plugin.json                    plugin manifest
+```
+
+## Design principles
+
+- **General first.** One skill serves everyday work projects, research, and competitions. Shipped instructions use neutral words; competition material lives only in its reference and platform adapters, and a release check enforces the vocabulary.
+- **Lean core.** `SKILL.md` stays within 12 KB. Each detailed rule lives in one reference that is read when its operation runs, and the generated `agents.md` holds settings, pointers, and project rules rather than copied skill text.
+- **Deterministic checks only.** Guidance comes first, then the host-independent checker, then advisory hooks. Blocking is reserved for deterministic, costly, repeated mistakes named in `Block`.
+- **Hooks fail open, gates fail closed.** Per-call hooks let a call through on a crash, timeout, or missing interpreter; `ro launch`, `ro external`, and the Git pre-push gate refuse when their validation fails or cannot run.
+- **One home per fact.** Claims and numbers live in the discovery, who, when, and where in the event, proposed work in `plan.md`, and project-wide values in Shared state; everything else points to them.
+- **Evidence over intent.** Guards check that the evidence behind a decision was recorded, a confirmed launch is not a result, and a finding is verified only by an eligible review.
+- **No rule bloat.** Standing rules have a byte budget, overrides expire, and each lesson is one line naming the check that enforces it.
 
 ## License
 

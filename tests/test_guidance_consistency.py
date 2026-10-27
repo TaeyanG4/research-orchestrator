@@ -5,14 +5,16 @@ from conftest import ROOT, SKILL
 from ro_time import FUTURE_TOLERANCE
 
 
-def test_readme_why_paragraphs_have_same_order_and_shape():
+def test_readme_why_use_it_section_and_paragraph_shapes_match():
+    # The first section is the generic "Why use it": its illustration and one short paragraph.
     shapes = []
     for name in ('README.md', 'README.ko.md', 'README.ja.md', 'README.zh-CN.md'):
         text = (ROOT / name).read_text(encoding='utf-8')
         why = re.split(r'^## .+$', text, flags=re.M)[1]
         paragraphs = [p for p in why.split('\n\n') if p.strip()]
-        assert len(paragraphs) == 1
-        assert paragraphs[0].index('28') < len(paragraphs[0]) - 60
+        assert len(paragraphs) == 2
+        assert 'assets/readme/why-use.webp' in paragraphs[0]
+        assert '<img' not in paragraphs[1] and len(paragraphs[1]) < 1000
         shapes.append([len(re.findall(r'\n\n', section.strip())) for section in
                        re.split(r'^## .+$', text, flags=re.M)])
     assert shapes.count(shapes[0]) == 4
@@ -42,7 +44,7 @@ def test_runtime_observations_and_reconciled_plan_scope():
 
 
 def test_changelog_qualifies_ordering_and_review_migration():
-    changelog = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
+    changelog = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8').split('\n## 6.0.0', 1)[1]
     direction = next(line for line in changelog.splitlines() if 'floor' in line and 'ordering' in line)
     assert {'priority', 'queue'} <= set(re.findall(r'\w+', direction.lower()))
     for section in ('Changed', 'Migration'):

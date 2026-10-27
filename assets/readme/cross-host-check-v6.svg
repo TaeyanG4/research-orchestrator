@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Slots and cross-host verification</title>
+  <desc id="desc">Under the cross-host-once verification policy, agent slots A, B, and C record their current host and user in handoff.md: A is user1 on Claude Code, B is user2 on Codex. A on Claude Code reviews discovery D-B-003 made on Codex, writes a dated CLOSED review line, and the state becomes VERIFIED. B on Codex has claimed the review of D-A-002 made on Claude Code, so no other session picks it up. Slot C is released and reused before a new slot is created. A same-host review counts only in single mode or as the adaptive same-host fallback.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1B33"/>
+      <stop offset="1" stop-color="#11284C"/>
+    </linearGradient>
+    <marker id="arrowClaude" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#E8875A"/>
+    </marker>
+    <marker id="arrowCodex" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#3FC1A0"/>
+    </marker>
+  </defs>
+
+  <!-- Self-contained dark card: readable on light and dark pages alike. -->
+  <rect width="1200" height="560" rx="20" fill="url(#bg)"/>
+
+  <g font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <text x="48" y="58" fill="#FFFFFF" font-size="27" font-weight="700">Slots are names. Hosts do the checking.</text>
+    <text x="48" y="90" fill="#A9C1E3" font-size="16">cross-host-once: each discovery records its Host; a session on a different host reviews it once.</text>
+
+    <!-- Left: slots in handoff.md -->
+    <text x="48" y="142" fill="#8FA9CC" font-size="15" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">handoff.md · agent slots</text>
+
+    <rect x="48" y="156" width="360" height="84" rx="14" fill="#132F57" stroke="#2A5384"/>
+    <text x="74" y="208" fill="#FFFFFF" font-size="28" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">A</text>
+    <text x="190" y="190" fill="#8FA9CC" font-size="13">Current host · user</text>
+    <text x="190" y="216" font-size="19" font-weight="700"><tspan fill="#E8875A">Claude Code</tspan><tspan fill="#CFE0F5" font-weight="400"> · user1</tspan></text>
+
+    <rect x="48" y="256" width="360" height="84" rx="14" fill="#132F57" stroke="#2A5384"/>
+    <text x="74" y="308" fill="#FFFFFF" font-size="28" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">B</text>
+    <text x="190" y="290" fill="#8FA9CC" font-size="13">Current host · user</text>
+    <text x="190" y="316" font-size="19" font-weight="700"><tspan fill="#3FC1A0">Codex</tspan><tspan fill="#CFE0F5" font-weight="400"> · user2</tspan></text>
+
+    <rect x="48" y="356" width="360" height="84" rx="14" fill="#0F2546" stroke="#3B5578" stroke-dasharray="7 6"/>
+    <text x="74" y="408" fill="#7F93B0" font-size="28" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">C</text>
+    <text x="190" y="390" fill="#8FA9CC" font-size="13">Current host · user</text>
+    <text x="190" y="416" fill="#7F93B0" font-size="19" font-weight="700">released</text>
+    <text x="388" y="404" fill="#7F93B0" font-size="13" text-anchor="end">free → reused first</text>
+
+    <!-- Right: discoveries.md -->
+    <text x="640" y="142" fill="#8FA9CC" font-size="15" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">discoveries.md</text>
+
+    <rect x="640" y="156" width="512" height="134" rx="14" fill="#132F57" stroke="#2A5384"/>
+    <rect x="640" y="156" width="6" height="134" rx="3" fill="#2BB673"/>
+    <text x="664" y="190" fill="#FFFFFF" font-size="17" font-weight="700">D-B-003 — Retries fix the nightly timeouts</text>
+    <text x="664" y="220" font-size="15"><tspan fill="#8FA9CC">Host: </tspan><tspan fill="#3FC1A0" font-weight="700">Codex</tspan></text>
+    <text x="664" y="246" font-size="15"><tspan fill="#8FA9CC">Cross-check: </tspan><tspan fill="#2BB673" font-weight="700">VERIFIED</tspan></text>
+    <text x="664" y="274" fill="#CFE0F5" font-size="13">Claude Code (A): CLOSED — reviewed 2026-10-27T10:15 — reproduced</text>
+
+    <rect x="640" y="306" width="512" height="134" rx="14" fill="#132F57" stroke="#2A5384"/>
+    <rect x="640" y="306" width="6" height="134" rx="3" fill="#1687D9"/>
+    <text x="664" y="340" fill="#FFFFFF" font-size="17" font-weight="700">D-A-002 — The new parser halves run time</text>
+    <text x="664" y="370" font-size="15"><tspan fill="#8FA9CC">Host: </tspan><tspan fill="#E8875A" font-weight="700">Claude Code</tspan></text>
+    <text x="664" y="396" font-size="15"><tspan fill="#8FA9CC">Cross-check: </tspan><tspan fill="#5FB4F5" font-weight="700">REVIEWING Codex (B)</tspan></text>
+    <text x="664" y="424" fill="#8FA9CC" font-size="14" font-style="italic">claimed — no other session picks it up</text>
+
+    <!-- Arrows: each slot checks the other host's discovery -->
+    <path d="M410 198 C 510 198, 540 223, 636 223" fill="none" stroke="#E8875A" stroke-width="3" marker-end="url(#arrowClaude)"/>
+    <text x="462" y="186" fill="#E8875A" font-size="13" font-weight="600" text-anchor="middle">cross-check</text>
+
+    <path d="M410 298 C 510 298, 540 373, 636 373" fill="none" stroke="#3FC1A0" stroke-width="3" marker-end="url(#arrowCodex)"/>
+    <text x="462" y="286" fill="#3FC1A0" font-size="13" font-weight="600" text-anchor="middle">cross-check</text>
+
+    <!-- Rules strip -->
+    <rect x="48" y="472" width="1104" height="56" rx="14" fill="#0F2546" stroke="#2A5384"/>
+    <text x="600" y="506" fill="#D6E6FA" font-size="14" text-anchor="middle">One different-host review is enough   ·   Same host counts only in single mode or as the adaptive fallback   ·   The source slot never reviews its own</text>
+  </g>
+</svg>

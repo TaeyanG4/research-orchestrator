@@ -12,7 +12,7 @@ import sys
 import pytest
 
 from scripts.host import dryrun
-from conftest import ROOT
+from conftest import ROOT, with_real_ps
 
 
 def hook_response(decision="deny", reason="shell.background: foreground shell required"):
@@ -382,7 +382,7 @@ def test_mocked_end_to_end_generates_report_with_host_evidence(tmp_path, monkeyp
                                                          "exit_code": 0, "status": "completed"}}
         return subprocess.CompletedProcess(command, 0, json.dumps(event) + "\n", "")
 
-    monkeypatch.setattr(dryrun.subprocess, "run", run)
+    monkeypatch.setattr(dryrun.subprocess, "run", with_real_ps(run))
     output = tmp_path / f"{host}.md"
     assert dryrun.main(host, ["--output", str(output), "--shell", "bash", "--temp-parent", str(tmp_path / "scratch")]) == 0
     text = output.read_text(encoding="utf-8")
@@ -446,7 +446,7 @@ def test_codex_report_uses_diagnostics_and_side_effects_instead_of_exec_events(t
         event = {"type": "hook_response", "output": hook_response(reason="jobs.mutate-bound: protected")}
         return subprocess.CompletedProcess(command, 0, json.dumps(event) + "\n", "")
 
-    monkeypatch.setattr(dryrun.subprocess, "run", run)
+    monkeypatch.setattr(dryrun.subprocess, "run", with_real_ps(run))
     output = tmp_path / "codex.md"
     assert dryrun.main("codex", ["--output", str(output), "--temp-parent", str(tmp_path / "scratch")]) == 1
     text = output.read_text(encoding="utf-8")

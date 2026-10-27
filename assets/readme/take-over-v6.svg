@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Classic workflow: same-host take-over</title>
+  <desc id="desc">Slot A, run by user1 on Claude Code, has an empty queue. Slot C is released and its most recent event came from Claude Code, so A moves C's queued item H-C-02 into its own section as H-A-04 (from H-C-02) and the old ID is retired. Slot B is run by user2 on Codex, a different host and an active user, so its items stay with B, including H-B-03, its current thread. Search order when the queue is empty: own section, eligible reviews, same-host take-over, one cross-host item from an idle slot, the adaptive cross-check fallback, new work, then close.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1B33"/>
+      <stop offset="1" stop-color="#11284C"/>
+    </linearGradient>
+    <marker id="arrowClaude" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#E8875A"/>
+    </marker>
+  </defs>
+
+  <!-- Self-contained dark card: readable on light and dark pages alike. -->
+  <rect width="1200" height="560" rx="20" fill="url(#bg)"/>
+
+  <g font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <text x="48" y="58" fill="#FFFFFF" font-size="27" font-weight="700">Classic workflow: queue empty? Take over within the same host.</text>
+    <text x="48" y="90" fill="#A9C1E3" font-size="16">A host is the platform, not the model. The item moves into your own section under your own next ID.</text>
+
+    <!-- Slot A: Claude Code, queue was empty, receives the item -->
+    <rect x="48" y="120" width="340" height="300" rx="14" fill="#132F57" stroke="#2A5384"/>
+    <text x="72" y="156" fill="#FFFFFF" font-size="24" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">A</text>
+    <text x="364" y="155" font-size="17" font-weight="700" text-anchor="end"><tspan fill="#E8875A">Claude Code</tspan><tspan fill="#CFE0F5" font-weight="400"> · user1</tspan></text>
+
+    <rect x="68" y="176" width="300" height="56" rx="10" fill="none" stroke="#3B5578" stroke-dasharray="7 6"/>
+    <text x="218" y="210" fill="#7F93B0" font-size="15" text-anchor="middle">own queue was empty</text>
+
+    <rect x="68" y="252" width="300" height="112" rx="10" fill="#17406E" stroke="#2BB673" stroke-width="2"/>
+    <text x="88" y="282" fill="#FFFFFF" font-size="17" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">H-A-04</text>
+    <text x="88" y="310" fill="#EAF2FF" font-size="16">Retry policy for the import</text>
+    <text x="88" y="340" fill="#8FA9CC" font-size="14">(from H-C-02) · reconsidered · rescored</text>
+
+    <!-- Slot B: Codex, different host, untouched -->
+    <rect x="430" y="120" width="340" height="300" rx="14" fill="#132F57" stroke="#2A5384"/>
+    <text x="454" y="156" fill="#FFFFFF" font-size="24" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">B</text>
+    <text x="746" y="155" font-size="17" font-weight="700" text-anchor="end"><tspan fill="#3FC1A0">Codex</tspan><tspan fill="#CFE0F5" font-weight="400"> · user2</tspan></text>
+
+    <rect x="450" y="176" width="300" height="86" rx="10" fill="#0F2546" stroke="#2A5384"/>
+    <text x="470" y="204" fill="#CFE0F5" font-size="16" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">H-B-03</text>
+    <text x="730" y="204" fill="#5FB4F5" font-size="13" font-weight="600" text-anchor="end">Current thread</text>
+    <text x="470" y="234" fill="#CFE0F5" font-size="15">Cross-check D-A-001</text>
+
+    <rect x="450" y="276" width="300" height="86" rx="10" fill="#0F2546" stroke="#2A5384"/>
+    <text x="470" y="304" fill="#CFE0F5" font-size="16" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">H-B-02</text>
+    <text x="470" y="334" fill="#CFE0F5" font-size="15">Schema check for the export</text>
+
+    <text x="600" y="396" fill="#8FA9CC" font-size="14" text-anchor="middle">another host and an active user → stays with B</text>
+
+    <!-- Slot C: released, last event from Claude Code, item moves out -->
+    <rect x="812" y="120" width="340" height="300" rx="14" fill="#0F2546" stroke="#3B5578" stroke-dasharray="7 6"/>
+    <text x="836" y="156" fill="#7F93B0" font-size="24" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">C</text>
+    <text x="1128" y="150" fill="#7F93B0" font-size="17" font-weight="700" text-anchor="end">released</text>
+    <text x="1128" y="170" fill="#7F93B0" font-size="12" text-anchor="end">last event: Claude Code · user1</text>
+
+    <rect x="832" y="186" width="300" height="96" rx="10" fill="none" stroke="#5A6F8E" stroke-dasharray="5 5"/>
+    <text x="852" y="214" fill="#7F93B0" font-size="16" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace" text-decoration="line-through">H-C-02</text>
+    <text x="852" y="242" fill="#7F93B0" font-size="15">Retry policy for the import</text>
+    <text x="852" y="266" fill="#E8875A" font-size="13" font-weight="600">moved to A · old ID retired</text>
+
+    <!-- Take-over arrow: C → A, routed under slot B -->
+    <path d="M982 284 V448 H218 V372" fill="none" stroke="#E8875A" stroke-width="3" marker-end="url(#arrowClaude)"/>
+    <text x="600" y="440" fill="#E8875A" font-size="14" font-weight="600" text-anchor="middle">take over (same host) → new ID H-A-04, logged as a handoff event</text>
+
+    <!-- Search order strip -->
+    <rect x="48" y="478" width="1104" height="56" rx="14" fill="#0F2546" stroke="#2A5384"/>
+    <text x="600" y="512" fill="#D6E6FA" font-size="15" text-anchor="middle">Queue empty → own section → reviews → same-host take-over → one cross-host item (idle slot) → adaptive fallback → new work → close</text>
+  </g>
+</svg>

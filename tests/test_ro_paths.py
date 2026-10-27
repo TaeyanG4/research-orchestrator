@@ -71,6 +71,22 @@ def test_dynamic_variable_and_glob_paths_are_uncertain_and_cannot_block(tmp_path
         assert all(outcome(finding, values) == "warn" for finding in findings)
 
 
+@pytest.mark.parametrize("os_family,root", [("windows", "C:/Users/RUNNER~1/AppData/Local/Temp/work"),
+                                            ("linux", "/srv/RUNNER~1/work"), ("macos", "/srv/RUNNER~1/work")])
+def test_only_a_leading_tilde_is_a_home_expansion(os_family, root):
+    # Windows 8.3 short names (temp folders on hosted runners) and backup names are literal.
+    values = {"environment": f"{os_family}/bash", "enforcement": "block", "block": "jobs.mutate-bound"}
+    jobs = [{"id": "J-A-01", "status": "running", "bound": [root + "/run"], "run_dir": root + "/run"}]
+    assert normal_path("run/input.txt~", root, os_family).endswith("/run/input.txt~")
+    for spelling in ("run/input.txt", root + "/run/input.txt"):
+        findings = pre_checks(Call("Write", paths=[spelling]), root, jobs, values)
+        assert findings and all(outcome(finding, values) == "block" for finding in findings), spelling
+    for spelling in ("~/run/input.txt", "~runner/run/input.txt"):
+        assert normal_path(spelling, root, os_family) is None
+        findings = pre_checks(Call("Write", paths=[spelling]), root, jobs, values)
+        assert all(outcome(finding, values) != "block" for finding in findings)
+
+
 def test_block_accepts_every_specified_check_id():
     assert set(settings.CHECK_IDS) == {
         "shell.background", "shell.detach", "shell.heredoc", "shell.cd", "jobs.mutate-bound",

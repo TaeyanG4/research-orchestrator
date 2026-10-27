@@ -24,6 +24,9 @@ def test_release_separates_timing_checks_from_deterministic_checks():
     values = [node.value if isinstance(node, ast.Constant) else None for node in commands[0].elts]
     assert values[values.index("-m", values.index("pytest") + 1) + 1] == "not latency"
     workflow = (ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
-    command = next(line for line in workflow.splitlines() if "run: python -m pytest" in line)
-    assert "-m latency" in command
-    assert "tests/test_ro_cli.py" in command and "tests/test_ro_hooks.py" in command
+    commands = [line for line in workflow.splitlines() if "run: python -m pytest" in line]
+    timing = [command for command in commands if "-m latency" in command]
+    assert len(timing) == 1
+    assert "tests/test_ro_cli.py" in timing[0] and "tests/test_ro_hooks.py" in timing[0]
+    # Any other pytest step (the failure report) stays deterministic.
+    assert all('-m "not latency"' in command for command in commands if command not in timing)

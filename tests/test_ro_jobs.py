@@ -17,6 +17,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from conftest import with_real_ps
 import ro_jobs as jobs
 import ro_state as state
 import ro_records as records
@@ -268,7 +269,7 @@ def test_reused_pid_is_marked_finished_and_never_killed(project, monkeypatch) ->
              "start": "a-different-start-time", "status": "running", "bound": []}
     project.write_json("jobs.json", [entry])
     called = []
-    monkeypatch.setattr(jobs.subprocess, "run", lambda *args, **kwargs: called.append(args))
+    monkeypatch.setattr(jobs.subprocess, "run", with_real_ps(lambda *args, **kwargs: called.append(args)))
     with pytest.raises(ValueError, match="identity changed"):
         jobs.kill(project, entry["id"])
     assert called == []

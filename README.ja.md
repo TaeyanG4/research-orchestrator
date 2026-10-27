@@ -2,15 +2,23 @@
   <a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <b>日本語</b>
 </p>
 
+<p align="center">
+  <img src="assets/readme/hero-v6.svg" alt="Research Orchestrator: 業務プロジェクト・研究・コンペティションを、セッション、ホスト、ユーザーをまたいで agents.md、plan.md、discoveries.md、handoff.md の 4 ファイルで調整" width="100%">
+</p>
+
 # Research Orchestrator
 
 Claude Code、Codex、Google Antigravity 向けのプラグインで、業務プロジェクト・研究・コンペティションの作業を複数の AI セッションにわたって途切れさせずに進めます。スキル、ホストフック、`ro` コマンドラインツール、読み取り専用のレビュアーエージェントをまとめて提供します。4 つの Markdown ファイルが設定、作業キュー、再利用できる知見、永続的な引き継ぎ記録を保持します。プリセットは、セッションがキューを分け合う方法、知見をレビューする主体、適用する根拠チェックを決めます。
 
-**リリース 6.0.0(スキル設計 v3)。** 5.1.0 からの変更点は [CHANGELOG.md](CHANGELOG.md) にあります。既存プロジェクトはそのまま動作します。設定を変える前に、下の移行セクションを読んでください。
+**リリース 6.0.1。** 5.1.0 からの変更点は [CHANGELOG.md](CHANGELOG.md) にあります。既存プロジェクトはそのまま動作します。設定を変える前に、下の移行セクションを読んでください。
 
-## なぜ v3 か
+## なぜ使うのか
 
-以前の設計で進めた 3 つのプロジェクトの事後検証では、実行は強く、戦略は弱いという結果でした。3 つとも最終目標を捉えられない測定を信頼し、中核となるアプローチを試さないまま残し、最終段階を小さな変種に費やし、計画を変えなかった診断だけを記録していました。あるプロジェクトは運用上のミスを 28 件記録し、その一部は 3〜4 回繰り返されました。チェッカーの指摘は 234 件から 452 件に増え、やがて読まれなくなりました。6.0.0 はこれらの教訓を、選択できるワークフロー、決定の根拠が記録されたかを確認する根拠ガード、そして少数の決定論的な安全チェックに置き換えます。小さな作業には軽いプリセットがあり、詳細なルールはその操作に必要なときだけ読み込まれます。同じ流れでデータ移行などの業務プロジェクトも、明確な作業キューと継続的な引き継ぎで進められます。
+<p align="center">
+  <img src="assets/readme/why-use.webp" alt="オーケストレーションがないと、文脈を失い、実験を繰り返し、1 つのモデルを信じ、現在のベストが不明になる。Research Orchestrator を使うと、agents.md、plan.md、discoveries.md、handoff.md が共有の記憶、重複の削減、クロスチェック済みの発見、明確な現在のベストと次の仮説をもたらす" width="100%">
+</p>
+
+共有の記録がないと、新しい AI セッションは毎回ゼロから始まります。文脈が失われ、同じアイデアが二度試され、1 つのモデルの未検証の主張が計画を左右し、どの結果が最新なのか誰にも分かりません。Research Orchestrator は、その状態をどのセッション、ホスト、ユーザーでも読める 4 つのプレーンなファイルに保ちます。作業は記録された再開地点から続き、新しい項目の前に重複チェックが入り、他の人が知見に頼る前に別のセッションやホストがレビューでき、現在のベストのようなプロジェクト全体の値は 1 か所にあります。数日にわたる業務プロジェクト、研究、コンペティションのどれでも同じです。
 
 ## インストール
 
@@ -65,6 +73,34 @@ claude --plugin-dir <folder>
 
 `skills/research-orchestrator/` を `<project>/.agents/skills/research-orchestrator/`、またはグローバルの `~/.gemini/config/skills/research-orchestrator/` にコピーします(旧 CLI の場所: `~/.gemini/antigravity-cli/skills/research-orchestrator/`)。`/skills` で検出を確認できます。初期化は Antigravity のセッションを検出し、ホストとして記録します。インストール先オプションやフックアダプターはないため、`ro` を使い、[Git pre-push ゲート](skills/research-orchestrator/references/publication-safety.md)を手動で設置してください。
 
+## クイックスタート
+
+インストール後、プロジェクトのフォルダーでエージェントに Research Orchestrator の初期化を依頼するか、同じ手順を自分で実行します。`<skill-root>` は `SKILL.md` を含むインストール先フォルダーで、`ro` は `python <skill-root>/scripts/ro.py` を指します。
+
+```text
+python <skill-root>/scripts/init_research_orchestrator.py . --preset work-project --user user1
+python <skill-root>/scripts/check_project.py .
+ro --slot A brief
+ro --slot A next-id H
+ro --slot A claim <item>
+ro --slot A close
+```
+
+初期化ツールは次のセクションで説明する 4 つのファイルを書きます(`--list-presets` で他のプリセットを確認できます)。`ro brief` は設定、フックの状態、スロットの選択、確保、ジョブ、チェッカーの件数を復元します。`ro next-id H` は `plan.md` に新しく書く項目の ID を予約し、`ro claim` はその項目を自分のスロットで確保し(unified ワークフローのみ)、`ro close` は使っていない確保を解放してチェッカーを実行し、残りを報告します。エージェントはセッションごとにこの流れを繰り返し、完了した項目は下の項目のライフサイクルに従って記録します。
+
+## 4 つのファイル
+
+どのプロジェクトも、調整の状態をプロジェクトのルートにある小文字の Markdown ファイル 4 つに保ちます。`.ro/` は調整情報ではなく、ツールの状態(ジョブ、レシート、予約、ロック、チェッカーのベースライン)を保持します。
+
+| ファイル | 内容 | 編集する主体 |
+| --- | --- | --- |
+| `agents.md` | プリセットの要約、設定、読み込み先の案内、ユーザーが所有する `## Project rules` 領域(常設ルール、期限付きの例外、1 行の教訓) | 初期化ツールが設定と案内を書き、`--reconfigure` が手で編集した値を反映します。`## Project rules` 以降はユーザーのもので、再生成されません |
+| `plan.md` | 未完了の項目のみ。完了した項目はキューから外れます | classic: 各スロットが自分の `## Agent:` セクション(記録された引き継ぎを含む)。unified: 他のアクティブなスロットが確保した項目を除き、どのスロットでも |
+| `discoveries.md` | 根拠とレビュー状態を伴う再利用可能な知見 | 元のスロットが項目を書き、改訂します。適格なレビュアーがレビュー行を加え、`Cross-check` を設定します |
+| `handoff.md` | 共有状態、イベント履歴、外部アクション、各スロットの再開地点 | 各スロットは自分の `### Agent:` セクションだけを編集します。すべてのセッションがイベントを追記し、Shared state の値を更新します |
+
+共有ファイルを編集する前に読み直し、該当するセクションだけを直すか項目を追記してください。古いコピーが他のセッションの作業を上書きしないようにするためです。事実は一度だけ書き、他の場所からはそこを指します。[記録と共有ファイルの編集](skills/research-orchestrator/references/records.md)。
+
 ## プリセット
 
 プリセットは `agents.md` の設定ブロックを埋め、すべての値はそこで確認・編集できます。*Profile* は作業の種類、*workflow* はセッションがキューを分け合う方法、*verification* は知見を誰がレビューすべきかを表します。
@@ -107,16 +143,7 @@ python <skill-root>/scripts/check_project.py .
   <img src="assets/readme/setup-flow.svg" alt="設定: プリセット、名前、未解決の質問のみ確認。検出した既定値を報告し、四つの調整ファイルと .ro/template-render.json を生成。" width="100%">
 </p>
 
-| ファイル | 内容 |
-| --- | --- |
-| `agents.md` | プリセットの要約、設定、読み込み先の案内、ユーザーが所有する `## Project rules` 領域(常設ルール、期限付きの例外、1 行の教訓) |
-| `plan.md` | 未完了の項目のみ。完了した項目はキューから外れます |
-| `discoveries.md` | 根拠とレビュー状態を伴う再利用可能な知見 |
-| `handoff.md` | 共有状態、イベント履歴、外部アクション、各スロットの再開地点 |
-
 初期化ツールは 4 つの調整ファイルを書き、レンダリング情報を `.ro/` に保存します。`Language` は自由文だけに適用されます。見出し、フィールド名、ID、状態語、検査 ID、設定キーは、チェッカー、フック、`ro` が動作するよう英語を保ちます。
-
-**新しいセッション。** 明示したスロットや継続/並列の意図はそのまま従い、古くない適格スロットが 1 つだけなら自動で引き受けます。それ以外の場合、SessionStart と `ro brief` が候補ごとに所有者、最終活動、実行中のジョブを示し、エージェントは 1 つの質問をします: スロットを継続(セッションが終わっていれば回収)、並列スロットを開始、指定したスロットを使用。確保済みのスロットは、保護されたジョブがなく `Stale slot after`(既定 `2h`)以内にイベントも確保もないとき古いとみなします。回収は記録され、確保、再開状態、ジョブを保持します。`Autonomy: away` では尋ねずに新しい並列スロットを開始し、後で判断できるようその選択を記録します。[セッション](skills/research-orchestrator/references/sessions.md)。
 
 ## ワークフロー
 
@@ -137,6 +164,111 @@ python <skill-root>/scripts/check_project.py .
 どちらのワークフローでも、`Item size: staged` では長い項目が `Stages:` を宣言して段階イベントを記録できます。`Important stages:` に指定した段階は、正確な `:before` 範囲の独立したレシートがある場合にのみ起動でき、`Receipt policy: self` でも同じです。決定を変えた段階は `Decision: changed` を含む独自の日付付きイベントと知見を残し、その項目の次の起動前に独立した `:after` レシートが必要です。[段階的な項目](skills/research-orchestrator/references/staged-items.md)。
 
 `Workflow` を変えると項目が移動するため、`--reconfigure --migrate` が必要です。
+
+## スロットとセッション
+
+スロット名は `A` から `Z`、続いて `AA` から `ZZ` です。1 つのエージェントによる作業は `A` を使い、新しいスロットを作る前に解放済みのスロットを再利用します。各スロットは `handoff.md` に `### Agent: <slot>` セクションを 1 つ持ち、そこに `Current host`(モデルではなく Claude Code や Codex のようなプラットフォーム)、`Current user`(セッションを実行する人)、`Current thread`、`Resumable state`、`Blocker`、`Next action` があります。`Current host` が `unassigned` または `released` のときだけ空きスロットで、それ以外の値は、セッションが止まっているように見えても確保済みを意味します。
+
+**新しいセッション。** 明示したスロットや継続/並列の意図はそのまま従い、古くない適格スロットが 1 つだけなら自動で引き受けます。それ以外の場合、SessionStart と `ro brief` が候補ごとに所有者、最終活動、実行中のジョブを示し、エージェントは 1 つの質問をします: スロットを継続(セッションが終わっていれば回収)、並列スロットを開始、指定したスロットを使用。確保済みのスロットは、保護されたジョブがなく `Stale slot after`(既定 `2h`)以内にイベントも確保もないとき古いとみなします。回収は記録され、確保、再開状態、ジョブを保持します。`Autonomy: away` では尋ねずに新しい並列スロットを開始し、後で判断できるようその選択を記録します。[セッション](skills/research-orchestrator/references/sessions.md)。
+
+**読み取りルール (classic)。** セッションは自分の計画セクションと引き継ぎセクションをすべて読みます。他のアクティブなスロットについては、割り振りや引き継ぎのための項目メタデータ、重複チェックのための見出しと `Hypothesis`/`Goal` 行、そして `Current host`、`Current user`、`Current thread` 行だけを読みます。再開状態や詳しい根拠は読まないため、それぞれの推論の系統が独立したまま保たれます。新しい項目と後続項目は、自分のセクションに自分の ID で追加します。
+
+**引き継ぎ (classic)。** 自分のキューが空になったら、自分のセクションを読み直し、適格なレビューを引き受け、それから同じホストのスロットの待機中の項目を引き継ぎます。対象は、`Current host` が自分のホストで自分のユーザーが実行しているスロット、または最新のイベントが自分のホストから出たか、まだイベントがない released か unassigned のスロットです。所有者の `Current thread`、`Active compute` の確保がかかった項目、別のユーザーが実行中のスロットの項目は決して取りません。項目は次の ID で自分のセクションに移し、タイトルに古い ID を付け(`H-A-05 — Retry policy for the nightly import (from H-C-03)`)、古い ID は廃止し、項目を見直してスコアを付け直し、引き継ぎを引き継ぎイベントとして記録します。別ホストの項目は、近い作業を使い切った後、待機中のスロットからだけ、判断により 1 つ引き継げます。
+
+<p align="center">
+  <img src="assets/readme/take-over-v6.svg" alt="Classic ワークフロー: キューが空になった Claude Code の A スロットが、最新のイベントが Claude Code から出た解放済みスロット C の H-C-02 を H-A-04 として引き継ぎ、古い ID を廃止する。B スロットは別のアクティブなユーザーが Codex で実行しているため、その項目は B に残る" width="100%">
+</p>
+
+**ホスト間の検証。** `cross-host-once` では、すべての知見が `Host` を記録し、別のホストのセッションが 1 回レビューします。同じホストのセッションは同じ盲点を共有するためです。レビュアーはまずレビューを確保し(`Cross-check: REVIEWING <host> (<slot>)`)、他のセッションが取らないようにしてから、日付付きのレビュー行を追加して状態を設定します。元のスロットは自分の知見をレビューしません。同じホストのレビューは single モード、または adaptive の `Cross-check fallback: same-host` でのみ有効で、`same host —` で始まります。
+
+<p align="center">
+  <img src="assets/readme/cross-host-check-v6.svg" alt="cross-host-once では、Claude Code の A スロットが Codex からの D-B-003 をレビューして VERIFIED にし、Codex の B スロットは Claude Code からの D-A-002 のレビューを確保済みで、解放済みの C スロットが最初に再利用される" width="100%">
+</p>
+
+[Classic ワークフロー](skills/research-orchestrator/references/workflow-classic.md)、[検証](skills/research-orchestrator/references/verification.md)。
+
+## 記録の形式
+
+フィールド名、ID、状態語は英語のままで、自由文は `Language` に従います。ID は `ro next-id` で予約します。項目は `H-<slot>-<NN>`、知見は `D-<slot>-<NNN>` で、作成したスロットが番号を振り、再利用しません。
+
+**計画項目、簡潔な形** (work プロファイル、または `Ordering: queue` の計画)。`Claimed` は unified ワークフローにのみあります:
+
+```markdown
+### H-A-02 — Retry policy for the nightly import
+- Claimed: A since 2026-10-27 09:10
+- Goal: make the nightly import retry transient failures
+- Evidence: two of the last ten runs failed on a network timeout
+- Next test: add bounded retries and replay one failed day
+```
+
+**計画項目、スコア付きの形** (優先度で順位を付ける研究とコンペティション)。各要素は 0〜3 の整数で、`Priority = 2*Impact + 2*Information + Confidence + Unblock + Diversity + (3-Cost)`(0〜24)です。スコアが最も高い項目が先で、同点なら `Cost` が低い方、次に `Information` が高い方です。省略したルーティングのフィールドは `CPU`、`NO`、`NONE` を意味します:
+
+```markdown
+### H-A-04 — Repeat the speed-up with a cold cache
+- Sources: D-A-003
+- Hypothesis: the new parser keeps its lead when the cache is cleared before each run
+- Evidence: D-A-003 (VERIFIED) measured a 30% shorter median run time, but every run reused a warm cache
+- Improvement: clears the cache before each of 20 runs, which D-A-003 did not
+- Impact: 2
+- Information: 3
+- Confidence: 2
+- Unblock: 1
+- Diversity: 1
+- Cost: 1
+- Priority: 16
+- Resource: CPU
+- Parallel: NO
+- Other: NONE
+- Next test: 20 cold-cache runs of each parser on one machine; compare the medians
+```
+
+**知見。** `Session:` は元のセッションを記録し、`independent-review` と `hybrid` で必要です。各レビュー行は、レビュアーのホストとスロット、判定、レビュー時刻を示します:
+
+```markdown
+## D-A-003 — The new parser shortens warm runs by 30%
+- Source: A
+- Host: Claude Code
+- User: user1
+- Date: 2026-10-27
+- Session: claude-code:A@2026-10-27T09:10
+- Cross-check: VERIFIED
+- Finding: the new parser cuts the median run time from 12.0 s to 8.4 s over 20 warm-cache runs each
+- Evidence: runs/parser-bench/summary.csv; reproduce with scripts/bench.py --runs 20
+- Implication: adopt the new parser for warm runs; cold-cache behaviour is still untested
+- Reviews:
+  - Claude Code (A): CLOSED — reviewer subagent:ro-reviewer@2026-10-27T10:02 — reviewed 2026-10-27T10:15 — reran the benchmark: 8.5 s median
+```
+
+**引き継ぎイベント。** 研究とコンペティションは完了した項目ごとに 1 つ追記し、見出しは項目 ID で終わります:
+
+```markdown
+### 2026-10-27 10:20 — A — H-A-03
+- Host: Claude Code
+- User: user1
+- Action: benchmarked the new parser against the old one (20 warm-cache runs each)
+- Result: 30% shorter median run time; see D-A-003
+- Artifacts: runs/parser-bench/summary.csv
+- Discovery updates: D-A-003
+- Review verdict: D-A-003 CLOSED
+- Resource: CPU
+- Other executor: none
+- New plan items: H-A-04
+```
+
+work プロファイルは代わりにセッションの要約を 1 つ持ち、項目が終わるたびに更新します:
+
+```markdown
+### 2026-10-27 17:40 — A — session
+- Host: Claude Code
+- User: user1
+- Action: added bounded retries to the nightly import and replayed one failed day
+- Result: the replayed day completed; the export schema check remains queued
+- Completed: H-A-02
+```
+
+**項目を追加する前に** `ro dupcheck <terms>` を実行し、知見の索引(`ro index`)を読んでください。同じ主張の `VERIFIED` の結果があれば `Improvement` を伴う実質的に異なる後続項目だけを追加でき、`CHALLENGED` は異議が解決するまで待ち、`PENDING` は繰り返すよりレビューする方が有益です。待機中の項目の見出しと `Hypothesis`/`Goal` 行にも目を通し、書く直前に `plan.md` を読み直してください。その間に同じ項目が現れていたら、先にあった方を残します。
+
+[項目のフィールド、優先度、後続項目](skills/research-orchestrator/references/plan-items.md)、[記録](skills/research-orchestrator/references/records.md)。
 
 ## 項目のライフサイクル
 
@@ -159,6 +291,12 @@ work プロファイル(`quick`、`work-project`)はより軽量です。スコ�
 
 `solo-research` は `Ordering: queue` を生成します。他の研究・競技プロジェクトも選択でき、入力済みのスコアは引き続き検証します。
 
+<p align="center">
+  <img src="assets/readme/hypothesis-relay.webp" alt="根拠から仮説 H1 へ、サブ仮説 H1a と H1b に分岐して別々に実験し、クロスチェックが幻覚のリスクを減らし、結果が根拠ある洞察に統合され、新しい仮説 H2 と H3 が続く" width="100%">
+</p>
+
+研究ではこの流れが積み重なり、根拠が仮説を生み、サブ仮説が別々の項目として実行され、レビューが各知見を確かめ、根拠のある結果が後続項目を通じて次の仮説につながります。
+
 ## ガード
 
 ガードは決定の根拠が記録されているかを確認するだけで、その質は判断しません。`Guards: light` は不足を警告として報告し、`strict` は各ガードが指定するチェックをエラーにし、`off` はガードを無効にします。有効化には日付が付く(`light since YYYY-MM-DD`)ため、それ以前の記録は対象外です。ガードは Shared state で一度 `not applicable — <reason>` と宣言でき、しきい値は設定できます。任意の discovery `Control` はプラセボ・ノイズ水準の根拠ファイルと選択による改善量を記録します。Control の不足は例外で、`guard.control.missing` は light では INFO、strict では WARN です。
@@ -176,6 +314,27 @@ work プロファイル(`quick`、`work-project`)はより軽量です。スコ�
 | E1 External actions | 外部アクションの前に書いた期待値、成果物のハッシュ、印のない重複がないこと | すべてのプロファイル |
 
 [研究ガード](skills/research-orchestrator/references/research-guards.md)、[決定ガード](skills/research-orchestrator/references/decision-guards.md)、[外部アクション](skills/research-orchestrator/references/external-actions.md)、[competition プロファイル](skills/research-orchestrator/references/competition.md)。
+
+## 計算リソースと長いジョブ
+
+次に何を実行するかはキューの順序か Priority が決め、どこで実行するかはルーティングが決めます。`Resource: CPU | GPU | EITHER` はローカルの計算リソースの種類、`Parallel: YES | NO` は項目がそれを共有できるかを示し、`Other: NONE | <name>` は共有データベース、ライセンス席、クラウドのバッチ実行環境のような、計算以外の排他的なリソースや外部の実行環境を示します。役に立つなら並列スロット 2 つから始め、独立した価値の高い項目とリソースの余裕が残っている間だけ増やします。
+
+排他的なリソースを使う前に `handoff.md` を読み直してマシンの実際の使用状況を確認し、Shared state の `Active compute` 行に確保を追加してから `ro launch` で起動します。`ro launch` はプロジェクトのロック下で項目のローカルリソースも予約します:
+
+```markdown
+- Active compute: CPU — A (H-A-04, since 2026-10-27 14:05)
+```
+
+```text
+ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python scripts/bench.py --runs 20 --cold
+ro monitor <job>
+ro jobs
+ro kill <job>
+```
+
+表示された監視コマンドをすぐに開始してください。起動の確認は、ジョブが始まったことを示すだけです。`ro monitor` は、ジョブが完了する、エラーパターンに一致する、設定したハートビートの上限を超えて沈黙する、または予想時間の 2 倍を超えるまで追跡します。`ro jobs` はジョブと監視の状態を一覧にし、`ro kill` は自分のスロットが所有し身元を確認したプロセスツリーを停止します。表示された Job 行を `handoff.md` に追記し、成果物を確認し、ジョブが確実に終わった後でのみ確保を外してください。必要なリソースが使用中なら、独立した作業や適格なレビューを行うか、`Blocker:` を記録します。2 つの項目がリソースを共有するのは、どちらも `Parallel: YES` で、測定した容量に収まる場合だけです。`ro launch` はローカルの CPU と GPU しか予約しないため、`Other` のリソースには独自のロックかスケジューラーの予約が必要です。
+
+[ワーカーと排他的なリソース](skills/research-orchestrator/references/compute.md)、[起動、監視、停止](skills/research-orchestrator/references/operations-safety.md#lookup-launch-monitor-and-stop)。
 
 ## `ro` CLI
 
@@ -262,7 +421,40 @@ GitHub Actions は Windows、Ubuntu、macOS 上で Python 3.12 と読み取り�
 
 ## 根拠
 
-振る舞いの根拠は過去の記録(このリリースそのものではなく保存済みの実行)で、Codex のフックは呼び出しごとの信頼でのみ検証され、Windows の時間計測はローカルの結果であり、CI の結果は公開まで保留中です。[根拠と制約](docs/evals/README.md)を参照してください。
+振る舞いの根拠は過去の記録(このリリースそのものではなく保存済みの実行)で、Codex のフックは呼び出しごとの信頼でのみ検証され、Windows の時間計測はローカルの結果であり、CI は Windows・Ubuntu・macOS で成功し、インストール済みフックの p95 は約 45–60 ms です。[根拠と制約](docs/evals/README.md)を参照してください。
+
+## リポジトリの構成
+
+```text
+.claude-plugin/  .codex-plugin/  .agents/   plugin and marketplace manifests
+agents/ro-reviewer.md          read-only reviewer agent for Claude Code
+assets/readme/                 README images
+docs/                          plans, evaluation evidence, and host dry runs
+examples/                      one worked project per preset
+hooks/                         host hook wrappers and the Git pre-push gate
+scripts/                       release validation, evaluation and trigger tooling, host dry runs
+skills/research-orchestrator/
+  SKILL.md                     the core instructions (12 KB budget)
+  references/                  one file per operation, read when that operation runs
+  templates/                   the four project files, plus earlier versions for migration
+  presets/                     the six built-in presets
+  scripts/                     initializer, checker, ro CLI, and hook runner
+  agents/openai.yaml           Codex interface metadata
+  evals/                       behaviour cases (not installed)
+tests/                         deterministic test suite
+install.py                     installer for Claude Code, Codex, or both
+plugin.json                    plugin manifest
+```
+
+## 設計原則
+
+- **汎用性を優先。** 1 つのスキルが日常の業務プロジェクト、研究、コンペティションを等しく扱います。配布される指示は中立的な言葉を使い、コンペティション固有の内容はそのリファレンスとプラットフォームのアダプターにだけ置き、リリースチェックが語彙のルールを強制します。
+- **小さなコア。** `SKILL.md` は 12 KB 以内に収めます。詳細なルールはそれぞれ 1 つのリファレンスにあり、その操作を行うときに読み込まれます。生成される `agents.md` はスキルの本文を写さず、設定、案内、プロジェクトのルールだけを保持します。
+- **決定論的なチェックだけ。** まず指針、次にホストに依存しないチェッカー、その次に助言的なフックです。ブロックは、`Block` に挙げた決定論的で、コストが高く、繰り返されるミスにだけ使います。
+- **フックは開いたまま、ゲートは閉じたまま失敗する。** 呼び出しごとのフックはクラッシュ、タイムアウト、インタープリター不在のときは呼び出しを通し、`ro launch`、`ro external`、Git pre-push ゲートは検証が失敗したか実行できないときに拒否します。
+- **1 つの事実に 1 つの置き場所。** 主張と数値は知見に、誰が・いつ・どこでかはイベントに、提案された作業は `plan.md` に、プロジェクト全体の値は Shared state に置き、それ以外はそこを指します。
+- **意図より根拠。** ガードは決定の根拠が記録されたかを確認し、起動の確認は結果ではなく、知見は適格なレビューを経て初めて検証済みになります。
+- **ルールを肥大化させない。** 常設ルールにはバイト予算があり、例外には期限があり、教訓はそれを強制するチェックを示す 1 行です。
 
 ## ライセンス
 

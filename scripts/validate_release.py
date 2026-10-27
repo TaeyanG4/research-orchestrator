@@ -785,7 +785,9 @@ def check_tests(errors: list[str]) -> str:
                             creationflags=no_window_flags())
     summary = (result.stdout.strip().splitlines() or [""])[-1]
     if result.returncode != 0:
-        errors.append("pytest failed:\n" + result.stdout.strip()[-3000:])
+        # List every failing test id (a long tail alone hides most failures on another OS).
+        failing = [line for line in result.stdout.splitlines() if line.startswith(("FAILED ", "ERROR "))]
+        errors.append("pytest failed:\n" + "\n".join(failing) + "\n" + result.stdout.strip()[-3000:])
     return summary
 
 

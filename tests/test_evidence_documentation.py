@@ -72,7 +72,8 @@ def test_plan_reconciles_contract_generation_and_the_two_folded_guards():
 
 
 def test_fixed_and_security_use_six_concise_user_facing_areas_without_provenance():
-    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    # The six-area shape belongs to the 6.0.0 release notes; later patch notes are short.
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8").split("\n## 6.0.0", 1)[1]
     areas = {
         "Jobs and shell", "Installation and hooks", "Records and verification",
         "State and migration", "External actions and publication", "Validation and runtime",

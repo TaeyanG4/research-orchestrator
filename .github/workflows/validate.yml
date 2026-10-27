@@ -23,6 +23,17 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install pytest
       - run: python scripts/validate_release.py
+      - name: Keep the full test report when validation fails
+        if: failure()
+        run: python -m pytest -q -p no:cacheprovider -m "not latency" -rfE --tb=short --junitxml=pytest-report.xml tests
+        continue-on-error: true
+      - name: Retain the full test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report-${{ matrix.os }}
+          path: pytest-report.xml
+          if-no-files-found: warn
       - name: Measure installed hook p95 on this OS
         if: always()
         run: python -m pytest -q -m latency tests/test_ro_cli.py tests/test_ro_hooks.py

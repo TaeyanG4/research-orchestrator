@@ -32,7 +32,10 @@ def test_shell_records_every_marker_probe_without_inventing_unc(tmp_path, physic
     env[source] = "injected-physical-path"
     # No fake filesystem or network request: only cd's resulting PWD and marker
     # existence are substituted. All joins and traversal run in the real wrapper.
+    # Git for Windows' bin/sh.exe starts bash outside POSIX mode, where aliases
+    # stay off in scripts unless enabled; without the override a real UNC probe runs.
     driver = r'''
+        { shopt -s expand_aliases; } 2>/dev/null || :
         ro_test_check() {
             if command [ "$1" = -f ]; then
                 printf '%s\n' "$2" >> "$RO_TEST_PROBES"
@@ -43,7 +46,8 @@ def test_shell_records_every_marker_probe_without_inventing_unc(tmp_path, physic
         alias [=ro_test_check
         cd() { PWD=$RO_TEST_PHYSICAL; }
         PWD=$RO_TEST_PHYSICAL
-        . "$1" PreToolUse
+        # dash ignores arguments to ".": pass the event as positional parameters.
+        ro_test_wrapper=$1; set -- PreToolUse; . "$ro_test_wrapper"
     '''
     result = invoke([shell, "-c", driver, wrapper, wrapper], tmp_path, env)
     assert result.returncode == 0, result.stderr

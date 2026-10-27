@@ -64,7 +64,8 @@ def test_host_homes_and_sandbox_state_survive_without_host_routing(tmp_path, mon
     assert Path(environment["RESEARCH_ORCHESTRATOR_HOME"]).is_relative_to(project)
     assert metadata["writable_roots"] == [str(project)]
     assert metadata["fresh_codex_home"] is metadata["fresh_user_home"] is False
-    assert metadata["host_context"]["codex_home"] == str(codex_home)
+    # Host roots are recorded resolved (8.3 short names, /var -> /private/var).
+    assert metadata["host_context"]["codex_home"] == str(codex_home.resolve())
     assert {path.name for path in root.iterdir()} == {"project"}
     assert isolation.cleanup(root) == []
     assert all((codex_home / name).is_dir() for name in (".sandbox", ".sandbox-bin", ".sandbox-secrets"))
@@ -89,14 +90,15 @@ def test_global_agents_snapshot_uses_only_size_and_real_home_roots(tmp_path, mon
     project.mkdir()
     _, metadata = isolation.prepare_environment(tmp_path, project, {})
     context = metadata["host_context"]
+    # Real home roots are recorded resolved (8.3 short names, /var -> /private/var).
     assert context["global_agents"] == {
-        "path": str(agents), "exists": contents is not None,
+        "path": str(agents.resolve()), "exists": contents is not None,
         "size_bytes": len(contents) if contents is not None else None,
         "empty": contents == b"" if contents is not None else None,
     }
     assert context["installed_skill_roots"] == [
-        str(home / name / "skills") for name in (".codex", ".agents", ".claude")
-    ] + [str(codex_home / "skills")]
+        str(home.resolve() / name / "skills") for name in (".codex", ".agents", ".claude")
+    ] + [str(codex_home.resolve() / "skills")]
 
 
 @pytest.mark.parametrize("backend", ["elevated", "unelevated", "mxc"])

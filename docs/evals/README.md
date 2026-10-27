@@ -14,7 +14,7 @@ Historical scores below describe saved executions. Deterministic tests validate 
 | [Claude Code probes](../host-dry-runs/claude-code-2026-10-27.md) | 6/6 verified on 2026-10-27 | Claude Code 2.1.287, haiku; supplied candidate | Runner diagnostics, tool results and protected-file state |
 | [Codex probes](../host-dry-runs/codex-2026-10-27.md) | 6/6 verified on 2026-10-27 with per-invocation trust | Codex CLI 0.154.0; supplied dated runtime | Runner diagnostics and side effects; `--dangerously-bypass-hook-trust` |
 | [Windows hook latency](hook-runtime-cost-2026-10-27.md) | Historical 225 ms p95 budget | Windows Python 3.12; [earlier](evidence/hook-latency-2026-10-27.json) and [Round 7 samples](evidence/hook-latency-r7-2026-10-27.json) | Warmed batches, median of three nearest-rank p95s |
-| CI hook p95 | Pending Windows / Ubuntu / macOS artifacts | Each CI checkout, Python 3.12 | Dedicated installed-hook test and per-OS artifact |
+| CI hook p95 | Windows 57–60 ms, Ubuntu 45–47 ms, macOS 49–54 ms (batch p95 of 20 calls, three batches; 2026-10-27, release 6.0.1 CI) | Each CI checkout, Python 3.12 | Dedicated installed-hook test and per-OS artifact |
 
 Iteration 5 preserves earlier outputs and verdicts; exported member hashes identify evidence, not an inferred current runtime. No new measurement is attributed to that archive.
 
@@ -34,7 +34,7 @@ Codex's persisted `/hooks` trust route was not exercised. Ordinary `codex exec` 
 
 The current [local fast-path samples](evidence/hook-fast-paths.json) support the restored 150 ms p95 gate; [measurement details](hook-latency-gatefix.md) distinguish wrapper paths from checker-only cache timing.
 
-Local latency records invoke wrappers and runner code without a host application. They establish only their recorded Windows layers and cache/load conditions; older measurements are not a controlled speedup baseline. Pending CI artifacts cannot establish Linux/macOS performance.
+Local latency records invoke wrappers and runner code without a host application. They establish only their recorded Windows layers and cache/load conditions; older measurements are not a controlled speedup baseline. The 6.0.1 CI artifacts record the installed-hook p95 on each runner; they are single runs on shared CI machines, not a controlled comparison.
 
 Earlier superseded reports remain in owner-held archives, not part of the release, at `ro-evidence-archive/2026-10-27b`, with relative paths and pre-redaction hashes preserved. No report was deleted.
 
@@ -54,7 +54,7 @@ The coordinator fills this row after the final local run against the publication
 
 | Date | Interpreter | Pytest summary | validate_release result | Commit |
 |---|---|---|---|---|
-| 2026-10-27 | CPython 3.12.6, Windows 10 | 3,643 passed, 2 deselected (`latency`), in both a plain environment and Claude Code with a Windows-style `CLAUDE_PROJECT_DIR`; the 2 `latency` tests passed in a separate run | `VALIDATION: PASS` in both environments | tree `a830c8fc0380` (the tested tree: this release's files with the previous candidate's receipt row; only this row differs) |
+| 2026-10-27 | CPython 3.12 on GitHub Actions (windows-latest 3.12.10, ubuntu-latest 3.12.15, macos-latest 3.12.10) | windows 3,648 passed; ubuntu 3,542 passed and 105 skipped; macOS 3,542 passed and 105 skipped; 2 `latency` tests deselected and passed in the separate CI step on each runner | `VALIDATION: PASS` on all three runners | tree `9c6d931807c1` (the tested 6.0.1 tree; only this row and the CI result sentences differ) |
 
 ## Dated host scope and interpretation
 

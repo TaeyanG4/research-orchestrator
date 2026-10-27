@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="title desc">
+  <title id="title">Research Orchestrator</title>
+  <desc id="desc">Work projects, research, and competitions across sessions, hosts, and users, coordinated through four shared files: agents.md for settings and rules, plan.md for the work queue, discoveries.md for shared findings, and handoff.md for history and resume points. Features: presets, cross-host checks, the ro CLI with hooks, multiple users with git sync, and a read-only reviewer agent.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1B33"/>
+      <stop offset="1" stop-color="#123060"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.2" r="0.6">
+      <stop offset="0" stop-color="#1687D9" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#1687D9" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Self-contained dark card: readable on light and dark pages alike. -->
+  <rect width="1200" height="400" rx="20" fill="url(#bg)"/>
+  <rect width="1200" height="400" rx="20" fill="url(#glow)"/>
+
+  <g font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <!-- Icon: same shapes as skills/research-orchestrator/assets/icon.svg, lightened for the dark banner -->
+    <g transform="translate(64 46) scale(3.2)">
+      <path d="M13 10.5H17.5C18.2082 10.5 18.8247 10.6416 19.3496 10.9248C19.8829 11.2081 20.2919 11.6171 20.5752 12.1504C20.8584 12.6753 21 13.2918 21 14V16H19V14C19 13.5333 18.8663 13.1671 18.5996 12.9004C18.3329 12.6337 17.9667 12.5 17.5 12.5H13V16H11V12.5H6.5C6.04167 12.5 5.67539 12.6337 5.40039 12.9004C5.13372 13.1671 5 13.5333 5 14V16H3V14C3 13.2918 3.14161 12.6753 3.4248 12.1504C3.70814 11.6171 4.1127 11.2081 4.6377 10.9248C5.17098 10.6416 5.79177 10.5 6.5 10.5H11V8H13V10.5Z" fill="#6F8DF5"/>
+      <path d="M9.0125 2.5125C8.67083 2.85417 8.5 3.35 8.5 4V6.5C8.5 7.15 8.67083 7.64583 9.0125 7.9875C9.35417 8.32917 9.85 8.5 10.5 8.5H13.5C14.15 8.5 14.6458 8.32917 14.9875 7.9875C15.3292 7.64583 15.5 7.15 15.5 6.5V4C15.5 3.35 15.3292 2.85417 14.9875 2.5125C14.6458 2.17083 14.15 2 13.5 2H10.5C9.85 2 9.35417 2.17083 9.0125 2.5125Z" fill="#9DB2FF"/>
+      <path d="M9.02337 16.0125C8.6817 16.3542 8.51086 16.85 8.51086 17.5V20C8.51086 20.65 8.6817 21.1458 9.02337 21.4875C9.36503 21.8292 9.86087 22 10.5109 22H13.5109C14.1609 22 14.6567 21.8292 14.9984 21.4875C15.34 21.1458 15.5109 20.65 15.5109 20V17.5C15.5109 16.85 15.34 16.3542 14.9984 16.0125C14.6567 15.6708 14.1609 15.5 13.5109 15.5H10.5109C9.86087 15.5 9.36503 15.6708 9.02337 16.0125Z" fill="#9DB2FF"/>
+      <path d="M17.0234 16.0125C16.6817 16.3542 16.5109 16.85 16.5109 17.5V20C16.5109 20.65 16.6817 21.1458 17.0234 21.4875C17.365 21.8292 17.8609 22 18.5109 22H21.5109C22.1609 22 22.6567 21.8292 22.9984 21.4875C23.34 21.1458 23.5109 20.65 23.5109 20V17.5C23.5109 16.85 23.34 16.3542 22.9984 16.0125C22.6567 15.6708 22.1609 15.5 21.5109 15.5H18.5109C17.8609 15.5 17.365 15.6708 17.0234 16.0125Z" fill="#9DB2FF"/>
+      <path d="M1.02324 16.0125C0.681576 16.3542 0.510742 16.85 0.510742 17.5V20C0.510742 20.65 0.681576 21.1458 1.02324 21.4875C1.36491 21.8292 1.86074 22 2.51074 22H5.51074C6.16074 22 6.65658 21.8292 6.99824 21.4875C7.33991 21.1458 7.51074 20.65 7.51074 20V17.5C7.51074 16.85 7.33991 16.3542 6.99824 16.0125C6.65658 15.6708 6.16074 15.5 5.51074 15.5H2.51074C1.86074 15.5 1.36491 15.6708 1.02324 16.0125Z" fill="#9DB2FF"/>
+    </g>
+
+    <text x="64" y="176" fill="#FFFFFF" font-size="52" font-weight="700">Research Orchestrator</text>
+    <text x="66" y="212" fill="#A9C1E3" font-size="20">Work projects, research and competitions</text>
+    <text x="66" y="238" fill="#A9C1E3" font-size="20">across sessions, hosts and users</text>
+
+    <!-- Feature chips -->
+    <g font-size="15" font-weight="600">
+      <rect x="64" y="258" width="150" height="34" rx="17" fill="#16365F" stroke="#2C5A90"/>
+      <text x="139" y="280" fill="#D6E6FA" text-anchor="middle">4 shared files</text>
+      <rect x="226" y="258" width="150" height="34" rx="17" fill="#16365F" stroke="#2C5A90"/>
+      <text x="301" y="280" fill="#D6E6FA" text-anchor="middle">Presets</text>
+      <rect x="64" y="300" width="190" height="34" rx="17" fill="#16365F" stroke="#2C5A90"/>
+      <text x="159" y="322" fill="#D6E6FA" text-anchor="middle">Cross-host check</text>
+      <rect x="266" y="300" width="190" height="34" rx="17" fill="#16365F" stroke="#2C5A90"/>
+      <text x="361" y="322" fill="#D6E6FA" text-anchor="middle">ro CLI + hooks</text>
+      <rect x="64" y="342" width="216" height="34" rx="17" fill="#16365F" stroke="#2C5A90"/>
+      <text x="172" y="364" fill="#D6E6FA" text-anchor="middle">Multi-user + git sync</text>
+      <rect x="292" y="342" width="216" height="34" rx="17" fill="#16365F" stroke="#2C5A90"/>
+      <text x="400" y="364" fill="#D6E6FA" text-anchor="middle">Reviewer agent</text>
+    </g>
+
+    <!-- The four files -->
+    <g>
+      <rect x="700" y="72" width="210" height="122" rx="14" fill="#132F57" stroke="#2A5384"/>
+      <rect x="700" y="72" width="6" height="122" rx="3" fill="#7E97F5"/>
+      <text x="726" y="114" fill="#EAF2FF" font-size="21" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">agents.md</text>
+      <text x="726" y="146" fill="#93ACCE" font-size="15">settings + rules</text>
+      <text x="726" y="170" fill="#93ACCE" font-size="15">preset · pointers</text>
+
+      <rect x="930" y="72" width="210" height="122" rx="14" fill="#132F57" stroke="#2A5384"/>
+      <rect x="930" y="72" width="6" height="122" rx="3" fill="#1687D9"/>
+      <text x="956" y="114" fill="#EAF2FF" font-size="21" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">plan.md</text>
+      <text x="956" y="146" fill="#93ACCE" font-size="15">work queue</text>
+      <text x="956" y="170" fill="#93ACCE" font-size="15">unfinished items only</text>
+
+      <rect x="700" y="214" width="210" height="122" rx="14" fill="#132F57" stroke="#2A5384"/>
+      <rect x="700" y="214" width="6" height="122" rx="3" fill="#2BB673"/>
+      <text x="726" y="256" fill="#EAF2FF" font-size="21" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">discoveries.md</text>
+      <text x="726" y="288" fill="#93ACCE" font-size="15">shared findings</text>
+      <text x="726" y="312" fill="#93ACCE" font-size="15">evidence + reviews</text>
+
+      <rect x="930" y="214" width="210" height="122" rx="14" fill="#132F57" stroke="#2A5384"/>
+      <rect x="930" y="214" width="6" height="122" rx="3" fill="#F2A93B"/>
+      <text x="956" y="256" fill="#EAF2FF" font-size="21" font-weight="700" font-family="Consolas, 'SFMono-Regular', Menlo, monospace">handoff.md</text>
+      <text x="956" y="288" fill="#93ACCE" font-size="15">history + resume point</text>
+      <text x="956" y="312" fill="#93ACCE" font-size="15">shared state · slots</text>
+    </g>
+  </g>
+</svg>

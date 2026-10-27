@@ -155,7 +155,7 @@ def _events(run_dir: Path):
                     yield "transcript.md:Event " + match[1], data
 
 
-def _literal_path_parts(text: str) -> list[str]:
+def _literal_path_parts(text: str, source: str = "") -> list[str]:
     # The shell lexer removes quotes from PowerShell arrays and Python raw
     # strings. Restore their literal operands instead of inventing a path that
     # embeds a second drive letter beneath the current project.
@@ -164,16 +164,21 @@ def _literal_path_parts(text: str) -> list[str]:
         return pieces
     if re.match(r"^[rR][A-Za-z]:[/\\]", text):
         return [text[1:]]
+    # A POSIX raw string r'/abs' lexes to r/abs, which is also a valid relative
+    # path. Restore the absolute operand only where the command spells that literal.
+    if re.match(r"^[rR]/", text) and source and re.search(
+            r"(?<![\w.])[rR](['\"])" + re.escape(text[1:]) + r"\1", source):
+        return [text[1:]]
     return [text]
 
 
-def _paths(text: str):
+def _paths(text: str, source: str = ""):
     # Preserve quoted paths with spaces, while also inspecting shell/Python
     # expressions embedded in a command argument. No shell is executed here.
     candidates = [text, *re.findall(r'''["']([^"'\r\n]+)["']''', text),
                   *re.findall(r'''[^\s"'`;,(){}\[\]<>|=]+''', text)]
     for candidate in candidates:
-        yield from _literal_path_parts(candidate)
+        yield from _literal_path_parts(candidate, source)
 
 
 def _python_here_strings(command: str):
@@ -480,8 +485,11 @@ def audit_run(run_dir: Path, *, source_repo: Path, workspace: Path,
         for operation, value, cwd, outcome in _operations(event):
             operations += 1
             cwd = _resolved(_host_path(cwd, host_context), default_cwd) if isinstance(cwd, str) else default_cwd
+            command = (value if isinstance(value, str) else value.get("cmd", value.get("command", ""))
+                       if isinstance(value, dict) else "")
+            spelled = _source(command) if isinstance(command, str) else ""
             for inputs, command_cwd, reading in _access_contexts(operation, value, cwd, host_context):
-                for candidate in (path for text in _strings(inputs) for path in _paths(text)):
+                for candidate in (path for text in _strings(inputs) for path in _paths(text, spelled)):
                     candidate = candidate.strip()
                     if not candidate or ("/" not in candidate and "\\" not in candidate
                                          and candidate.casefold() not in {"evals", "graders", ".", ".."}

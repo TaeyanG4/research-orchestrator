@@ -14,7 +14,7 @@ import time
 
 import pytest
 
-from conftest import FIXTURES, SKILL
+from conftest import FIXTURES, SKILL, with_real_ps
 import ro_checks as checks
 import ro_evidence as evidence
 import ro_hooks as hooks
@@ -147,8 +147,9 @@ TOOL_DIALECT_CASES = json.loads((CORPUS_ROOT / "tool-dialect-commands.json").rea
 def test_known_tool_dialect_is_checked_even_when_project_declares_another(tmp_path, case):
     project = project_at(tmp_path, case["declared_shell"])
     live_job(project)
+    # Hosts report the physical cwd; live_job binds under the resolved project root.
     result = hooks.hook(project, "PreToolUse", {
-        "cwd": str(tmp_path), "tool_name": "Bash" if case["dialect"] == "bash" else "PowerShell",
+        "cwd": str(project.root), "tool_name": "Bash" if case["dialect"] == "bash" else "PowerShell",
         "tool_input": {"command": case["command"]}})
     assert result.get("hookSpecificOutput", {}).get("permissionDecision") == "deny"
     assert "shell.background" in result["hookSpecificOutput"]["permissionDecisionReason"]
@@ -204,7 +205,7 @@ def replay_deterministic_case(tmp_path, monkeypatch, case):
         entry["start"] = "different-creation-identity"
         project.write_json("jobs.json", [entry])
         attempted = []
-        monkeypatch.setattr(jobs.subprocess, "run", lambda *args, **kwargs: attempted.append(args))
+        monkeypatch.setattr(jobs.subprocess, "run", with_real_ps(lambda *args, **kwargs: attempted.append(args)))
         with pytest.raises(ValueError):
             jobs.kill(project, entry["id"])
         assert attempted == []
@@ -252,7 +253,7 @@ def replay_deterministic_case(tmp_path, monkeypatch, case):
         for verdict in ("PASS", "FAIL"):
             evidence.receipt_add(project, "artifact.txt", "reviewer-session", verdict, "X-A-001", "endpoint-a")
         executions = []
-        monkeypatch.setattr(evidence.subprocess, "run", lambda *args, **kwargs: executions.append(args))
+        monkeypatch.setattr(evidence.subprocess, "run", with_real_ps(lambda *args, **kwargs: executions.append(args)))
         args = argparse.Namespace(artifact="artifact.txt", action="X-A-001", command=["release-tool", "publish"])
         with pytest.raises(ValueError):
             evidence.external(project, args)

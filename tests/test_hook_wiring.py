@@ -123,7 +123,8 @@ def test_posix_hook_wrapper_selects_interpreter_and_preserves_input(tmp_path, av
                         'printf "%s\\n" "$RO_HOOK_PYTHON"\n', encoding="utf-8")
         stub.chmod(0o755)
     # PWD yields a shell-native absolute PATH, including under Git Bash on Windows.
-    command = 'PATH="$PWD"; export PATH; . "$1" PreToolUse'
+    # dash ignores arguments to ".": pass the event as positional parameters.
+    command = 'PATH="$PWD"; export PATH; ro_test_wrapper=$1; set -- PreToolUse; . "$ro_test_wrapper"'
     payload = b'{"cwd":"a path with spaces","tool_input":{"command":"echo ready"}}\n'
     env = {key: value for key, value in os.environ.items() if key != "RO_HOOK_PYTHON"}
     result = subprocess.run([shell, "-c", command, (ROOT / "hooks" / "ro-hook.sh").as_posix(),

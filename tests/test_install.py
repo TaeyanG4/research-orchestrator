@@ -65,7 +65,8 @@ def test_nested_git_project_is_refused_before_any_installer_writes(home, tmp_pat
         installer.main(["--home", str(home), "--project", str(nested), *options])
     message = str(refusal.value)
     assert "repository root" in message and "install.py --project ." in message
-    assert project.as_posix() in message.replace("\\", "/")
+    # The installer reports the resolved root (8.3 short names, /var -> /private/var).
+    assert project.resolve().as_posix() in message.replace("\\", "/")
     assert (snapshot(project), snapshot(home)) == before
 
 
@@ -540,7 +541,7 @@ def test_codex_only_upgrade_repoints_shared_runtime_away_from_older_claude(home,
     if project_scope:
         registration = next((base / ".git/hooks/research-orchestrator/registrations").glob("*.json"))
         runtime = json.loads(registration.read_text(encoding="utf-8"))["runtime"]
-        assert runtime == (base / ".codex/skills/research-orchestrator/scripts/ro.py").as_posix()
+        assert runtime == (base.resolve() / ".codex/skills/research-orchestrator/scripts/ro.py").as_posix()
 
 
 @pytest.mark.parametrize("legacy_global", [False, True])
@@ -557,10 +558,11 @@ def test_project_uninstall_repoints_cli_to_surviving_global_install(home, tmp_pa
     install("--home", str(home), "--project", str(project), "--host", "codex", "--uninstall")
     assert shim.is_file()
     script = shim.read_text(encoding="utf-8")
-    runtime = home / ".claude/skills/research-orchestrator/scripts/ro.py"
+    # Shims and registrations record resolved paths (8.3 short names, /var -> /private/var).
+    runtime = home.resolve() / ".claude/skills/research-orchestrator/scripts/ro.py"
     assert str(runtime).replace("\\", "/") in script.replace("\\", "/")
     registrations = json.loads(registry.read_text(encoding="utf-8"))["registrations"]
-    assert set(registrations) == {str(home)}
+    assert set(registrations) == {str(home.resolve())}
     command = ([os.environ["COMSPEC"], "/d", "/c", str(shim), "--help"] if os.name == "nt" else
                [shutil.which("sh"), shim.as_posix(), "--help"])
     result = subprocess.run(command, capture_output=True, text=True, timeout=15)
@@ -574,7 +576,7 @@ def test_project_uninstall_repoints_cli_to_another_registered_project(home, tmp_
         install("--home", str(home), "--project", str(project), "--host", "claude-code", "--no-hooks")
     install("--home", str(home), "--project", str(second), "--host", "claude-code", "--uninstall")
     shim = home / ("AppData/Local/Programs/ro/ro.cmd" if os.name == "nt" else ".local/bin/ro")
-    runtime = first / ".claude/skills/research-orchestrator/scripts/ro.py"
+    runtime = first.resolve() / ".claude/skills/research-orchestrator/scripts/ro.py"
     assert str(runtime).replace("\\", "/") in shim.read_text(encoding="utf-8").replace("\\", "/")
 
 

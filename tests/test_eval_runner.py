@@ -119,7 +119,8 @@ def test_run_preserves_outputs_and_cleans_temporary_project(tmp_path, monkeypatc
             assert command[command.index("--model") + 1] == model
         grants = [command[index + 1] for index, value in enumerate(command) if value == "--add-dir"]
         assert grants == [str(Path("python.exe").resolve().parent), str(project.parent / "skill")]
-        assert project.parent.parent == tmp_path / "workspace" / "_runs"
+        # The runner records resolved paths (8.3 short names, /var -> /private/var).
+        assert project.parent.parent == (tmp_path / "workspace" / "_runs").resolve()
         assert "sandbox_workspace_write.writable_roots=[]" in command
         assert "sandbox_workspace_write.exclude_tmpdir_env_var=true" in command
         assert "sandbox_workspace_write.exclude_slash_tmp=true" in command
@@ -243,7 +244,7 @@ def test_disconnect_retries_use_fresh_sessions_and_preserve_attempts(
     copytree = runner.shutil.copytree
 
     def copy_outputs(source, destination, *args, **kwargs):
-        if outcomes[-1] == "recovered-copy-failure" and destination == run_dir / "outputs":
+        if outcomes[-1] == "recovered-copy-failure" and Path(destination) == (run_dir / "outputs").resolve():
             copytree(source, destination, *args, **kwargs)
             raise OSError("Cannot copy final artifact")
         return copytree(source, destination, *args, **kwargs)
@@ -573,9 +574,10 @@ def test_runner_audits_successful_executor_before_reporting_completion(tmp_path,
     agents.write_bytes(b"Synthetic global instructions")
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
     monkeypatch.setenv("CODEX_HOME", str(codex_home))
+    # The host context records resolved home roots, as an executor's $HOME spelling expands to.
     target = {"eval_or_grader_path": "graders/01-result.md",
-              "installed_skill": str(home / ".agents" / "skills" / "installed" / "SKILL.md"),
-              "global_agents": str(agents)}[reason]
+              "installed_skill": str(home.resolve() / ".agents" / "skills" / "installed" / "SKILL.md"),
+              "global_agents": str(agents.resolve())}[reason]
 
     def execute(command, **kwargs):
         agents.unlink()  # The audit must use the snapshot taken before execution.
@@ -623,7 +625,7 @@ def test_main_launches_both_configs_together_writes_metadata_and_refuses_overwri
         args.extend(["--retries", str(retries)])
     assert runner.main(args) == 0
     assert {(config, directory) for _, config, directory in calls} == {
-        ("with_skill", skill), ("old_skill", old_skill)}
+        ("with_skill", skill.resolve()), ("old_skill", old_skill.resolve())}
     metadata = json.loads((workspace / "iteration-1" / case.name / "eval_metadata.json").read_text(encoding="utf-8"))
     assert metadata == {"eval_name": case.name, "prompt": case.prompt, "assertions": [case.assertions[0].text]}
     assert runner.main(args) == 1

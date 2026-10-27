@@ -76,7 +76,9 @@ def normal_path(value: str, root: Path | str, os_family: str | None = None) -> s
     """Compare literal components using only the declared OS; no path translation."""
     os_family = os_family or settings.detect_environment().split("/")[0]
     value = value.strip().strip("\"'")
-    if not value or re.search(r"[$`~*?\[]|%[^%]+%", value):
+    # Only a leading tilde expands to a home folder; one inside a component is literal,
+    # as in Windows 8.3 short names (C:\Users\RUNNER~1) that temp folders often use.
+    if not value or value.startswith("~") or re.search(r"[$`*?\[]|%[^%]+%", value):
         return None
     if os_family == "windows":
         # Rooted paths without a drive, drive-relative paths and UNC are outside this grammar.

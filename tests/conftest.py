@@ -42,6 +42,22 @@ if os.name == "nt":
 
     subprocess.Popen = _NoWindowPopen
 
+REAL_RUN = subprocess.run
+
+
+def with_real_ps(fake):
+    """Wrap a subprocess.run fake so BSD/macOS process identity stays real.
+
+    Without /proc, ro_state.process_start asks `ps` (through subprocess.run) whenever
+    a Project, lock or job check needs this process's identity; a fake meant for the
+    command under test must not answer that query."""
+    def run(command, *args, **kwargs):
+        if isinstance(command, (list, tuple)) and command[:1] == ["ps"]:
+            return REAL_RUN(command, *args, **kwargs)
+        return fake(command, *args, **kwargs)
+    return run
+
+
 NOW = dt.datetime(2026, 10, 25, 12, 0)
 PLAN_VALUES = [
     ("Sources", "none"), ("Hypothesis", "a claim"), ("Evidence", "a reason"), ("Improvement", "none"),

@@ -120,7 +120,7 @@ def test_real_shell_drive_pwd_terminates_and_still_finds_hints(tmp_path, source,
     # Keep cd and the filesystem real. Only select the equivalent Win32 spelling
     # of physical PWD, so this catches the defect on Git versions using /c/... too.
     driver = ('cd() { command cd "$@" || return; PWD=$("$RO_TEST_CYGPATH" -m "$PWD"); }; '
-              '. "$1" PreToolUse')
+              'ro_test_wrapper=$1; set -- PreToolUse; . "$ro_test_wrapper"')
     result = invoke([shell, "-c", driver, wrapper, wrapper], tmp_path, env)
     assert result.returncode == 0, result.stderr
     assert not result.stderr
@@ -146,7 +146,7 @@ def test_posix_walk_stops_at_physical_roots(tmp_path, source, physical):
     # Reach uncommon canonical roots without mounting drives or creating shares.
     # Source the unchanged wrapper; only cd's physical-path result is injected.
     driver = ('cd() { if [ "$2" = "$RO_TEST_HINT" ]; then PWD=$RO_TEST_PHYSICAL; '
-              'else command cd "$@"; fi; }; . "$1" PreToolUse')
+              'else command cd "$@"; fi; }; ro_test_wrapper=$1; set -- PreToolUse; . "$ro_test_wrapper"')
     result = invoke([shell, "-x", "-c", driver, wrapper, wrapper], tmp_path, env)
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout) == {}

@@ -2,15 +2,23 @@
   <a href="README.md">English</a> · <b>한국어</b> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a>
 </p>
 
+<p align="center">
+  <img src="assets/readme/hero-v6.svg" alt="Research Orchestrator: 업무 프로젝트·연구·대회를 세션, 호스트, 사용자에 걸쳐 agents.md, plan.md, discoveries.md, handoff.md 네 파일로 조율" width="100%">
+</p>
+
 # Research Orchestrator
 
 Claude Code, Codex, Google Antigravity에서 쓰는 플러그인으로, 업무 프로젝트·연구·대회 작업이 여러 AI 세션에 걸쳐 끊기지 않고 이어지게 합니다. 스킬, 호스트 훅, `ro` 명령줄 도구, 읽기 전용 리뷰어 에이전트를 함께 제공합니다. 네 개의 Markdown 파일이 설정, 작업 큐, 재사용할 수 있는 발견, 지속되는 인계 기록을 담습니다. 프리셋은 세션이 큐를 나누는 방식, 발견을 검토할 주체, 적용할 근거 검사를 정합니다.
 
-**릴리스 6.0.0 (스킬 설계 v3).** 5.1.0 이후 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 기존 프로젝트는 그대로 동작하며, 설정을 바꾸기 전에 아래의 마이그레이션 절을 읽으세요.
+**릴리스 6.0.1.** 5.1.0 이후 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 기존 프로젝트는 그대로 동작하며, 설정을 바꾸기 전에 아래의 마이그레이션 절을 읽으세요.
 
-## 왜 v3인가
+## 왜 사용하나요
 
-이전 설계로 진행한 세 프로젝트의 사후 검토에서 실행은 강했지만 전략은 약했습니다. 세 프로젝트 모두 최종 목표를 볼 수 없는 측정을 믿었고, 핵심 접근법을 시험하지 않은 채 남겼으며, 마지막 구간을 작은 변형에 썼고, 계획을 바꾸지 못한 진단만 기록했습니다. 한 프로젝트는 운영 실수 28건을 기록했고 그중 일부는 서너 번 반복되었으며, 체커 지적은 234건에서 452건으로 늘어난 끝에 더는 읽히지 않았습니다. 6.0.0은 이 교훈을 선택 가능한 워크플로, 결정의 근거가 기록되었는지 확인하는 근거 가드, 그리고 소수의 결정론적 안전 검사로 바꿉니다. 작은 작업에는 가벼운 프리셋이 있고, 자세한 규칙은 해당 작업에 필요할 때만 읽습니다. 같은 흐름으로 데이터 마이그레이션 같은 업무 프로젝트도 명확한 작업 큐와 지속적인 인계를 통해 진행할 수 있습니다.
+<p align="center">
+  <img src="assets/readme/why-use.webp" alt="오케스트레이션이 없으면 맥락을 잃고, 실험을 반복하고, 모델 하나를 믿고, 현재 최고 결과가 불분명하다. Research Orchestrator를 쓰면 agents.md, plan.md, discoveries.md, handoff.md가 공유 기억, 중복 감소, 교차 확인된 발견, 명확한 현재 최고 결과와 다음 가설을 준다" width="100%">
+</p>
+
+공유 기록이 없으면 새 AI 세션은 매번 처음부터 시작합니다. 맥락을 잃고, 같은 아이디어를 두 번 시도하고, 한 모델의 검증되지 않은 주장이 계획을 좌우하며, 어느 결과가 최신인지 아무도 말하지 못합니다. Research Orchestrator는 그 상태를 어떤 세션, 호스트, 사용자든 읽을 수 있는 평범한 파일 네 개에 담습니다. 작업은 기록된 재개 지점에서 이어지고, 새 항목을 넣기 전에 중복을 확인하며, 다른 사람이 발견에 기대기 전에 다른 세션이나 호스트가 검토할 수 있고, 현재 최고 결과 같은 프로젝트 전체 값은 한곳에 있습니다. 며칠짜리 업무 프로젝트, 연구, 대회 모두 마찬가지입니다.
 
 ## 설치
 
@@ -65,6 +73,34 @@ claude --plugin-dir <folder>
 
 `skills/research-orchestrator/`를 `<project>/.agents/skills/research-orchestrator/` 또는 전역 `~/.gemini/config/skills/research-orchestrator/`에 복사하세요(이전 CLI 위치: `~/.gemini/antigravity-cli/skills/research-orchestrator/`). `/skills`로 인식을 확인합니다. 초기화 과정은 Antigravity 세션을 감지해 호스트로 기록합니다. 설치 대상이나 훅 어댑터는 없으므로 `ro`를 사용하고 [Git pre-push 관문](skills/research-orchestrator/references/publication-safety.md)을 수동으로 설치하세요.
 
+## 빠른 시작
+
+설치한 뒤 프로젝트 폴더에서 에이전트에게 Research Orchestrator 초기화를 요청하거나, 같은 단계를 직접 실행하세요. `<skill-root>`는 `SKILL.md`가 들어 있는 설치 폴더이고, `ro`는 `python <skill-root>/scripts/ro.py`를 뜻합니다.
+
+```text
+python <skill-root>/scripts/init_research_orchestrator.py . --preset work-project --user user1
+python <skill-root>/scripts/check_project.py .
+ro --slot A brief
+ro --slot A next-id H
+ro --slot A claim <item>
+ro --slot A close
+```
+
+초기화 도구는 다음 절에서 설명하는 네 파일을 씁니다(`--list-presets`로 다른 프리셋을 볼 수 있습니다). `ro brief`는 설정, 훅 상태, 슬롯 선택, 점유, 작업, 체커 건수를 복원합니다. `ro next-id H`는 `plan.md`에 새로 쓸 항목의 ID를 예약하고, `ro claim`은 그 항목을 내 슬롯에 잠그며(unified 워크플로 전용), `ro close`는 유휴 점유를 해제하고 체커를 실행한 뒤 남은 일을 보고합니다. 에이전트는 세션마다 이 순환을 반복하고, 끝난 항목은 아래 항목 수명 주기에 따라 기록합니다.
+
+## 네 개의 파일
+
+모든 프로젝트는 조정 상태를 프로젝트 루트의 소문자 Markdown 파일 네 개에 둡니다. `.ro/`는 조정 정보가 아니라 도구 상태(작업, 영수증, 예약, 잠금, 체커 기준선)를 담습니다.
+
+| 파일 | 담는 내용 | 수정하는 주체 |
+| --- | --- | --- |
+| `agents.md` | 프리셋 요약, 설정, 읽기 안내, 사용자가 소유하는 `## Project rules` 영역(상시 규칙, 만료되는 예외, 한 줄 교훈) | 초기화 도구가 설정과 읽기 안내를 쓰고 `--reconfigure`가 직접 고친 값을 반영합니다. `## Project rules`부터 끝까지는 사용자 소유이며 다시 생성되지 않습니다 |
+| `plan.md` | 끝나지 않은 항목만; 끝난 항목은 큐에서 빠집니다 | classic: 각 슬롯이 자기 `## Agent:` 섹션(기록된 인수 포함); unified: 다른 활성 슬롯이 점유한 항목을 제외하고 모든 슬롯 |
+| `discoveries.md` | 근거와 검토 상태를 갖춘 재사용 가능한 발견 | 원 슬롯이 항목을 쓰고 고칩니다. 적격 리뷰어가 검토 줄을 더하고 `Cross-check`를 정합니다 |
+| `handoff.md` | 공유 상태, 이벤트 기록, 외부 행동, 각 슬롯의 재개 지점 | 각 슬롯은 자기 `### Agent:` 섹션만 고칩니다. 모든 세션이 이벤트를 추가하고 Shared state 값을 갱신합니다 |
+
+공유 파일을 고치기 전에 다시 읽고 해당 섹션만 고치거나 항목을 덧붙이세요. 그래야 오래된 사본이 다른 세션의 작업을 덮어쓰지 않습니다. 사실은 한 번만 적고 다른 곳에서는 그곳을 가리킵니다. [기록과 공유 파일 수정](skills/research-orchestrator/references/records.md).
+
 ## 프리셋
 
 프리셋은 `agents.md`의 설정 블록을 채우며, 모든 값은 그곳에서 보이고 수정할 수 있습니다. *Profile*은 작업 종류, *workflow*는 세션이 큐를 나누는 방식, *verification*은 발견을 누가 검토해야 하는지입니다.
@@ -107,16 +143,7 @@ python <skill-root>/scripts/check_project.py .
   <img src="assets/readme/setup-flow.svg" alt="설정: 프리셋, 이름, 해결되지 않은 질문만 확인. 감지한 기본값을 보고하고 네 조정 파일과 .ro/template-render.json 생성." width="100%">
 </p>
 
-| 파일 | 담는 내용 |
-| --- | --- |
-| `agents.md` | 프리셋 요약, 설정, 읽기 안내, 사용자가 소유하는 `## Project rules` 영역(상시 규칙, 만료되는 예외, 한 줄 교훈) |
-| `plan.md` | 끝나지 않은 항목만; 끝난 항목은 큐에서 빠집니다 |
-| `discoveries.md` | 근거와 검토 상태를 갖춘 재사용 가능한 발견 |
-| `handoff.md` | 공유 상태, 이벤트 기록, 외부 행동, 각 슬롯의 재개 지점 |
-
 초기화 도구는 네 조정 파일을 쓰고 렌더링 메타데이터를 `.ro/`에 저장합니다. `Language`는 자유 텍스트에만 적용됩니다. 제목, 필드명, ID, 상태 단어, 검사 ID, 설정 키는 체커·훅·`ro`가 동작하도록 영어를 유지합니다.
-
-**새 세션.** 명시한 슬롯이나 계속/병렬 의도는 그대로 따르고, 오래되지 않은 적격 슬롯이 하나뿐이면 자동으로 맡습니다. 그 밖의 경우 SessionStart와 `ro brief`가 후보마다 소유자, 마지막 활동, 실행 중인 작업을 보여 주고, 에이전트는 질문 하나를 묻습니다: 슬롯 계속하기(세션이 끝났으면 회수), 병렬 슬롯 시작, 지정한 슬롯 사용. 점유된 슬롯은 보호된 작업이 없고 `Stale slot after`(기본 `2h`) 안에 이벤트나 점유가 없을 때 오래된 것으로 봅니다. 회수는 기록되며 점유, 재개 상태, 작업을 유지합니다. `Autonomy: away`에서는 묻지 않고 새 병렬 슬롯을 시작하며 나중에 결정할 수 있도록 그 선택을 기록합니다. [세션](skills/research-orchestrator/references/sessions.md).
 
 ## 워크플로
 
@@ -137,6 +164,111 @@ python <skill-root>/scripts/check_project.py .
 두 워크플로 모두에서 `Item size: staged`이면 긴 항목이 `Stages:`를 선언하고 단계 이벤트를 남길 수 있습니다. `Important stages:`에 지정한 단계는 정확한 `:before` 범위의 독립 영수증이 있어야만 시작되며, `Receipt policy: self`에서도 마찬가지입니다. 결정을 바꾼 단계는 `Decision: changed`를 담은 자체 날짜 이벤트와 발견을 남기고, 그 항목을 다음에 시작하기 전에 독립 `:after` 영수증을 받아야 합니다. [단계 항목](skills/research-orchestrator/references/staged-items.md).
 
 `Workflow`를 바꾸면 항목이 이동하므로 `--reconfigure --migrate`가 필요합니다.
+
+## 슬롯과 세션
+
+슬롯 이름은 `A`부터 `Z`, 그다음 `AA`부터 `ZZ`입니다. 에이전트 하나의 작업은 `A`를 쓰며, 새 슬롯을 만들기 전에 해제된 슬롯을 먼저 재사용합니다. 각 슬롯은 `handoff.md`에 `### Agent: <slot>` 섹션 하나를 가지며, 그 안에 `Current host`(모델이 아니라 Claude Code나 Codex 같은 플랫폼), `Current user`(세션을 실행하는 사람), `Current thread`, `Resumable state`, `Blocker`, `Next action`이 있습니다. `Current host`가 `unassigned` 또는 `released`일 때만 빈 슬롯이며, 다른 값이면 세션이 쉬는 것처럼 보여도 점유된 것입니다.
+
+**새 세션.** 명시한 슬롯이나 계속/병렬 의도는 그대로 따르고, 오래되지 않은 적격 슬롯이 하나뿐이면 자동으로 맡습니다. 그 밖의 경우 SessionStart와 `ro brief`가 후보마다 소유자, 마지막 활동, 실행 중인 작업을 보여 주고, 에이전트는 질문 하나를 묻습니다: 슬롯 계속하기(세션이 끝났으면 회수), 병렬 슬롯 시작, 지정한 슬롯 사용. 점유된 슬롯은 보호된 작업이 없고 `Stale slot after`(기본 `2h`) 안에 이벤트나 점유가 없을 때 오래된 것으로 봅니다. 회수는 기록되며 점유, 재개 상태, 작업을 유지합니다. `Autonomy: away`에서는 묻지 않고 새 병렬 슬롯을 시작하며 나중에 결정할 수 있도록 그 선택을 기록합니다. [세션](skills/research-orchestrator/references/sessions.md).
+
+**읽기 규칙 (classic).** 세션은 자기 계획 섹션과 인계 섹션을 모두 읽습니다. 다른 활성 슬롯에 대해서는 배분이나 인수를 위한 항목 메타데이터, 중복 확인을 위한 제목과 `Hypothesis`/`Goal` 줄, 그리고 `Current host`, `Current user`, `Current thread` 줄만 읽습니다. 재개 상태와 자세한 근거는 읽지 않으므로 각 추론 줄기가 독립적으로 유지됩니다. 새 항목과 후속 항목은 자기 섹션에 자기 ID로 넣습니다.
+
+**인수 (classic).** 자기 큐가 비면 자기 섹션을 다시 읽고, 적격 검토를 맡은 다음, 같은 호스트 슬롯의 대기 항목을 넘겨받습니다. 대상은 `Current host`가 내 호스트이고 내 사용자가 실행하는 슬롯, 또는 마지막 이벤트가 내 호스트에서 나왔거나 아직 이벤트가 없는 released나 unassigned 슬롯입니다. 소유자의 `Current thread`, `Active compute` 점유가 걸린 항목, 다른 사용자가 실행 중인 슬롯의 항목은 절대 가져가지 않습니다. 항목은 다음 ID로 자기 섹션에 옮기고 제목에 옛 ID를 붙이며(`H-A-05 — Retry policy for the nightly import (from H-C-03)`), 옛 ID는 폐기하고, 항목을 다시 검토하고 점수를 다시 매긴 뒤, 인수를 인계 이벤트로 기록합니다. 다른 호스트의 항목은 가까운 작업을 모두 소진한 뒤 유휴 슬롯에서만, 판단에 따라 하나 넘겨받을 수 있습니다.
+
+<p align="center">
+  <img src="assets/readme/take-over-v6.svg" alt="Classic 워크플로: 큐가 빈 Claude Code의 A 슬롯이, 마지막 이벤트가 Claude Code에서 나온 해제 슬롯 C의 H-C-02를 H-A-04로 넘겨받고 옛 ID를 폐기함. B 슬롯은 다른 활성 사용자가 Codex에서 실행하므로 그 항목은 B에 남음" width="100%">
+</p>
+
+**호스트 간 검증.** `cross-host-once`에서는 모든 발견이 `Host`를 기록하고, 다른 호스트의 세션이 한 번 검토합니다. 같은 호스트의 세션은 같은 맹점을 공유하기 때문입니다. 리뷰어는 먼저 검토를 점유해(`Cross-check: REVIEWING <host> (<slot>)`) 다른 세션이 가져가지 않게 한 뒤, 날짜가 붙은 검토 줄을 추가하고 상태를 정합니다. 원 슬롯은 자기 발견을 검토하지 않습니다. 같은 호스트의 검토는 single 모드나 adaptive의 `Cross-check fallback: same-host`에서만 인정되며 `same host —`로 시작합니다.
+
+<p align="center">
+  <img src="assets/readme/cross-host-check-v6.svg" alt="cross-host-once에서 Claude Code의 A 슬롯이 Codex에서 나온 D-B-003을 검토해 VERIFIED로 표시하고, Codex의 B 슬롯은 Claude Code에서 나온 D-A-002의 검토를 맡아 둔 상태이며, 해제된 C 슬롯은 먼저 재사용됨" width="100%">
+</p>
+
+[Classic 워크플로](skills/research-orchestrator/references/workflow-classic.md), [검증](skills/research-orchestrator/references/verification.md).
+
+## 기록 형식
+
+필드명, ID, 상태 단어는 영어를 유지하고 자유 텍스트는 `Language`를 따릅니다. ID는 `ro next-id`로 예약합니다. 항목은 `H-<slot>-<NN>`, 발견은 `D-<slot>-<NNN>`이며, 만든 슬롯이 번호를 매기고 다시 쓰지 않습니다.
+
+**계획 항목, 간단한 형태** (work 프로필, 또는 `Ordering: queue`인 계획). `Claimed`는 unified 워크플로에만 있습니다:
+
+```markdown
+### H-A-02 — Retry policy for the nightly import
+- Claimed: A since 2026-10-27 09:10
+- Goal: make the nightly import retry transient failures
+- Evidence: two of the last ten runs failed on a network timeout
+- Next test: add bounded retries and replay one failed day
+```
+
+**계획 항목, 점수 형태** (우선순위로 순위를 매기는 연구와 대회). 각 요소는 0–3의 정수이고 `Priority = 2*Impact + 2*Information + Confidence + Unblock + Diversity + (3-Cost)`(0–24)입니다. 점수가 가장 높은 항목이 먼저이며, 동점이면 `Cost`가 낮은 쪽, 그다음 `Information`이 높은 쪽입니다. 생략한 라우팅 필드는 `CPU`, `NO`, `NONE`을 뜻합니다:
+
+```markdown
+### H-A-04 — Repeat the speed-up with a cold cache
+- Sources: D-A-003
+- Hypothesis: the new parser keeps its lead when the cache is cleared before each run
+- Evidence: D-A-003 (VERIFIED) measured a 30% shorter median run time, but every run reused a warm cache
+- Improvement: clears the cache before each of 20 runs, which D-A-003 did not
+- Impact: 2
+- Information: 3
+- Confidence: 2
+- Unblock: 1
+- Diversity: 1
+- Cost: 1
+- Priority: 16
+- Resource: CPU
+- Parallel: NO
+- Other: NONE
+- Next test: 20 cold-cache runs of each parser on one machine; compare the medians
+```
+
+**발견.** `Session:`은 원 세션을 기록하며 `independent-review`와 `hybrid`에 필요합니다. 각 검토 줄은 리뷰어의 호스트와 슬롯, 판정, 검토 시각을 적습니다:
+
+```markdown
+## D-A-003 — The new parser shortens warm runs by 30%
+- Source: A
+- Host: Claude Code
+- User: user1
+- Date: 2026-10-27
+- Session: claude-code:A@2026-10-27T09:10
+- Cross-check: VERIFIED
+- Finding: the new parser cuts the median run time from 12.0 s to 8.4 s over 20 warm-cache runs each
+- Evidence: runs/parser-bench/summary.csv; reproduce with scripts/bench.py --runs 20
+- Implication: adopt the new parser for warm runs; cold-cache behaviour is still untested
+- Reviews:
+  - Claude Code (A): CLOSED — reviewer subagent:ro-reviewer@2026-10-27T10:02 — reviewed 2026-10-27T10:15 — reran the benchmark: 8.5 s median
+```
+
+**인계 이벤트.** 연구와 대회는 끝난 항목마다 하나씩 추가하며, 제목은 항목 ID로 끝납니다:
+
+```markdown
+### 2026-10-27 10:20 — A — H-A-03
+- Host: Claude Code
+- User: user1
+- Action: benchmarked the new parser against the old one (20 warm-cache runs each)
+- Result: 30% shorter median run time; see D-A-003
+- Artifacts: runs/parser-bench/summary.csv
+- Discovery updates: D-A-003
+- Review verdict: D-A-003 CLOSED
+- Resource: CPU
+- Other executor: none
+- New plan items: H-A-04
+```
+
+work 프로필은 대신 세션 요약 하나를 두고 항목이 끝날 때마다 갱신합니다:
+
+```markdown
+### 2026-10-27 17:40 — A — session
+- Host: Claude Code
+- User: user1
+- Action: added bounded retries to the nightly import and replayed one failed day
+- Result: the replayed day completed; the export schema check remains queued
+- Completed: H-A-02
+```
+
+**항목을 추가하기 전에** `ro dupcheck <terms>`를 실행하고 발견 색인(`ro index`)을 읽으세요. 같은 주장의 `VERIFIED` 결과가 있으면 `Improvement`를 갖춘, 실질적으로 다른 후속 항목만 추가할 수 있고, `CHALLENGED`는 이의가 해결될 때까지 기다리며, `PENDING`은 반복하기보다 검토하는 편이 낫습니다. 대기 항목의 제목과 `Hypothesis`/`Goal` 줄도 훑어보고, 쓰기 직전에 `plan.md`를 다시 읽으세요. 그사이 같은 항목이 생겼다면 먼저 생긴 항목을 남깁니다.
+
+[항목 필드, 우선순위, 후속 항목](skills/research-orchestrator/references/plan-items.md), [기록](skills/research-orchestrator/references/records.md).
 
 ## 항목 수명 주기
 
@@ -159,6 +291,12 @@ work 프로필(`quick`, `work-project`)은 더 가볍습니다. 점수와 Priori
 
 `solo-research`는 `Ordering: queue`를 생성합니다. 다른 연구·대회 프로젝트도 이를 선택할 수 있으며, 입력한 점수는 계속 검증합니다.
 
+<p align="center">
+  <img src="assets/readme/hypothesis-relay.webp" alt="근거에서 가설 H1로, 하위 가설 H1a와 H1b로 나뉘어 따로 실험되고, 교차 확인이 환각 위험을 줄이며, 결과가 근거 있는 통찰로 합쳐지고, 새 가설 H2와 H3가 뒤따른다" width="100%">
+</p>
+
+연구에서는 이 순환이 쌓여, 근거가 가설을 낳고 하위 가설이 별도 항목으로 실행되며 검토가 각 발견을 확인하고, 근거를 갖춘 결과가 후속 항목을 통해 다음 가설로 이어집니다.
+
 ## 가드
 
 가드는 결정의 근거가 기록되었는지 확인할 뿐, 그 품질을 판단하지 않습니다. `Guards: light`는 빈틈을 경고로 알리고, `strict`는 각 가드가 지정한 검사를 오류로 바꾸며, `off`는 가드를 끕니다. 활성화에는 날짜가 붙으므로(`light since YYYY-MM-DD`) 그 이전 기록은 면제됩니다. 가드는 Shared state에서 한 번 `not applicable — <reason>`으로 선언할 수 있고, 임곗값은 설정할 수 있습니다. 선택적인 discovery `Control`은 위약·잡음 바닥 근거 파일과 선택 이득을 기록합니다. Control 누락은 예외로, `guard.control.missing`이 light 모드에서는 INFO, strict 모드에서는 WARN입니다.
@@ -176,6 +314,27 @@ work 프로필(`quick`, `work-project`)은 더 가볍습니다. 점수와 Priori
 | E1 External actions | 외부 행동 전에 쓴 기대치, 산출물 해시, 표시 없는 중복 없음 | 모든 프로필 |
 
 [연구 가드](skills/research-orchestrator/references/research-guards.md), [결정 가드](skills/research-orchestrator/references/decision-guards.md), [외부 행동](skills/research-orchestrator/references/external-actions.md), [competition 프로필](skills/research-orchestrator/references/competition.md).
+
+## 컴퓨트와 긴 작업
+
+무엇을 다음에 실행할지는 큐 순서나 Priority가 정하고, 어디서 실행할지는 라우팅이 정합니다. `Resource: CPU | GPU | EITHER`는 로컬 컴퓨트 종류, `Parallel: YES | NO`는 항목이 그 자원을 나눠 쓸 수 있는지를 나타내고, `Other: NONE | <name>`은 공유 데이터베이스, 라이선스 좌석, 클라우드 배치 실행기 같은 계산 외 독점 자원이나 외부 실행기를 가리킵니다. 도움이 되면 병렬 슬롯 두 개로 시작하고, 독립적인 고가치 항목과 자원 여유가 남아 있을 때만 더 늘립니다.
+
+독점 자원을 쓰기 전에 `handoff.md`를 다시 읽고 기기의 실제 사용량을 확인한 뒤, Shared state의 `Active compute` 줄에 점유를 추가하고 `ro launch`로 시작하세요. `ro launch`는 프로젝트 잠금 아래 항목의 로컬 자원도 예약합니다:
+
+```markdown
+- Active compute: CPU — A (H-A-04, since 2026-10-27 14:05)
+```
+
+```text
+ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python scripts/bench.py --runs 20 --cold
+ro monitor <job>
+ro jobs
+ro kill <job>
+```
+
+출력된 모니터 명령을 바로 시작하세요. 시작이 확인되었다는 것은 작업이 시작되었다는 뜻일 뿐입니다. `ro monitor`는 작업이 끝나거나, 오류 패턴과 일치하거나, 설정한 하트비트 한도를 넘어 조용하거나, 예상 시간의 두 배를 넘길 때까지 따라갑니다. `ro jobs`는 작업과 모니터 상태를 나열하고, `ro kill`은 내 슬롯이 소유하고 신원이 확인된 프로세스 트리를 중지합니다. 출력된 Job 줄을 `handoff.md`에 추가하고 산출물을 확인한 뒤, 작업이 확실히 끝난 다음에만 점유를 지우세요. 필요한 자원이 바쁘면 독립적인 작업이나 적격 검토를 하거나 `Blocker:`를 기록합니다. 두 항목은 모두 `Parallel: YES`이고 측정한 용량이 충분할 때만 자원을 나눠 씁니다. `ro launch`는 로컬 CPU와 GPU만 예약하므로 `Other` 자원에는 자체 잠금이나 스케줄러 예약이 필요합니다.
+
+[작업자와 독점 자원](skills/research-orchestrator/references/compute.md), [시작, 모니터, 중지](skills/research-orchestrator/references/operations-safety.md#lookup-launch-monitor-and-stop).
 
 ## `ro` CLI
 
@@ -262,7 +421,40 @@ GitHub Actions는 Windows, Ubuntu, macOS에서 Python 3.12와 읽기 전용 권�
 
 ## 근거
 
-행동 근거는 과거 기록(이번 릴리스 그대로가 아닌 저장된 실행)이고, Codex 훅은 호출별 신뢰로만 검증되었으며, Windows 시간 측정은 로컬 결과이고, CI 결과는 공개 전까지 대기 중입니다. [근거와 한계](docs/evals/README.md)를 확인하세요.
+행동 근거는 과거 기록(이번 릴리스 그대로가 아닌 저장된 실행)이고, Codex 훅은 호출별 신뢰로만 검증되었으며, Windows 시간 측정은 로컬 결과이고, CI는 Windows·Ubuntu·macOS에서 통과했고 설치된 훅의 p95는 약 45–60ms입니다. [근거와 한계](docs/evals/README.md)를 확인하세요.
+
+## 저장소 구성
+
+```text
+.claude-plugin/  .codex-plugin/  .agents/   plugin and marketplace manifests
+agents/ro-reviewer.md          read-only reviewer agent for Claude Code
+assets/readme/                 README images
+docs/                          plans, evaluation evidence, and host dry runs
+examples/                      one worked project per preset
+hooks/                         host hook wrappers and the Git pre-push gate
+scripts/                       release validation, evaluation and trigger tooling, host dry runs
+skills/research-orchestrator/
+  SKILL.md                     the core instructions (12 KB budget)
+  references/                  one file per operation, read when that operation runs
+  templates/                   the four project files, plus earlier versions for migration
+  presets/                     the six built-in presets
+  scripts/                     initializer, checker, ro CLI, and hook runner
+  agents/openai.yaml           Codex interface metadata
+  evals/                       behaviour cases (not installed)
+tests/                         deterministic test suite
+install.py                     installer for Claude Code, Codex, or both
+plugin.json                    plugin manifest
+```
+
+## 설계 원칙
+
+- **범용성 우선.** 스킬 하나가 일상 업무 프로젝트, 연구, 대회를 모두 다룹니다. 배포되는 지침은 중립적인 단어를 쓰고, 대회 자료는 해당 참고 문서와 플랫폼 어댑터에만 있으며, 릴리스 검사가 어휘 규칙을 강제합니다.
+- **가벼운 코어.** `SKILL.md`는 12 KB 안에 머뭅니다. 자세한 규칙은 각각 하나의 참고 문서에 있고 해당 작업을 할 때 읽으며, 생성된 `agents.md`는 스킬 본문을 복사하지 않고 설정, 읽기 안내, 프로젝트 규칙만 담습니다.
+- **결정론적 검사만.** 지침이 먼저이고, 그다음 호스트와 무관한 체커, 그다음 권고 훅입니다. 차단은 `Block`에 지정한 결정론적이고 비용이 크며 반복되는 실수에만 씁니다.
+- **훅은 열린 채로, 관문은 닫힌 채로 실패합니다.** 호출별 훅은 충돌, 시간 초과, 인터프리터 부재 시 호출을 통과시키고, `ro launch`, `ro external`, Git pre-push 관문은 검증이 실패하거나 실행될 수 없으면 거부합니다.
+- **사실 하나에 한 곳.** 주장과 수치는 발견에, 누가·언제·어디서는 이벤트에, 제안된 작업은 `plan.md`에, 프로젝트 전체 값은 Shared state에 두고, 나머지는 그곳을 가리킵니다.
+- **의도보다 근거.** 가드는 결정의 근거가 기록되었는지 확인하고, 시작 확인은 결과가 아니며, 발견은 적격 검토를 거쳐야만 검증됩니다.
+- **규칙 비대화 방지.** 상시 규칙에는 바이트 예산이 있고, 예외는 만료되며, 교훈은 그것을 강제하는 검사를 적은 한 줄입니다.
 
 ## 라이선스
 
