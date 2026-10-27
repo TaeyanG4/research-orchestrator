@@ -2,7 +2,7 @@
 
 Use these shapes when recording an outcome. The core defines which file owns each fact and the item completion sequence; this reference defines its durable representation.
 
-With `Profile: work` or `research` and `Plan collector: off`, `Current best`, `Active compute` and `Plan collection` are optional summaries and the initial template omits them. Their absence is INFO because work can resume from the plan and handoff. Add a summary when it carries useful state; competition and an enabled collector still require all three.
+With `Profile: work` or `research` and `Plan collector: off`, resume from the plan and handoff; the initial template omits unused summaries, and their absence is INFO. Competition or an enabled collector requires `Current best`, `Active compute` and `Plan collection` to track results, capacity and collection state.
 
 Write free text in `agents.md`, `plan.md`, `discoveries.md`, `handoff.md`, and replies to the user in the configured `Language` (default `en`). Keep structural headings, field names (`Hypothesis:`, `Finding:`, etc.), IDs, status words, check IDs, and setting keys in English so the checker, hooks, and `ro` commands work unchanged. Non-English field values are valid UTF-8; the release vocabulary rule applies only to shipped files, not user records.
 

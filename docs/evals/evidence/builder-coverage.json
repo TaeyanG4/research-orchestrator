@@ -6,7 +6,7 @@
   "archive_sha256": "5d9844f41ad23fb9ec80440dd9720a9e9a07778e0622bfe37d768b5fe88f042f",
   "reviewer": "independent builder evidence auditor",
   "summary": {
-    "available_cases": 166,
+    "available_cases": 177,
     "attempted_cases": 2,
     "attempted_runs": 12,
     "completed_cases": 0,
@@ -415,6 +415,17 @@
       "historical_pair": false
     },
     {
+      "name": "brief-review-cache",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
+    },
+    {
       "name": "checker-broken-install",
       "attempted_configurations": [],
       "attempted_runs": 0,
@@ -516,6 +527,17 @@
       "valid_pair": false,
       "pass_rate": null,
       "historical_pair": false
+    },
+    {
+      "name": "competition-deadline-defaults",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
     },
     {
       "name": "competition-direction-review",
@@ -1287,6 +1309,17 @@
       "historical_pair": false
     },
     {
+      "name": "neutral-profile-scaffolding",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
+    },
+    {
       "name": "non-compute-exclusive-routing",
       "completed_configurations": [],
       "valid_pair": false,
@@ -1562,6 +1595,17 @@
       "historical_pair": false
     },
     {
+      "name": "recent-record-wrapper-witness",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
+    },
+    {
       "name": "record-clock-tolerance",
       "attempted_configurations": [],
       "completed_configurations": [],
@@ -1572,6 +1616,17 @@
       "historical_pair": false
     },
     {
+      "name": "registered-push-precheck",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
+    },
+    {
       "name": "release-ci-matrix",
       "attempted_configurations": [],
       "attempted_runs": 0,
@@ -1579,6 +1634,17 @@
       "valid_pair": false,
       "pass_rate": null,
       "historical_pair": false
+    },
+    {
+      "name": "release-numeric-reference-encoding",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
     },
     {
       "name": "release-structural-mode",
@@ -1677,6 +1743,28 @@
       "historical_pair": false
     },
     {
+      "name": "same-layout-profile-transition",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
+    },
+    {
+      "name": "same-layout-review-transition",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
+    },
+    {
       "name": "saved-policy-roundtrip",
       "attempted_configurations": [],
       "attempted_runs": 0,
@@ -1704,6 +1792,17 @@
       "valid_pair": false,
       "pass_rate": null,
       "historical_pair": false
+    },
+    {
+      "name": "separate-latency-tests",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
     },
     {
       "name": "session-resource-resume",
@@ -1973,6 +2072,28 @@
       "attempted_configurations": [],
       "attempted_runs": 0,
       "historical_pair": false
+    },
+    {
+      "name": "wrapper-inactive-policy-shortcut",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
+    },
+    {
+      "name": "wrapper-policy-root-cwd",
+      "attempted_configurations": [],
+      "attempted_runs": 0,
+      "completed_configurations": [],
+      "valid_pair": false,
+      "pass_rate": null,
+      "historical_pair": false,
+      "status": "unattempted",
+      "reason": "Release repair case; behavior execution deferred by owner."
     }
   ],
   "analysis_notes": [

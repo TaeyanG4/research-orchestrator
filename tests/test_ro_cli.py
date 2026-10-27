@@ -256,11 +256,13 @@ def test_supervised_installed_hook_latency_is_bounded_on_large_project(tmp_path)
     p95 = sorted(batches)[1]
     print(f"\nLATENCY supervised PreToolUse p95={p95 * 1000:.1f} ms")
     if destination := os.environ.get("RO_LATENCY_REPORT"):
-        report = {"os": platform.system(), "python": platform.python_version(), "layer": "installed-watchdog",
+        path = Path(destination)
+        report = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        report.update({"os": platform.system(), "python": platform.python_version(), "layer": "installed-watchdog",
                   "samples_per_batch": 20, "warmups": 2, "batch_p95_ms": [value * 1000 for value in batches],
-                  "p95_ms": p95 * 1000, "budget_ms": 150, "hook_output_correct": True, "passed": p95 < .150}
-        Path(destination).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    # The same 150 ms budget applies to every OS and layer.
+                  "p95_ms": p95 * 1000, "budget_ms": 150, "hook_output_correct": True, "passed": p95 < .150})
+        path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    # The same installed-watchdog budget applies to every OS.
     assert p95 < .150, f"supervised hook p95 {p95 * 1000:.1f} ms >= 150 ms"
 
 

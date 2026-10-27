@@ -56,8 +56,19 @@ def test_reconfigure_keeps_language_across_presets_unless_passed(tmp_path):
                            (["--language", "ja"], "ja")]:
         result = run_init(target, "--reconfigure", *args)
         assert result.returncode == 0, result.stderr
-        assert check(target).values["language"] == expected
-        assert {name: (target / name).read_bytes() for name in records} == records
+        checker = check(target)
+        assert checker.values["language"] == expected
+        assert not found(checker, "ERROR") and not found(checker, "WARN")
+        after = {name: (target / name).read_bytes() for name in records}
+        if "--preset" in args:
+            # Applying research makes work's existing file-order policy explicit.
+            assert checker.plan_header["Ordering"] == "queue"
+            assert after["plan.md"].replace(b"Ordering: queue\n\n", b"", 1) == records["plan.md"]
+            assert (target / "plan.md.pre-migrate").read_bytes() == records["plan.md"]
+            assert all(after[name] == records[name] for name in ("discoveries.md", "handoff.md"))
+        else:
+            assert after == records
+        records = after
 
 
 def test_default_is_reported_and_saved_presets_preserve_language_without_asking(tmp_path):

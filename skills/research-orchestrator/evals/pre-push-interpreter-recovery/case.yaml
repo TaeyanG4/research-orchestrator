@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: pre-push-interpreter-recovery
 expected_outcome: |
-  The dispatcher recovers from missing interpreters in order and preserves the gate verdict and Git input.
+  Captured dispatcher invocations with mocked launches recover from missing interpreters in order and preserve the gate verdict and Git input. Independently retained responses match recovery.json; plausible authored JSON alone does not establish execution.
 context:
   scaffold_script: place-files.sh

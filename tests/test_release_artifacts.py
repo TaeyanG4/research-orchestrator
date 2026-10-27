@@ -9,6 +9,24 @@ import pytest
 from scripts import validate_release as release
 
 
+@pytest.mark.parametrize("text", ["See ?2.4", "Events 87?88", "A1?A5"])
+def test_release_rejects_lost_numeric_reference_characters(tmp_path, text):
+    path = tmp_path / "docs" / "nested" / "guide.md"
+    path.parent.mkdir(parents=True)
+    path.write_text(text, encoding="utf-8")
+    errors = []
+    release.check_doc_encoding(errors, tmp_path)
+    assert len(errors) == 1 and "numeric reference" in errors[0]
+
+
+def test_release_accepts_unicode_references_and_normal_questions(tmp_path):
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "guide.md").write_text("§2.4: A1–A5, Events 87–88. Ready? Yes.\n", encoding="utf-8")
+    errors = []
+    release.check_doc_encoding(errors, tmp_path)
+    assert errors == []
+
+
 @pytest.mark.parametrize("skip", [False, True])
 def test_structural_flag_skips_scenarios_and_pytest_but_keeps_checks(monkeypatch, skip):
     calls = []
@@ -18,7 +36,7 @@ def test_structural_flag_skips_scenarios_and_pytest_but_keeps_checks(monkeypatch
     monkeypatch.setattr(release, "DOCS", [])
     monkeypatch.setattr(release, "sys", SimpleNamespace(stdout=SimpleNamespace(reconfigure=lambda **kw: None)))
     assert release.main(["--skip-tests"] if skip else []) == 0
-    assert {"check_publication", "check_local_links", "check_examples", "check_core_split"} <= set(calls)
+    assert {"check_publication", "check_doc_encoding", "check_local_links", "check_examples", "check_core_split"} <= set(calls)
     scenarios = {"check_tests", "check_example", "check_initializer", "check_settings_modes"}
     assert set(calls) & scenarios == (set() if skip else scenarios)
 

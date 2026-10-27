@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-registration-notes.md states that home/plugin registrations omit AskUserQuestion and Agent and that project installation must be rerun after changing their policies to refresh supplemental subscriptions.
+registration-notes.md states that home/plugin registrations include AskUserQuestion and Agent, whose wrappers skip Python when their policy is inactive, and that only changing Read bound requires refreshing project subscriptions.

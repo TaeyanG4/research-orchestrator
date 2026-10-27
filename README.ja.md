@@ -10,7 +10,7 @@
 
 Claude Code、Codex、Google Antigravity 向けのプラグインで、業務プロジェクト・研究・コンペティションの作業を複数の AI セッションにわたって途切れさせずに進めます。スキル、ホストフック、`ro` コマンドラインツール、読み取り専用のレビュアーエージェントをまとめて提供します。4 つの Markdown ファイルが設定、作業キュー、再利用できる知見、永続的な引き継ぎ記録を保持します。プリセットは、セッションがキューを分け合う方法、知見をレビューする主体、適用する根拠チェックを決めます。
 
-**リリース 6.0.1。** 5.1.0 からの変更点は [CHANGELOG.md](CHANGELOG.md) にあります。既存プロジェクトはそのまま動作します。設定を変える前に、下の移行セクションを読んでください。
+**リリース 6.0.2。** 5.1.0 からの変更点は [CHANGELOG.md](CHANGELOG.md) にあります。既存プロジェクトはそのまま動作します。設定を変える前に、下の移行セクションを読んでください。
 
 ## なぜ使うのか
 
@@ -80,13 +80,13 @@ claude --plugin-dir <folder>
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --preset work-project --user user1
 python <skill-root>/scripts/check_project.py .
-ro --slot A brief
-ro --slot A next-id H
-ro --slot A claim <item>
-ro --slot A close
+ro --session <host-session> --slot A brief
+ro --session <host-session> --slot A next-id H
+ro --session <host-session> --slot A claim <item>
+ro --session <host-session> --slot A close
 ```
 
-初期化ツールは次のセクションで説明する 4 つのファイルを書きます(`--list-presets` で他のプリセットを確認できます)。`ro brief` は設定、フックの状態、スロットの選択、確保、ジョブ、チェッカーの件数を復元します。`ro next-id H` は `plan.md` に新しく書く項目の ID を予約し、`ro claim` はその項目を自分のスロットで確保し(unified ワークフローのみ)、`ro close` は使っていない確保を解放してチェッカーを実行し、残りを報告します。エージェントはセッションごとにこの流れを繰り返し、完了した項目は下の項目のライフサイクルに従って記録します。
+`<host-session>` は SessionStart が `Host session:` の後に表示する ID で、省略すると `RO_SESSION` または Codex のスレッド ID を使います。初期化ツールは次のセクションで説明する 4 つのファイルを書きます(`--list-presets` で他のプリセットを確認できます)。`ro brief` は設定、フックの状態、スロットの選択、確保、ジョブ、チェッカーの件数を復元します。`ro next-id H` は `plan.md` に新しく書く項目の ID を予約し、`ro claim` はその項目を自分のスロットで確保し(unified ワークフローのみ)、`ro close` は使っていない確保を解放してチェッカーを実行し、残りを報告します。エージェントはセッションごとにこの流れを繰り返し、完了した項目は下の項目のライフサイクルに従って記録します。
 
 ## 4 つのファイル
 
@@ -128,7 +128,7 @@ ro --slot A close
 
 1. **プリセット**: 上の 6 つのいずれか(`--list-presets` は保存済みプリセットも表示します)。
 2. **名前**: このセッションのユーザーとして記録される 1 語、例: `user1`。
-3. **残るプリセットの質問**: プラットフォーム、`Environment`、`Language` は検出情報と依頼から推定し、明示された答えがなく検出が失敗または曖昧な場合だけ尋ねます。既定値は `Info:` で表示します(`Language` は `en`)。コンペ用は競技とフェーズ時計も必要です。Git 同期はリポジトリ内でのみ尋ねます。`quick` はプリセットと名前、リポジトリ内では Git 同期だけが必要です。
+3. **残るプリセットの質問**: プラットフォーム、`Environment`、`Language` は検出情報と依頼から推定し、明示された答えがなく検出が失敗または曖昧な場合だけ尋ねます。既定値は `Info:` で表示します(`Language` は `en`)。コンペ用は競技とフェーズ時計も必要です。`--competition "kaggle/<slug> deadline=YYYY-MM-DD"` はアダプターの外部アクションパターンとフェーズクロックの期限を補い、明示した `--phase-clock` が優先します。Git 同期はリポジトリ内でのみ尋ねます。`quick` はプリセットと名前、リポジトリ内では Git 同期だけが必要です。
 
 その後、エージェントが初期化ツールを実行します。初期化ツールはフラグだけを受け取り、質問はしません。`<skill-root>` は `SKILL.md` を含むインストール先ディレクトリです。`--answers` は同じ回答を JSON オブジェクトまたはファイルで受け取り、キーはアンダースコア付きの設定名と `name`、`user`、`agents`、`ordering` です。明示的なフラグがそのキーを上書きします。回答が足りないと、エラーが完全なコマンド例を表示します。
 
@@ -379,7 +379,7 @@ Codex のフックを利用する前に `/hooks` で信頼を設定してくだ�
 - 呼び出しごとのフックは、クラッシュ、タイムアウト、不正な入力、インタープリター不在のときは通過させ、`ro brief` がフックの自己テストと警告件数を報告します。`ro external`、`ro launch`、Git pre-push ゲートは検証が失敗したか実行できないときに拒否し、pre-push はメッセージとパスを含む送信されるすべてのコミットを検査します。
 - フックは協調的なセッションでの事故を防ぐものであり、敵対的な攻撃に対するセキュリティ境界ではありません。入れ子のインタープリター本体、here-string の本体、エイリアス、動的なパス、エンコードされた秘密情報は、信頼できる解析の範囲外です。
 
-Claude Code プラグインでは、SessionStart がプラグインのマッチャーが扱わない任意のチェックを知らせ、それを購読する `install.py --project .` を表示します。Git チェックアウトに pre-push ゲートがない場合、SessionStart と `ro brief` はインストールコマンドとともに `publish gate not installed` も報告します。ラッパーは Python を起動する前に `agents.md` を探すため、プロジェクト外の呼び出しにはインタープリターが不要です。ジョブ登録がなければ Stop と編集チェックは Python を省き、変更のない PostToolUse 呼び出しはファイルのスタンプで省略し、変更のない圧縮はチェッカーの要約を再利用します。Windows で測定した呼び出しあたりの p95 は、プロジェクト外とジョブのない Stop・編集で 23–36 ms、通常のシェルチェックと変更のない PostToolUse で 48–125 ms で、150 ms の予算内です。
+Claude Code プラグインは `AskUserQuestion` と `Agent` を購読し、`Autonomy: away` と `Brief requirements` が無効なら対応するラッパーは Python を起動しません。Read-bound の購読はインストーラーで選択します。SessionStart と `ro brief` は Git チェックアウトに登録済み pre-push ゲートがない場合だけ `publish gate not installed` と `install.py --project <チェックアウトのルート>` を表示します。登録済みゲートが公開スキャンを担当するため、呼び出しごとの重複スキャンは省きます。呼び出しごとの事前チェックは、プッシュを実行するチェックアウトを読みます。ラッパーはプロジェクトヒントとコマンドの作業ディレクトリを別々に解釈し、プロジェクト外ではインタープリターが不要です。ジョブ登録がなければ Stop と編集チェックも Python を省きます。PostToolUse は二秒以上安定したファイルスタンプだけを再利用し、ブリーフはレビューのレシートや成果物が変わるとキャッシュを更新し、レビュー証拠は最大 64 MiB までハッシュして残りを未検証として示し、`check_project.py` で検証します。保存済み Windows 測定の p95 は、プロジェクト外とジョブのない Stop・編集で 23–36 ms、通常のシェルチェックと変更のない PostToolUse で 48–125 ms です。新しい監督下子プロセスの測定を示すものではありません。
 
 [フック、機能表、信頼](skills/research-orchestrator/references/hooks-capabilities.md)、[公開ゲート](skills/research-orchestrator/references/publication-safety.md)。
 
@@ -398,7 +398,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --workflow unified --migrate --user <user>
 ```
 
-4. `Workflow` の変更には `--migrate` も必要です。先にアクティブなスロットを解放してください。ワークフローの移行は `*.pre-migrate` のバックアップと復旧ジャーナルを作成しますが、設定だけの再構成は作成しません。
+4. `Workflow` の変更には `--migrate` も必要です。先にアクティブなスロットを解放してください。すべての設定変更で書き込み前に変更後の記録を検証し、互換性のある目標・レビュー欄を整えながら証拠と実効キュー順を保持します。調整ファイルが変わる場合は、ワークフローが同じでも `*.pre-migrate` バックアップと復旧ジャーナルを使用します。
 5. 結果を確認し、チェッカーを再実行し、変更を引き継ぎイベントとして記録します。
 
 ワークフローを変える前や `--force` を使う前に、[移行とロールバックの手順](skills/research-orchestrator/references/migration-v2-to-v3.md)を読んでください。
@@ -415,13 +415,13 @@ python -m pytest -q -m "not latency"
 python scripts/validate_release.py
 ```
 
-軽いチェックは、マニフェストのバージョン、README の構造とリンク、SVG の妥当性、コアとリファレンスのサイズ予算、分野語彙、記録形式、実例プロジェクトを確認します。リリースチェックは、証拠 ZIP の内部メンバーを含む `docs/` を、非公開パス、アカウント名、ネイティブ識別子、内部セッションのパターンについて検査します。完全なチェックは、決定論的なテストスイートと初期化・再構成のシナリオを加えます。時間計測テストには `latency` マーカーが付き、`python -m pytest -q -m latency` で別に実行します。
+軽いチェックは、マニフェストのバージョン、README の構造とリンク、SVG の妥当性、コアとリファレンスのサイズ予算、分野語彙、記録形式、実例プロジェクトを確認します。リリースチェックは、証拠 ZIP の内部メンバーを含む `docs/` を、非公開パス、アカウント名、ネイティブ識別子、内部セッションのパターンについて検査します。完全なチェックは、決定論的なテストスイートと初期化・再構成のシナリオを加えます。時間計測テストには `latency` マーカーが付き、`python -m pytest -q -m latency tests/test_ro_cli.py tests/test_ro_hooks.py` で別に実行します。
 
 GitHub Actions は Windows、Ubuntu、macOS 上で Python 3.12 と読み取り専用の権限で完全なチェックを実行し、その後 OS ごとにインストール済みフックの p95 を測定してアーティファクトとして保存します。振る舞いのケース、トリガー評価、インストール済みホストのドライランのための開発ツールは [scripts/evals](scripts/evals/README.md)、[scripts/trigger](scripts/trigger/README.md)、`scripts/host/` にあります。
 
 ## 根拠
 
-振る舞いの根拠は過去の記録(このリリースそのものではなく保存済みの実行)で、Codex のフックは呼び出しごとの信頼でのみ検証され、Windows の時間計測はローカルの結果であり、CI は Windows・Ubuntu・macOS で成功し、インストール済みフックの p95 は約 45–60 ms です。[根拠と制約](docs/evals/README.md)を参照してください。
+振る舞いの根拠は過去の記録(このリリースそのものではなく保存済みの実行)で、Codex のフックは呼び出しごとの信頼でのみ検証され、Windows の時間計測はローカルの結果であり、リリース 6.0.1 の CI 実行は Windows・Ubuntu・macOS で成功し、インストール済みフックの p95 は約 45–60 ms でした。[根拠と制約](docs/evals/README.md)を参照してください。
 
 ## リポジトリの構成
 

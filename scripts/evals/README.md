@@ -22,7 +22,7 @@ suite reject stale counts or rows. Assertions and expected outcomes live in each
 Post-snapshot additions and changed assertions are unexecuted. This inventory describes routing, not measured performance. Routing checks only load case schemas and render this inventory; they do not execute scenarios or graders.
 
 <!-- generated case inventory -->
-166 case folders; 891 assertions (522 scripted, 369 judged).
+177 case folders; 960 assertions (524 scripted, 436 judged).
 Counts and rows come from the case folders and explicit grader routing; direct artifact predicates are scripted, while judgments review qualitative or multi-step trace evidence.
 
 | Case | Scripted | Judged | Input files |
@@ -35,6 +35,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | automatic-session-registration | 6 | 0 | 1 |
 | away-slot-default | 0 | 8 | 6 |
 | brace-operand-boundary | 0 | 6 | 1 |
+| brief-review-cache | 0 | 7 | 1 |
 | checker-broken-install | 0 | 4 | 1 |
 | checker-summary-integrity | 4 | 0 | 1 |
 | claim-contention | 8 | 0 | 1 |
@@ -46,12 +47,13 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | compact-checker-summary-cache | 0 | 3 | 1 |
 | compact-preset-settings | 5 | 0 | 1 |
 | compact-render-metadata | 3 | 2 | 1 |
+| competition-deadline-defaults | 0 | 7 | 1 |
 | competition-direction-review | 4 | 3 | 6 |
 | competition-external-pattern-setup | 0 | 3 | 1 |
 | competition-platform-defaults | 0 | 4 | 1 |
 | competition-preset-transition | 7 | 0 | 1 |
 | competition-runtime-observations | 0 | 3 | 1 |
-| conditional-project-hook-matchers | 4 | 1 | 1 |
+| conditional-project-hook-matchers | 4 | 2 | 1 |
 | control-noise-floor | 4 | 1 | 1 |
 | credential-storage-redaction | 8 | 0 | 9 |
 | custom-work-defaults | 5 | 0 | 1 |
@@ -86,7 +88,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | hook-edit-warning-fast-paths | 0 | 4 | 1 |
 | hook-effective-working-directory | 7 | 0 | 4 |
 | hook-interpreter-override | 6 | 0 | 1 |
-| hook-latency-budget | 7 | 0 | 1 |
+| hook-latency-budget | 9 | 1 | 1 |
 | hook-portability | 4 | 1 | 1 |
 | hook-project-discovery | 0 | 4 | 1 |
 | hook-root-probe-paths | 0 | 6 | 1 |
@@ -110,7 +112,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | installer-host-survival | 4 | 0 | 1 |
 | installer-plugin-deduplication | 6 | 0 | 1 |
 | installer-repository-root | 0 | 5 | 1 |
-| installer-runtime-selection | 5 | 0 | 1 |
+| installer-runtime-selection | 5 | 1 | 1 |
 | job-monitor-recovery | 6 | 0 | 1 |
 | launch-free-slot | 4 | 0 | 1 |
 | launch-item-ownership | 0 | 8 | 4 |
@@ -124,6 +126,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | native-session-slots | 10 | 0 | 2 |
 | neutral-interface-and-hook-guide | 0 | 6 | 1 |
 | neutral-new-decision-records | 6 | 0 | 2 |
+| neutral-profile-scaffolding | 0 | 4 | 1 |
 | non-compute-exclusive-routing | 0 | 4 | 1 |
 | non-ml-replication | 7 | 1 | 6 |
 | note-id-kind | 1 | 1 | 1 |
@@ -136,14 +139,14 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | plugin-shim-availability | 5 | 1 | 1 |
 | post-close-review | 2 | 4 | 5 |
 | posttool-unchanged-fast-path | 4 | 0 | 2 |
-| pre-push-interpreter-recovery | 4 | 0 | 1 |
+| pre-push-interpreter-recovery | 4 | 1 | 1 |
 | project-language | 8 | 2 | 5 |
 | public-snapshot-reconstruction | 3 | 2 | 1 |
 | publication-archive-boundary | 5 | 2 | 3 |
 | publication-destination-history | 1 | 4 | 1 |
 | publication-receipt-gate | 0 | 4 | 2 |
 | publish-deadline-recovery | 2 | 3 | 1 |
-| publish-gate-startup-notice | 0 | 5 | 1 |
+| publish-gate-startup-notice | 0 | 6 | 1 |
 | publish-hook-timeout-recovery | 0 | 9 | 1 |
 | queue-freeze-delivery | 4 | 0 | 1 |
 | queue-ordering-validation | 3 | 0 | 1 |
@@ -152,8 +155,11 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | quick-to-solo-preserves-live-queue | 0 | 7 | 2 |
 | read-hook-opt-in | 0 | 4 | 1 |
 | receipt-policy-boundaries | 4 | 0 | 2 |
+| recent-record-wrapper-witness | 0 | 4 | 1 |
 | record-clock-tolerance | 0 | 3 | 1 |
+| registered-push-precheck | 0 | 5 | 1 |
 | release-ci-matrix | 5 | 3 | 1 |
+| release-numeric-reference-encoding | 0 | 4 | 2 |
 | release-structural-mode | 0 | 7 | 4 |
 | repair-missing-coordination | 12 | 0 | 1 |
 | repair-snapshot-scope | 5 | 0 | 3 |
@@ -164,9 +170,12 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | review-session-chronology | 5 | 1 | 3 |
 | reviewer-identity-validation | 3 | 0 | 2 |
 | reviewer-read-only | 1 | 5 | 4 |
+| same-layout-profile-transition | 0 | 9 | 3 |
+| same-layout-review-transition | 0 | 8 | 4 |
 | saved-policy-roundtrip | 9 | 0 | 1 |
 | scoreless-cross-host-takeover | 0 | 7 | 1 |
 | selection-family-source | 6 | 0 | 1 |
+| separate-latency-tests | 0 | 3 | 2 |
 | session-resource-resume | 0 | 3 | 1 |
 | session-slot-reminder | 0 | 4 | 1 |
 | setup-json-answers | 0 | 6 | 1 |
@@ -179,7 +188,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | stale-slot-question | 0 | 7 | 6 |
 | standing-rule-lineage | 0 | 5 | 1 |
 | stop-absent-job-registry | 0 | 3 | 1 |
-| stop-once-per-job | 5 | 0 | 1 |
+| stop-once-per-job | 5 | 1 | 1 |
 | trigger-measurement-reasons | 9 | 0 | 1 |
 | unicode-job-errors | 2 | 2 | 1 |
 | unified-research-resume | 4 | 1 | 6 |
@@ -193,6 +202,8 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | work-project-session-history | 6 | 0 | 2 |
 | work-project-start | 8 | 1 | 1 |
 | work-summary-omission | 4 | 0 | 1 |
+| wrapper-inactive-policy-shortcut | 0 | 5 | 1 |
+| wrapper-policy-root-cwd | 0 | 5 | 1 |
 <!-- end case inventory -->
 
 `reviewer-read-only` supplies a copy of the root-level Claude reviewer as an input;
@@ -447,6 +458,13 @@ execution receipt fails. These counts are local adapter evidence, not host trust
 latency measurements. The work setup brief has a separate raw-byte preservation
 check: changing only its line endings fails that promise even though general helper
 identity hashes remain checkout-independent.
+
+The Stop, conditional-matcher and interpreter-recovery cases require successful
+command events whose retained stdout contains the reported responses. A separate
+trace assertion checks the requested runtime calls and retained harness source;
+matching JSON from a replay or unrelated command cannot establish execution.
+Both prerequisites apply to every assertion in these cases, including the trace
+assertion itself, so a positive judgment cannot substitute for missing captures.
 
 The resume case records its discovery's `Finding` as structured JSON and compares
 those values with the computed summary. Citing a correct summary while reporting

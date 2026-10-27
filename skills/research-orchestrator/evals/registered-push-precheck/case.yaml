@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: registered-push-precheck
+expected_outcome: |
+  A checkout registration avoids duplicate PreToolUse publication scanning while the authoritative pre-push path still scans and denies findings; missing or other-checkout registration keeps the pre-check.
+context:
+  scaffold_script: place-files.sh

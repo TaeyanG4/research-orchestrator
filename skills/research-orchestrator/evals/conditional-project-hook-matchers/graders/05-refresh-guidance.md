@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-The explanation states that changing Autonomy or Brief requirements requires rerunning the project installer to refresh conditional matchers.
+matcher-notes.md explains that Autonomy and Brief requirements changes take effect without reinstalling because the wrappers read current policy, while changing Read bound requires a project installation refresh.

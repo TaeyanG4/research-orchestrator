@@ -9,4 +9,6 @@ Prepare local Claude Code hook settings for the disposable projects in scenario.
 
 Use matcher-results.json keys initial, refreshed and plugin, each containing the unique PreToolUse tool names as an array. Save the explanation as matcher-notes.md.
 
+Print the matcher results obtained from the installed settings to the command output, and retain the settings snapshots and any harness source, so the report can be checked against the installer calls.
+
 Input files: scenario.md

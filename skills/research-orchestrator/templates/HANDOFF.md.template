@@ -1,9 +1,17 @@
 # {{PROJECT_NAME}} — Handoff
 
-This file records events and resume points. Read `<skill-root>/references/records.md` for record formats, `<skill-root>/references/sessions.md` for slot lifecycle, and `<skill-root>/references/compute.md` for `Active compute`.
+This file records events and resume points. Read `<skill-root>/references/records.md` for record formats and `<skill-root>/references/sessions.md` for slot lifecycle.
 
+{{#if profile=competition}}
 `Resource` and `Active compute` describe local compute; named exclusive resources belong in the item's `Other` field so sessions can avoid conflicting use.
 
+{{/if}}
+{{#if profile=work,research}}
+{{#if collector=on}}
+`Resource` and `Active compute` describe local compute; named exclusive resources belong in the item's `Other` field so sessions can avoid conflicting use.
+
+{{/if}}
+{{/if}}
 ## Shared state
 
 - Active agent(s): {{AGENT_NAMES}}

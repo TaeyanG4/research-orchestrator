@@ -10,7 +10,7 @@
 
 A plugin for Claude Code, Codex, and Google Antigravity that keeps work projects, research, and competitions moving across AI sessions. It bundles a skill, host hooks, the `ro` command-line tool, and a read-only reviewer agent. Four Markdown files hold the settings, the work queue, reusable findings, and a durable handoff. A preset decides how sessions share the queue, who reviews a finding, and which evidence checks apply.
 
-**Release 6.0.1.** The changes from 5.1.0 are listed in [CHANGELOG.md](CHANGELOG.md). Existing projects keep working; read the migration section below before changing their settings.
+**Release 6.0.2.** The changes from 5.1.0 are listed in [CHANGELOG.md](CHANGELOG.md). Existing projects keep working; read the migration section below before changing their settings.
 
 ## Why use it
 
@@ -80,13 +80,13 @@ After installing, ask the agent to initialize Research Orchestrator in your proj
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --preset work-project --user user1
 python <skill-root>/scripts/check_project.py .
-ro --slot A brief
-ro --slot A next-id H
-ro --slot A claim <item>
-ro --slot A close
+ro --session <host-session> --slot A brief
+ro --session <host-session> --slot A next-id H
+ro --session <host-session> --slot A claim <item>
+ro --session <host-session> --slot A close
 ```
 
-The initializer writes the four files described next (`--list-presets` shows the other presets). `ro brief` restores the settings, hooks status, slot choice, claims, jobs, and checker counts. `ro next-id H` reserves an item ID for a new entry in `plan.md`; `ro claim` locks that item for your slot (unified workflow only); `ro close` releases idle claims, runs the checker, and reports what is left. In every session the agent repeats this cycle and records each finished item as the item lifecycle below describes.
+`<host-session>` is the ID that SessionStart prints after `Host session:`; when it is omitted, `RO_SESSION` or the Codex thread ID is used. The initializer writes the four files described next (`--list-presets` shows the other presets). `ro brief` restores the settings, hooks status, slot choice, claims, jobs, and checker counts. `ro next-id H` reserves an item ID for a new entry in `plan.md`; `ro claim` locks that item for your slot (unified workflow only); `ro close` releases idle claims, runs the checker, and reports what is left. In every session the agent repeats this cycle and records each finished item as the item lifecycle below describes.
 
 ## The four files
 
@@ -128,7 +128,7 @@ After installing, ask the agent to initialize Research Orchestrator. It collects
 
 1. **Preset**: one of the six above (`--list-presets` also shows your saved presets).
 2. **Your name**: one word recorded as the session's user, such as `user1`.
-3. **Remaining preset questions**: the platform, `Environment`, and `Language` are inferred from detection and the request, and asked only when no explicit answer exists and detection fails or is ambiguous; defaults are reported with `Info:` (`Language` defaults to `en`). Competition presets also need the competition and phase clock. Git sync is asked only inside a repository; `quick` needs only the preset and name, plus Git sync there.
+3. **Remaining preset questions**: the platform, `Environment`, and `Language` are inferred from detection and the request, and asked only when no explicit answer exists and detection fails or is ambiguous; defaults are reported with `Info:` (`Language` defaults to `en`). Competition presets also need the competition and phase clock. `--competition "kaggle/<slug> deadline=YYYY-MM-DD"` supplies adapter external-action patterns and the phase-clock deadline; an explicit `--phase-clock` takes precedence. Git sync is asked only inside a repository; `quick` needs only the preset and name, plus Git sync there.
 
 The agent then runs the initializer, which takes flags and never prompts; `<skill-root>` is the installed directory that contains `SKILL.md`. `--answers` takes the same answers as a JSON object or file, keyed by setting names with underscores plus `name`, `user`, `agents`, and `ordering`; explicit flags override its keys. When an answer is missing, the error prints a complete example command.
 
@@ -379,7 +379,7 @@ Trust Codex hooks through `/hooks` before relying on them; `ro` commands and Git
 - Per-call hooks fail open on a crash, timeout, malformed input, or missing interpreter; `ro brief` reports the hooks self-test and warning counts. `ro external`, `ro launch`, and the Git pre-push gate refuse when their validation fails or cannot run; pre-push scans every outgoing commit, including messages and paths.
 - Hooks prevent accidents in cooperating sessions; they are not an adversarial security boundary. Nested interpreter bodies, here-string bodies, aliases, dynamic paths, and encoded secrets are outside reliable parsing.
 
-With the Claude Code plugin, SessionStart names optional checks its matchers do not cover and prints `install.py --project .` to subscribe them; SessionStart and `ro brief` also report `publish gate not installed`, with the install command, when a Git checkout lacks the pre-push gate. Wrappers look for `agents.md` before starting Python, so calls outside a project need no interpreter. Stop and edit checks skip Python when no job registry exists, unchanged PostToolUse calls skip it by file stamps, and unchanged compaction reuses the checker summary. Measured on Windows, the p95 per call is 23–36 ms outside a project and for Stop or edits without jobs, and 48–125 ms for ordinary shell checks and unchanged PostToolUse, within the 150 ms budget.
+The Claude Code plugin subscribes to `AskUserQuestion` and `Agent`; their wrappers skip Python when `Autonomy: away` and `Brief requirements` are inactive. Read-bound subscriptions remain opt-in through the installer. SessionStart and `ro brief` print `publish gate not installed` and `install.py --project <checkout root>` only when a Git checkout lacks its registered pre-push gate; a registered gate handles the publication scan without a duplicate per-call scan, and the per-call advisory reads the checkout the push runs in. Wrappers resolve project hints separately from the command working directory and need no interpreter outside a project. Stop and edit checks skip Python without a job registry. PostToolUse reuses stable file stamps only after two seconds, and briefs invalidate cached checks when review receipts or artifacts change; a brief hashes at most 64 MiB of review evidence and lists the rest as unverified for `check_project.py` to verify. Saved Windows measurements cover 23–36 ms p95 for outside-project and job-free Stop/edit calls, and 48–125 ms for ordinary shell checks and unchanged PostToolUse; they do not establish new supervised-child timings.
 
 [Hooks, capability matrix, and trust](skills/research-orchestrator/references/hooks-capabilities.md), [publication gate](skills/research-orchestrator/references/publication-safety.md).
 
@@ -398,7 +398,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --workflow unified --migrate --user <user>
 ```
 
-4. A `Workflow` change also needs `--migrate`; release active slots first. Workflow migration writes `*.pre-migrate` backups and a recovery journal, while a settings-only reconfiguration does not.
+4. A `Workflow` change also needs `--migrate`; release active slots first. Every settings transition validates the proposed records before writing. Compatible goal and review fields are normalized without losing evidence or effective queue order. Changes to coordination files use `*.pre-migrate` backups and a recovery journal, including when the workflow stays the same.
 5. Inspect the result, rerun the checker, and log the change as a handoff event.
 
 Read the [migration and rollback procedure](skills/research-orchestrator/references/migration-v2-to-v3.md) before changing workflows or using `--force`.
@@ -415,13 +415,13 @@ python -m pytest -q -m "not latency"
 python scripts/validate_release.py
 ```
 
-The light check covers manifest versions, README structure and links, SVG validity, size budgets for the core and references, domain vocabulary, record formats, and the example projects. Release checks scan `docs/`, including evidence ZIP members, for private-path, account-name, native-identifier and internal-session patterns. The full check adds the deterministic test suite and the initialization and reconfiguration scenarios. Timing tests carry the `latency` marker and run separately with `python -m pytest -q -m latency`.
+The light check covers manifest versions, README structure and links, SVG validity, size budgets for the core and references, domain vocabulary, record formats, and the example projects. Release checks scan `docs/`, including evidence ZIP members, for private-path, account-name, native-identifier and internal-session patterns. The full check adds the deterministic test suite and the initialization and reconfiguration scenarios. Timing tests carry the `latency` marker and run separately with `python -m pytest -q -m latency tests/test_ro_cli.py tests/test_ro_hooks.py`.
 
 GitHub Actions runs the full check on Windows, Ubuntu, and macOS with Python 3.12 and read-only permissions, then measures installed hook p95 on each OS and keeps the result as an artifact. Development tooling for behaviour cases, trigger evaluation, and installed-host dry runs lives in [scripts/evals](scripts/evals/README.md), [scripts/trigger](scripts/trigger/README.md), and `scripts/host/`.
 
 ## Evidence
 
-Behaviour evidence is historical (saved runs, not this exact release), Codex hooks were verified only with per-invocation trust, Windows timings are local, and CI passes on Windows, Ubuntu and macOS with installed-hook p95 of about 45–60 ms; see the [evidence and limits](docs/evals/README.md).
+Behaviour evidence is historical (saved runs, not this exact release), Codex hooks were verified only with per-invocation trust, Windows timings are local, and the release 6.0.1 CI run passed on Windows, Ubuntu and macOS with installed-hook p95 of about 45–60 ms; see the [evidence and limits](docs/evals/README.md).
 
 ## Repository layout
 

@@ -13,6 +13,7 @@ import pytest
 from conftest import NOW, make_project, with_real_ps
 import check_project
 import ro_command
+import ro_gate
 import ro_hook_runner as runner
 import ro_hooks as hooks
 import ro_records as records
@@ -145,7 +146,7 @@ def test_posix_wrapper_resolves_runner_without_slash_in_invocation(tmp_path, loo
 
 
 @pytest.mark.parametrize("route", ["brief", "SessionStart", "unselected-SessionStart", "unselected-brief"])
-@pytest.mark.parametrize("registration", ["absent", "other", "this"])
+@pytest.mark.parametrize("registration", ["absent", "other", "this", "stale"])
 @pytest.mark.parametrize("custom", [False, True])
 def test_publish_gate_notice_matches_checkout_scope(tmp_path, monkeypatch, route, registration, custom):
     target = make_project(tmp_path, "publish", "--preset", "quick", "--agents", "A,B",
@@ -154,11 +155,14 @@ def test_publish_gate_notice_matches_checkout_scope(tmp_path, monkeypatch, route
     (target / ".git").write_text("gitdir: ../linked-metadata\n", encoding="utf-8")
     hooks_path = tmp_path / "shared hooks" if custom else target / ".git-hooks"
     if registration != "absent":
-        scope = target if registration == "this" else tmp_path / "another checkout"
+        scope = target if registration in ("this", "stale") else tmp_path / "another checkout"
         digest = hashlib.sha256(os.path.normcase(str(scope.resolve())).encode()).hexdigest()
         path = hooks_path / "research-orchestrator/registrations" / (digest + ".json")
         path.parent.mkdir(parents=True)
         path.write_text("{}", encoding="utf-8")
+        if registration != "stale":
+            # A registration counts only while the installed dispatcher is the pre-push hook.
+            (hooks_path / "pre-push").write_text("#!/bin/sh\n" + ro_gate.DISPATCH_MARK + "\n", encoding="utf-8")
     calls = []
     def git(command, **kwargs):
         calls.append(command)
@@ -172,7 +176,9 @@ def test_publish_gate_notice_matches_checkout_scope(tmp_path, monkeypatch, route
     result = records.brief(project) if route.endswith("brief") else str(hooks.hook(project, "SessionStart", {}))
     assert ("publish gate not installed" in result) is (registration != "this")
     if registration != "this":
-        assert "install.py" in result and "--project ." in result
+        # The notice names the checkout root, because install.py refuses nested --project paths.
+        assert "install.py" in result and "--project ." not in result
+        assert target.name in result.split("--project ", 1)[1][:400]
     # The project root is resolved (8.3 short names, /var -> /private/var symlinks).
     assert calls == [["git", "-C", str(target.resolve()), "rev-parse", "--git-path", "hooks"]]
 
@@ -189,5 +195,7 @@ def test_unavailable_git_and_standalone_runtime_keep_actionable_notice(tmp_path,
         raise failure
     monkeypatch.setattr(subprocess, "run", fail)
     monkeypatch.setattr(ro_command, "__file__", str(tmp_path / "standalone/scripts/ro_command.py"))
-    assert records.publish_gate_guidance(Project(tmp_path, slot="A"), "sh") == [
-        "publish gate not installed — python <checkout>/install.py --project ."]
+    project = Project(tmp_path, slot="A")
+    # The project root is resolved (Windows short names, macOS /private/var), and so is the notice.
+    assert records.publish_gate_guidance(project, "sh") == [
+        "publish gate not installed — python <checkout>/install.py --project " + ro_command.literal(str(project.root), "sh")]

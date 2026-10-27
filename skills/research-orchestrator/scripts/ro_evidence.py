@@ -9,6 +9,7 @@ An external record's Scope (or Contract) names its contract; absent that, the X 
 from __future__ import annotations
 
 import codecs
+import contextlib
 import datetime as dt
 from contextvars import ContextVar
 import hashlib
@@ -60,13 +61,117 @@ def artifact_key(project, artifact: str) -> str:
     return os.path.normcase(str(artifact_path(project, artifact)))
 
 
+STAMP_HASH_BYTES = 32 * 1024 * 1024
+# Total review-evidence bytes one brief's checker run may hash (startup runs inside a hook deadline).
+BRIEF_HASH_BYTES = 64 * 1024 * 1024
+
+
+def stat_artifact(project, artifact: str) -> dict:
+    """Bounded change stamp for cached briefs.
+
+    Artifacts up to STAMP_HASH_BYTES are content-hashed, so a same-size edit with a restored
+    timestamp is still seen. Larger ones, and any beyond the active hash_budget, are stamped
+    by member names, sizes and times only: hashing them here would run inside the hook
+    deadline on every startup. A changed stamp makes the checker run under the same budget,
+    reusing digests already computed; evidence beyond it is reported unverified, and
+    check_project.py or `ro receipt check` verifies it in full.
+    """
+    path = artifact_path(project, artifact)
+    if path.is_file():
+        stat = path.stat()
+        if stat.st_size <= STAMP_HASH_BYTES:
+            try:
+                return {"kind": "file", "sha256": hash_artifact(project, artifact)["sha256"]}
+            except HashBudgetExceeded:
+                pass  # the brief's aggregate budget is spent: fall back to metadata
+        return {"kind": "file", "stat": [stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_ino]}
+    if not path.is_dir():
+        return {"kind": "missing"}
+    entries = []
+    for directory, names, files in os.walk(path, followlinks=False):
+        names[:] = sorted(name for name in names if name not in EXCLUDED)
+        for name in names:
+            # Full hashing refuses directory links; record them so adding one changes the stamp.
+            entry = Path(directory) / name
+            if entry.is_symlink() or (hasattr(entry, "is_junction") and entry.is_junction()):
+                entries.append([entry.relative_to(path).as_posix() + "/", 0, 0, 0, "link"])
+        for name in sorted(files):
+            if name in EXCLUDED:
+                continue
+            if len(entries) >= MANIFEST_CAP:
+                # A receipt never verifies an over-cap directory (_valid_receipt refuses "unhashed"),
+                # so the checker result holds while it stays over the cap: stamp the capped prefix
+                # instead of forcing the checker on every brief, compaction included.
+                digest = hashlib.sha256(json.dumps(entries, separators=(",", ":")).encode("utf-8")).hexdigest()
+                return {"kind": "directory", "over_cap": MANIFEST_CAP, "metadata": digest}
+            entry = Path(directory) / name
+            try:
+                stat = entry.lstat()
+            except OSError:
+                return {"kind": "directory", "unstamped": True}
+            # ctime and inode also change when a member is replaced with preserved size and mtime.
+            entries.append([entry.relative_to(path).as_posix(), stat.st_size, stat.st_mtime_ns,
+                            stat.st_ctime_ns, stat.st_ino])
+    entries.sort()
+    if sum(entry[1] for entry in entries) <= STAMP_HASH_BYTES:
+        try:
+            return {"kind": "directory", "sha256": hash_artifact(project, artifact)["sha256"]}
+        except HashBudgetExceeded:
+            pass  # the brief's aggregate budget is spent: fall back to metadata
+    digest = hashlib.sha256(json.dumps(entries, separators=(",", ":")).encode("utf-8")).hexdigest()
+    return {"kind": "directory", "entries": len(entries), "metadata": digest}
+
+
+class HashBudgetExceeded(ValueError):
+    """Hook-side review checks stop before reading more than their byte budget."""
+
+
+_HASH_BUDGET = ContextVar("artifact_hash_budget", default=None)
+
+
+@contextlib.contextmanager
+def hash_budget(limit_bytes: int):
+    """Bound the bytes hash_artifact may read in this context (briefs inside a hook deadline).
+
+    Digests computed in the context are reused, so each artifact is read at most once.
+    Exceeding the budget raises HashBudgetExceeded, which review checks report as unverified
+    rather than passed; check_project.py and `ro receipt check` verify without the budget.
+    """
+    token = _HASH_BUDGET.set([limit_bytes, {}])
+    try:
+        yield
+    finally:
+        _HASH_BUDGET.reset(token)
+
+
+def _spend(size: int) -> None:
+    budget = _HASH_BUDGET.get()
+    if budget is None:
+        return
+    if size > budget[0]:
+        raise HashBudgetExceeded("review evidence exceeds the brief's hash budget; verify it with "
+                                 "check_project.py or `ro receipt check <artifact> --scope <stage>:after`")
+    budget[0] -= size
+
+
 def hash_artifact(project, artifact: str) -> dict:
     """Hash in bounded memory, preserving the existing text/manifest digest format."""
+    budget = _HASH_BUDGET.get()
+    if budget is None:
+        return _hash_artifact(project, artifact)
+    key = artifact_key(project, artifact)
+    if key not in budget[1]:
+        budget[1][key] = _hash_artifact(project, artifact)
+    return json.loads(json.dumps(budget[1][key]))  # callers may annotate their copy
+
+
+def _hash_artifact(project, artifact: str) -> dict:
     path = artifact_path(project, artifact)
     if not path.exists():
         raise ValueError("artifact does not exist")
     base = {"artifact": artifact_key(project, artifact), "sha256": "unhashed", "kind": "file"}
     if path.is_file():
+        _spend(path.stat().st_size)
         digest, size = _hash_file(path, normalize_text=True)
         base.update(sha256=digest, bytes=size)
         return base
@@ -79,6 +184,9 @@ def hash_artifact(project, artifact: str) -> dict:
         # An incomplete manifest cannot establish which bytes a receipt approves.
         raise error
 
+    # Enumerate before reading any content: an over-cap directory stays unhashed without
+    # hashing its first MANIFEST_CAP files, and the byte budget is checked up front.
+    entries = []
     for directory, names, files in os.walk(path, followlinks=False, onerror=enumeration_failed):
         names[:] = sorted(name for name in names if name not in EXCLUDED)
         for name in names:
@@ -91,11 +199,14 @@ def hash_artifact(project, artifact: str) -> dict:
             entry = Path(directory) / name
             if entry.is_symlink() or not entry.is_file():
                 raise ValueError("directory artifacts must contain ordinary files")
-            if len(manifest) >= MANIFEST_CAP:
+            if len(entries) >= MANIFEST_CAP:
                 return base
-            digest, size = _hash_file(entry)
-            total += size
-            manifest.append({"path": entry.relative_to(path).as_posix(), "sha256": digest})
+            entries.append(entry)
+    _spend(sum(entry.stat().st_size for entry in entries))
+    for entry in entries:
+        digest, size = _hash_file(entry)
+        total += size
+        manifest.append({"path": entry.relative_to(path).as_posix(), "sha256": digest})
     manifest.sort(key=lambda entry: entry["path"])
     canonical = json.dumps(manifest, ensure_ascii=True, separators=(",", ":")).encode("ascii")
     base.update(sha256=hashlib.sha256(canonical).hexdigest(), manifest=manifest, bytes=total)
@@ -760,10 +871,10 @@ def _git(project, *args: str) -> bytes:
     return result.stdout
 
 
-def _staged_diff(project) -> bytes:
+def _staged_diff(project, checkout=None) -> bytes:
     """Bound bytes read, not merely bytes inspected, and terminate only this owned git process."""
     try:
-        process = subprocess.Popen([*GIT, "-C", str(project.root), "diff", "--cached",
+        process = subprocess.Popen([*GIT, "-C", str(checkout or project.root), "diff", "--cached",
                                     "--no-ext-diff", "--no-textconv", "--no-color", "--unified=0"],
                                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, creationflags=no_window_flags())
     except OSError as exc:
@@ -816,8 +927,11 @@ class PublishScanTimeout(ValueError):
         super().__init__(self.diagnostic)
 
 
-def scan_publish(project, refs: str | None = None, remote: str | None = None) -> list[str]:
-    """Staged pre-check (refs None, SCAN_SECONDS) or the authoritative pre-push scan (configured deadline)."""
+def scan_publish(project, refs: str | None = None, remote: str | None = None, checkout=None) -> list[str]:
+    """Staged pre-check (refs None, SCAN_SECONDS) or the authoritative pre-push scan (configured deadline).
+
+    The staged pre-check reads `checkout` (the pushing command's working directory) with the
+    project's policy; the pre-push scan always runs in the repository Git invoked it from."""
     seconds = SCAN_SECONDS
     if refs is not None:
         token = _SCAN_DEADLINE.set(time.monotonic() + SCAN_SECONDS)
@@ -830,7 +944,7 @@ def scan_publish(project, refs: str | None = None, remote: str | None = None) ->
     progress = {"objects": None, "seconds": seconds, "started": started}
     progress_token = _SCAN_PROGRESS.set(progress)
     try:
-        return _scan_publish(project, refs, remote)
+        return _scan_publish(project, refs, remote, checkout)
     except ValueError as exc:
         if refs is not None and "deadline exceeded" in str(exc):
             raise PublishScanTimeout(progress["objects"], progress["seconds"]) from exc
@@ -1033,7 +1147,7 @@ def _finding(kind: str, oid: str, path: bytes, line: int, patterns: list[re.Patt
     return f"publish.scan: outgoing commit {short} matched; content redacted"
 
 
-def _scan_publish(project, refs: str | None = None, remote: str | None = None) -> list[str]:
+def _scan_publish(project, refs: str | None = None, remote: str | None = None, checkout=None) -> list[str]:
     """Scan staged additions as a capped pre-check, or every outgoing object from pre-push refs.
 
     Outgoing objects are what `git rev-list --objects` reaches from the pushed tips but not from
@@ -1050,7 +1164,7 @@ def _scan_publish(project, refs: str | None = None, remote: str | None = None) -
         return []
     if refs is None:
         # Explicitly disable repository-configured diff programs and text converters.
-        return _staged_findings(_staged_diff(project), patterns)
+        return _staged_findings(_staged_diff(project, checkout), patterns)
     positives, negatives = [], []
     for line in refs.splitlines():
         _remaining()

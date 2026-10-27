@@ -59,16 +59,24 @@ def test_folded_frontmatter_override_and_invalid_inputs(tmp_path):
         trigger.load_queries(path)
 
 
-def test_installed_copy_is_detected_disabled_and_not_modified(tmp_path):
+def test_installed_copy_is_detected_disabled_and_not_modified(tmp_path, monkeypatch):
     host = tmp_path / "host"
     installed = host / ".agents" / "skills" / NAME / "SKILL.md"
     installed.parent.mkdir(parents=True)
     installed.write_text(SKILL)
     project = tmp_path / "project"
     project.mkdir()
+    real_stat = Path.stat
+    def fixture_stat(path, *args, **kwargs):
+        # Temp directories may live beneath a real user home with installed
+        # skills. Inventory only this fixture, never machine-owned ancestors.
+        if not path.is_relative_to(tmp_path):
+            raise FileNotFoundError(path)
+        return real_stat(path, *args, **kwargs)
+    monkeypatch.setattr(Path, "stat", fixture_stat)
     inventory = trigger.installed_inventory(NAME, project, context(host))
     assert not inventory["errors"]
-    assert str(installed) in inventory["same_name_copies"]
+    assert inventory["same_name_copies"] == [str(installed)]
     args = trigger.invocation_config({}, inventory)
     config = next(arg for arg in args if arg.startswith("skills.config="))
     assert json.dumps(str(installed)) in config and "enabled=false" in config

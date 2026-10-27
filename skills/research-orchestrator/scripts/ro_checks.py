@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import namedtuple
 import fnmatch
 import ntpath
+import os
 from pathlib import Path
 import posixpath
 import re
@@ -90,6 +91,32 @@ def normal_path(value: str, root: Path | str, os_family: str | None = None) -> s
 
 def inside(path: str, bound: str) -> bool:
     return path == bound or path.startswith(bound.rstrip("/") + "/")
+
+
+def path_forms(path: str, os_family: str) -> set[str]:
+    """The lexical path plus, on this machine's own OS, its resolved form.
+
+    One folder can have two spellings: Windows 8.3 short names (RUNNER~1) and macOS
+    /var -> /private/var. A job binding written with one spelling must still match a
+    command that reaches the same folder through the other.
+    """
+    forms = {path}
+    if (os_family == "windows") != (os.name == "nt"):
+        return forms
+    try:
+        real = os.path.realpath(path)
+    except (OSError, ValueError):
+        return forms
+    if os_family == "windows":
+        forms.add(ntpath.normcase(ntpath.normpath(real)).replace("\\", "/").rstrip("/"))
+    else:
+        forms.add(posixpath.normpath(real))
+    return forms
+
+
+def overlaps(path: str, bound: str, os_family: str, ancestor: bool = False) -> bool:
+    paths, bounds = path_forms(path, os_family), path_forms(bound, os_family)
+    return any(inside(p, b) or (ancestor and inside(b, p)) for p in paths for b in bounds)
 
 
 Token = namedtuple("Token", "value depth quoted start end", defaults=(False, -1, -1))
@@ -522,6 +549,45 @@ def git_push(parts: list[Token], os_family: str | None = None) -> bool:
     return False
 
 
+GIT_CHECKOUT_OPTIONS = ("-C", "--git-dir", "--work-tree")
+GIT_CHECKOUT_VARIABLE = re.compile(r"(?:\$env:)?GIT_(?:DIR|WORK_TREE)(?:=|$)", re.I)
+
+
+def _moves_checkout(token: Token) -> bool:
+    """A wrapper's -C/--chdir (also attached, as getopt allows) or a GIT_DIR/GIT_WORK_TREE assignment."""
+    value = token.value
+    return (value in ("-C", "--chdir") or value.startswith(("--chdir=", "-C"))
+            or bool(GIT_CHECKOUT_VARIABLE.match(value)))
+
+
+def push_target_moved(parts: list[Token], os_family: str | None = None) -> bool:
+    """True when a push picks its checkout inside the command: git -C/--git-dir/--work-tree,
+    a wrapper's -C/--chdir, GIT_DIR/GIT_WORK_TREE, or an earlier directory change. The hook's
+    cwd is then not the target."""
+    moved = False
+    for group in statements(parts):
+        name, args, _ = verb(group, os_family)
+        if name in CD_VERBS:
+            moved = True
+            continue
+        if name != "git":
+            # `export GIT_DIR=...;` or `$env:GIT_DIR = ...` before the push.
+            moved |= any(GIT_CHECKOUT_VARIABLE.match(t.value) for t in group)
+            continue
+        useful = [t for t in group if t.value not in ("(", ")")]
+        prefix = useful[:max(len(useful) - len(args) - 1, 0)]
+        here = moved or any(_moves_checkout(t) for t in prefix)
+        index = 0
+        while index < len(args) and args[index].value.startswith("-"):
+            option = args[index].value
+            # Attached `-C<dir>` is refused by current Git, but stays advisory if a version accepts it.
+            here |= option.split("=", 1)[0] in GIT_CHECKOUT_OPTIONS or (option.startswith("-C") and len(option) > 2)
+            index += 2 if option in WRAPPER_OPTIONS["git"][1] else 1
+        if here and index < len(args) and args[index].value == "push":
+            return True
+    return False
+
+
 PYTHON_NO_OPERAND_FLAGS = {
     "-b", "-bb", "-B", "-d", "-E", "-i", "-I", "-O", "-OO", "-P", "-q", "-R", "-s", "-S", "-u", "-v", "-vv",
 }
@@ -834,13 +900,13 @@ def path_checks(paths: list[str], check: str, root: Path | str, jobs: list[dict]
                 resolved = normal_path(bound, project_root, os_family)
                 # A working directory is not a lock on every coordination file,
                 # including for old job registries that bound the project root.
-                if resolved and root_path and inside(root_path, resolved):
+                if resolved and root_path and overlaps(root_path, resolved, os_family):
                     continue
                 if path is None:
                     message = ("Working directory is uncertain; resolve it before checking this relative path."
                                if unknown_cwd else "Path may overlap a running job; resolve the literal path first.")
                     result.append(Finding(check, message, True, identity))
-                elif resolved and (inside(path, resolved) or (ancestor and inside(resolved, path))):
+                elif resolved and overlaps(path, resolved, os_family, ancestor):
                     base = path.rsplit("/", 1)[-1]
                     if check == "jobs.read-bound" and (base == "status.json" or fnmatch.fnmatch(base, "*.log") or base.startswith("heartbeat")):
                         continue

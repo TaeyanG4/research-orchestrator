@@ -13,7 +13,7 @@ changes are listed in §10. The owner's simplicity decision (§11) is incorporat
 - **Hooks run fixed, installed code** (`${CLAUDE_PLUGIN_ROOT}/…/ro.py`), never evaluate hook JSON, recorded commands or
   repository strings; user regexes use a bounded grammar and scans have a deadline.
 - **Fast per-call hooks:** PreToolUse/PostToolUse read only the settings block and `.ro/jobs.json` (mtime-cached), never
-  the full four files; target p95 < 150 ms for every host and hook layer; explicit timeout 10 s.
+  the full four files; target p95 < 150 ms for installed wrappers and in-process checks on every host; direct-child overhead above bare-interpreter p95 < 150 ms and absolute p95 < 300 ms; explicit timeout 10 s.
 - **Briefs inject facts only:** IDs, titles, numbers, dates — never free text written by other sessions; command lines
   in `jobs.json` are stored redacted and never printed.
 
@@ -139,7 +139,7 @@ reports (`ro close`), process termination (`ro kill`).
 7. `publish.scan`: a secret in an intermediate commit of a multi-commit push, a new branch, a force push; matches are
    redacted.
 8. Stop: a 50-turn simulated session produces at most one Stop warning when nothing is wrong.
-9. Latency: PreToolUse p95 < 150 ms for every host and hook layer on a large synthetic project (≈ 1.4 MB discoveries, ≈ 0.5 MB handoff). Keep the killable supervisor deadline; recorded Windows startup variance motivates this common budget. A deterministic no-history-read test separately verifies that ordinary PreToolUse does not scan the histories.
+9. Latency: PreToolUse p95 < 150 ms for installed wrappers and in-process checks on a large synthetic project (≈ 1.4 MB discoveries, ≈ 0.5 MB handoff). For direct subprocess calls, subtract bare-interpreter p95 measured with the same `-E -S` flags, two warm-ups and three 20-sample batches: overhead < 150 ms and absolute hook p95 < 300 ms. This separates startup variance from hook work while catching end-to-end regressions. Keep the killable supervisor deadline. A deterministic no-history-read test separately verifies that ordinary PreToolUse does not scan the histories.
 10. Malformed or oversized hook stdin fails open.
 11. Tests are organised by feature and named after behaviours, never after review rounds or projects.
 

@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+from unittest.mock import patch
 
 import pytest
 
@@ -43,7 +44,8 @@ def prepare_cache(root):
     hooks._snapshot(project)
     # Fixed, distinct minutes exercise cmd's conservative timestamp comparison.
     os.utime(project.state / "records-hook.json", (1700000060, 1700000060))
-    hooks._wrapper_snapshot(project)
+    with patch.object(hooks.time, "time", return_value=1700000300):
+        hooks._wrapper_snapshot(project)
     os.utime(project.state / "records-hook.ready", (1700000300, 1700000300))
     return project
 
@@ -127,12 +129,19 @@ def test_post_cache_keeps_project_path_characters_literal(tmp_path, wrapper):
     assert not Path(environment["RO_TEST_SENTINEL"]).exists()
 
 
-def test_post_hook_acknowledges_warning_then_publishes_witnesses(tmp_path):
+def test_post_hook_acknowledges_warning_then_publishes_aged_witnesses(tmp_path, monkeypatch):
     project = prepare_cache(tmp_path)
     hooks.warning(project, "Review the pending record")
+    monkeypatch.setattr(hooks.time, "time", lambda: (project.state / "warnings.log").stat().st_mtime)
     payload = {"tool_name": "Bash", "tool_input": {"command": "echo ready"}, "cwd": str(tmp_path)}
     result = hooks.hook(project, "PostToolUse", payload)
     assert "Review the pending record" in str(result)
+    assert not (project.state / "records-hook.ready").exists()
+    # Advance the clock deterministically; newly acknowledged warning files are
+    # not safe for the wrapper's coarse timestamp comparison until they age.
+    now = max(path.stat().st_mtime for path in project.state.iterdir() if path.is_file())
+    monkeypatch.setattr(hooks.time, "time", lambda: now + 3)
+    hooks.hook(project, "PostToolUse", payload)
     assert (project.state / "records-hook.ready").read_text() == "records-hook-v1\n"
     assert (project.state / "records-hook-stamps/warnings.log").exists()
 
@@ -166,7 +175,8 @@ def test_missing_codex_registration_prints_literal_reinstall_command(tmp_path, d
     field = "command" if dialect == "sh" else "commandWindows"
     command = template["SessionStart"][0]["hooks"][0][field]
     argv = [shell, "-c", command] if dialect == "sh" else [shell, "-NoProfile", "-NonInteractive", "-Command", command]
-    result = subprocess.run(argv, cwd=project, input="{}", text=True, capture_output=True, timeout=10)
+    # A cold PowerShell start on shared CI runners can take tens of seconds; the check is the output, not the speed.
+    result = subprocess.run(argv, cwd=project, input="{}", text=True, capture_output=True, timeout=120)
     assert result.returncode == 0, result.stderr
     context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
     expected = "python " + installer.literal(installer.posix(ROOT / "install.py"), dialect) + " --project . --host codex"

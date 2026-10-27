@@ -105,3 +105,208 @@ def test_compact_session_start_requests_stamped_summary(tmp_path, monkeypatch):
     for source in ("compact", "startup", "resume", "clear"):
         ro_hooks.hook(project, "SessionStart", {"source": source})
     assert calls == [True, False, False, False]
+
+
+@pytest.mark.parametrize("compact", [False, True])
+@pytest.mark.parametrize("changed", ["receipt", "missing-receipt", "file", "directory", "missing-artifact"])
+def test_brief_refreshes_review_findings_when_only_review_evidence_changes(tmp_path, monkeypatch, compact, changed):
+    import datetime as dt
+    from conftest import NOW, append_events, event, unified_project
+    from check_project import Checker
+    import ro_evidence
+    import ro_records
+    from ro_state import Project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    project.register_slot()
+    monkeypatch.setattr(ro_records.time, "time", lambda: NOW.timestamp())
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls):
+            return NOW.date()
+    monkeypatch.setattr(ro_records.dt, "date", FixedDate)
+    checked = []
+    def checker(current):
+        checked.append(current)
+        result = Checker(current.root, now=NOW)
+        return result, result.run(quiet=True)
+    monkeypatch.setattr(ro_records, "_checker", checker)
+    artifact = project.root / ("review" if changed == "directory" else "result.txt")
+    if changed == "directory":
+        artifact.mkdir()
+        member = artifact / "result.txt"
+    else:
+        member = artifact
+    member.write_text("approved evidence\n", encoding="utf-8")
+    append_events(project.root, event("2026-10-25 10:00", "A", "H-A-01/s1",
+                  extra=f"- Decision: changed\n- Review artifact: {artifact.name}\n"))
+    ro_evidence.receipt_add(project, artifact.name, "independent-reviewer", "PASS", "H-A-01/s1:after")
+    for _ in range(2):
+        assert "event.stage.review" not in ro_records.brief(project, compact=compact)
+    assert len(checked) == 1
+    before = {name: (project.root / name).read_bytes() for name in ro_records.FILES}
+    original_stat = member.stat()
+    if changed == "receipt":
+        ro_evidence.receipt_add(project, artifact.name, "independent-reviewer", "FAIL", "H-A-01/s1:after")
+    elif changed == "missing-receipt":
+        (project.state / "receipts.json").unlink()
+    elif changed == "missing-artifact":
+        member.unlink()
+    else:
+        member.write_text("rejected evidence\n", encoding="utf-8")
+        # Same-length changes can retain their timestamp after a restore/copy.
+        os.utime(member, ns=(original_stat.st_atime_ns, original_stat.st_mtime_ns))
+    assert "event.stage.review: 1" in ro_records.brief(project, compact=compact)
+    assert len(checked) == 2
+    assert before == {name: (project.root / name).read_bytes() for name in ro_records.FILES}
+    if not member.exists():
+        member.write_text("restored evidence\n", encoding="utf-8")
+    ro_evidence.receipt_add(project, artifact.name, "independent-reviewer", "PASS", "H-A-01/s1:after")
+    for _ in range(2):
+        assert "event.stage.review" not in ro_records.brief(project, compact=compact)
+    assert len(checked) == 3
+    assert before == {name: (project.root / name).read_bytes() for name in ro_records.FILES}
+
+
+def test_startup_brief_reports_oversized_review_evidence_unverified_without_hashing_it(tmp_path, monkeypatch):
+    """A non-compact brief runs inside the SessionStart deadline: large review evidence stays unread."""
+    from conftest import append_events, event, unified_project
+    import ro_evidence
+    import ro_records
+    from ro_state import Project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    project.register_slot()
+    run = project.root / "run"
+    run.mkdir()
+    for index in range(20):
+        (run / f"part-{index:02d}.bin").write_bytes(b"x" * 2048)
+    append_events(project.root, event("2026-10-25 10:00", "A", "H-A-01/s1",
+                  extra="- Decision: changed\n- Review artifact: run\n"))
+    ro_evidence.receipt_add(project, "run", "independent-reviewer", "PASS", "H-A-01/s1:after")
+    monkeypatch.setattr(ro_evidence, "BRIEF_HASH_BYTES", 10_000)  # smaller than the 40 KiB directory
+    read = []
+    original = ro_evidence._hash_file
+    monkeypatch.setattr(ro_evidence, "_hash_file", lambda path, *a, **k: read.append(path) or original(path, *a, **k))
+    output = ro_records.brief(project)
+    # Reported as unverified, never as passed, and not as a failed review.
+    assert "event.stage.review unverified within the brief's hash budget: 1" in output
+    assert "event.stage.review: " not in output
+    assert read == []  # the budget is checked before any member is read
+    checker = ro_records._checker(project)[0]
+    with ro_evidence.hash_budget(10_000):
+        message = next(i.message for i in ro_records._checker(project)[0].issues if i.check == "event.stage.review")
+    assert "check_project.py" in message and "ro receipt check" in message  # the remedy that verifies it
+    assert not [i for i in checker.issues if i.check == "event.stage.review"]  # unbudgeted check verifies
+    # Outside a brief, the full check still verifies the same receipt.
+    assert ro_evidence.receipt_check(project, "run", "H-A-01/s1:after")
+
+
+def test_brief_reads_each_review_artifact_once(tmp_path, monkeypatch):
+    """The stamp and the rerun checker share one budget and reuse the stamp's digest."""
+    from conftest import append_events, event, unified_project
+    import ro_evidence
+    import ro_records
+    from ro_state import Project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    project.register_slot()
+    (project.root / "result.txt").write_text("retain one verified copy\n", encoding="utf-8")
+    append_events(project.root, event("2026-10-25 10:00", "A", "H-A-01/s1",
+                  extra="- Decision: changed\n- Review artifact: result.txt\n"))
+    ro_evidence.receipt_add(project, "result.txt", "independent-reviewer", "PASS", "H-A-01/s1:after")
+    read = []
+    original = ro_evidence._hash_file
+    monkeypatch.setattr(ro_evidence, "_hash_file", lambda path, *a, **k: read.append(path.name) or original(path, *a, **k))
+    output = ro_records.brief(project)
+    assert "event.stage.review" not in output  # the receipt verified
+    assert read == ["result.txt"]
+
+
+def test_repeated_brief_reuses_the_cache_for_an_over_cap_review_directory(tmp_path, monkeypatch):
+    """An over-cap directory cannot verify, so its result holds; compaction must not rerun the checker."""
+    from conftest import append_events, event, unified_project
+    import ro_evidence
+    import ro_records
+    from ro_state import Project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    project.register_slot()
+    run = project.root / "many"
+    run.mkdir()
+    for index in range(6):
+        (run / f"m{index}.txt").write_text("x", encoding="utf-8")
+    append_events(project.root, event("2026-10-25 10:00", "A", "H-A-01/s1",
+                  extra="- Decision: changed\n- Review artifact: many\n"))
+    monkeypatch.setattr(ro_evidence, "MANIFEST_CAP", 5)
+    first = ro_records.brief(project)
+    assert "event.stage.review: 1" in first  # never reported as passed
+    calls = []
+    original = ro_records._checker
+    monkeypatch.setattr(ro_records, "_checker", lambda p: calls.append(1) or original(p))
+    assert "event.stage.review: 1" in ro_records.brief(project, compact=True)
+    assert calls == []
+
+
+@pytest.mark.parametrize("compact", [False, True])
+@pytest.mark.parametrize("size", ["content", "metadata"])
+def test_directory_link_added_to_a_reviewed_directory_invalidates_the_cache(tmp_path, monkeypatch, compact, size):
+    """Full hashing refuses directory links, so a cached clean review must not survive one."""
+    import os
+    import subprocess
+    from conftest import append_events, event, unified_project
+    import ro_evidence
+    import ro_records
+    from ro_state import Project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    project.register_slot()
+    run = project.root / "run"
+    run.mkdir()
+    (run / "result.txt").write_text("retain one verified copy\n", encoding="utf-8")
+    append_events(project.root, event("2026-10-25 10:00", "A", "H-A-01/s1",
+                  extra="- Decision: changed\n- Review artifact: run\n"))
+    ro_evidence.receipt_add(project, "run", "independent-reviewer", "PASS", "H-A-01/s1:after")
+    if size == "metadata":
+        monkeypatch.setattr(ro_evidence, "STAMP_HASH_BYTES", 1)  # the stamp uses member metadata only
+    assert "event.stage.review" not in ro_records.brief(project, compact=compact)
+    target, link = tmp_path / "elsewhere", run / "linked"
+    target.mkdir()
+    if os.name == "nt":
+        if subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)], capture_output=True).returncode:
+            pytest.skip("directory junctions are unavailable")
+    else:
+        os.symlink(target, link, target_is_directory=True)
+    assert "event.stage.review: 1" in ro_records.brief(project, compact=compact)
+
+
+def test_budget_unverified_review_is_named_in_the_brief(tmp_path, monkeypatch):
+    from conftest import append_events, event, unified_project
+    import ro_evidence
+    import ro_records
+    from ro_state import Project
+
+    project = Project(unified_project(tmp_path), slot="A", session="stage-author")
+    project.register_slot()
+    (project.root / "result.txt").write_text("x" * 4096, encoding="utf-8")
+    append_events(project.root, event("2026-10-25 10:00", "A", "H-A-01/s1",
+                  extra="- Decision: changed\n- Review artifact: result.txt\n"))
+    ro_evidence.receipt_add(project, "result.txt", "independent-reviewer", "PASS", "H-A-01/s1:after")
+    monkeypatch.setattr(ro_evidence, "BRIEF_HASH_BYTES", 1000)
+    output = ro_records.brief(project)
+    line = next(row for row in output.splitlines() if "unverified within the brief's hash budget" in row)
+    assert line.split("budget: ", 1)[1].startswith("1;") and "check_project.py" in line
+
+
+def test_over_cap_directory_is_unhashed_before_reading_any_member(tmp_path, monkeypatch):
+    import ro_evidence
+    from ro_state import Project
+    from conftest import unified_project
+    project = Project(unified_project(tmp_path), slot="A")
+    run = project.root / "many"
+    run.mkdir()
+    for index in range(6):
+        (run / f"m{index}.txt").write_text("x", encoding="utf-8")
+    monkeypatch.setattr(ro_evidence, "MANIFEST_CAP", 5)
+    monkeypatch.setattr(ro_evidence, "_hash_file", lambda *a, **k: pytest.fail("read a member of an over-cap directory"))
+    assert ro_evidence.hash_artifact(project, "many")["sha256"] == "unhashed"

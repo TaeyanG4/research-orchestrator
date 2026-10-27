@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: wrapper-policy-root-cwd
+expected_outcome: |
+  Real wrapper execution applies the hinted policy while resolving relative operands against the command working directory and tool overrides.
+context:
+  scaffold_script: place-files.sh

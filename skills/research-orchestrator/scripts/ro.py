@@ -32,6 +32,7 @@ def add_hook_parser(commands) -> None:
     hook.add_argument("--general", action="store_true")
     # Remote names are descriptive only; Git supplies verified destination tips on stdin.
     hook.add_argument("--remote")
+    hook.add_argument("--policy-root", help=argparse.SUPPRESS)
 
 
 def global_parser(**kwargs) -> argparse.ArgumentParser:
@@ -138,17 +139,18 @@ def hook_arguments(arguments: list[str]):
     rest = arguments[index + 1:]
     if not rest or rest[0] not in HOOK_EVENTS:
         return None
-    result = SimpleNamespace(command_name="hook", event=rest[0], check=None, general=False, remote=None, **values)
+    result = SimpleNamespace(command_name="hook", event=rest[0], check=None, general=False, remote=None,
+                             policy_root=None, **values)
     options = rest[1:]
     while options:
         option = options.pop(0)
         if option == "--general":
             result.general = True
-        elif option in ("--check", "--remote") and options and not options[0].startswith("-"):
+        elif option in ("--check", "--remote", "--policy-root") and options and not options[0].startswith("-"):
             value = options.pop(0)
             if option == "--check" and value not in ("publish.scan", "external.gate"):
                 return None
-            setattr(result, option[2:], value)
+            setattr(result, option[2:].replace("-", "_"), value)
         else:
             return None
     return result
@@ -173,7 +175,9 @@ def hook_main(args, data: bytes | None = None) -> int:
                 payload = {}
                 raise ValueError("hook input must be an object")
             refs = None
-            root = payload.get("cwd", args.project)
+            # Wrappers discover policy independently of the command's cwd.
+            # Keep cwd in the payload so relative operands retain host semantics.
+            root = getattr(args, "policy_root", None) or payload.get("cwd", args.project)
             session = str(payload.get("session_id", args.session))
             slot = payload.get("slot", args.slot)
             if not session and slot is None:

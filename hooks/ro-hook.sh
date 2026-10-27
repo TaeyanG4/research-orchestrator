@@ -42,6 +42,24 @@ if [ -z "$ro_hook_project" ]; then
     printf '{}\n'
     exit 0
 fi
+# Question/delegation subscriptions stay installed as policy changes. Read only
+# the governing setting here so inactive tools need no interpreter or host input.
+ro_hook_policy_quiet() {
+    command -v grep >/dev/null 2>&1 || return 1
+    ro_hook_join "$ro_hook_project" agents.md
+    ro_hook_lines=$(LC_ALL=C grep -i "$1" "$ro_hook_path")
+    ro_hook_status=$?
+    [ "$ro_hook_status" -ne 1 ] || return 0
+    [ "$ro_hook_status" -eq 0 ] || return 1
+    printf '%s\n' "$ro_hook_lines" | LC_ALL=C grep -i -v "^[[:space:]]*-[[:space:]]*$1:[[:space:]]*$2[[:space:]]*$" >/dev/null
+    [ "$?" -eq 1 ]
+}
+if [ "$1" = PreToolUse ] && [ "$2" = --tool ]; then
+    case "$3" in
+        ask) if ro_hook_policy_quiet 'Autonomy' 'present'; then printf '{}\n'; exit 0; fi ;;
+        agent) if ro_hook_policy_quiet 'Brief requirements' 'none'; then printf '{}\n'; exit 0; fi ;;
+    esac
+fi
 # Timestamp witnesses are written only after Python acknowledges record changes
 # and pending warnings. This shortcut reads state files, never host stdin.
 ro_hook_post_clean() {
@@ -115,7 +133,7 @@ runner="${ro_hook_file%/*}/../scripts/ro_hook_runner.py"
 # Use the same explicitly selected interpreter for supervisor and child.
 if [ -n "${RO_HOOK_PYTHON:-}" ]; then
     if [ -x "$RO_HOOK_PYTHON" ]; then
-        exec "$RO_HOOK_PYTHON" -E -S "$runner" "$@"
+        exec "$RO_HOOK_PYTHON" -E -S "$runner" "$@" --policy-root "$ro_hook_project"
     fi
     printf '%s\n' 'hooks inactive: configured Python interpreter unavailable' >&2
     printf '{}\n'
@@ -133,7 +151,7 @@ for interpreter in python3 python; do
         RO_HOOK_PYTHON=$(cygpath -w "$path")
     fi
     export RO_HOOK_PYTHON
-    exec "$path" -E -S "$runner" "$@"
+    exec "$path" -E -S "$runner" "$@" --policy-root "$ro_hook_project"
 done
 # Git Bash on Windows can also use the Python launcher.
 if command -v py >/dev/null 2>&1; then
@@ -142,7 +160,7 @@ if command -v py >/dev/null 2>&1; then
     if [ -x "$path" ]; then
         RO_HOOK_PYTHON="$path"
         export RO_HOOK_PYTHON
-        exec "$path" -E -S "$runner" "$@"
+        exec "$path" -E -S "$runner" "$@" --policy-root "$ro_hook_project"
     fi
 fi
 printf '%s\n' 'hooks inactive: missing Python 3 interpreter' >&2

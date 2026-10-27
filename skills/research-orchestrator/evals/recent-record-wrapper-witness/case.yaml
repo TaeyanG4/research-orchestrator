@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: recent-record-wrapper-witness
+expected_outcome: |
+  Recently modified records receive no shell witnesses, so a same-size same-second edit reaches Python; aged unchanged records can publish a complete witness snapshot.
+context:
+  scaffold_script: place-files.sh

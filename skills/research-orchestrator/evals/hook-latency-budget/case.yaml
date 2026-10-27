@@ -1,7 +1,7 @@
 schema_version: "1.1"
 name: hook-latency-budget
 expected_outcome: |
-  All hosts and hook layers use the common 150 ms p95 limit; warm-up and repeated-batch aggregation distinguish host-load noise.
-  The audit applies the same budget to the installed supervisor, direct child, in-process and other-host runs, rejects exact-boundary and incorrect-output runs, and cites the separate no-history-read guard without modifying measurements.
+  Installed supervisor and in-process hooks retain p95 < 150 ms on all hosts; direct-child hook p95 minus bare-interpreter p95 stays below 150 ms and absolute hook p95 stays below 300 ms.
+  The audit computes both percentiles, rejects equality at either budget and incorrect output, explains reporting and repeated-batch aggregation, and cites the separate no-history-read guard without modifying measurements.
 context:
   scaffold_script: place-files.sh

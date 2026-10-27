@@ -174,8 +174,21 @@ def latency(c, selected=None, percentiles_only=False):
         out = outputs[row['id']]
         if type(out.get('p95_ms')) not in (int, float) or out['p95_ms'] != expected:
             return False
-        if not percentiles_only and (out.get('budget_ms') != 150 or
-                out.get('pass') is not (expected < 150 and row['hook_output_correct'] is True)):
+        budget = 150
+        within_budget = expected < budget
+        if row['path'] == 'direct-child':
+            baseline = sorted(row['baseline_samples_ms'])
+            baseline_p95 = baseline[math.ceil(.95 * len(baseline)) - 1]
+            overhead = expected - baseline_p95
+            if out.get('baseline_p95_ms') != baseline_p95 or out.get('overhead_ms') != overhead:
+                return False
+            budget = 300
+            within_budget = expected < budget and overhead < 150
+            if not percentiles_only and (out.get('overhead_budget_ms') != 150 or
+                                        out.get('absolute_budget_ms') != budget):
+                return False
+        if not percentiles_only and (out.get('budget_ms') != budget or
+                out.get('pass') is not (within_budget and row['hook_output_correct'] is True)):
             return False
     return True
 
@@ -183,7 +196,9 @@ def latency(c, selected=None, percentiles_only=False):
 for name, selected in [('90-01-windows-margin', {'windows-supervisor'}),
                        ('90-02-exact-boundary', {'windows-supervisor-boundary', 'windows-in-process'}),
                        ('90-03-tighter-paths', {'windows-child', 'windows-in-process', 'linux-supervisor', 'macos-supervisor'}),
-                       ('90-05-correctness-required', {'incorrect-output'})]:
+                       ('90-05-correctness-required', {'incorrect-output'}),
+                       ('90-08-overhead-boundary', {'child-overhead-boundary'}),
+                       ('90-09-absolute-boundary', {'child-absolute-boundary'})]:
     register('hook-latency-budget', name, lambda c, ids=selected: latency(c, ids))
 register('hook-latency-budget', '90-04-all-percentiles', lambda c: latency(c, percentiles_only=True))
 register('hook-latency-budget', '90-07-preserved-measurements', lambda c: original(c, 'measurements.json'))

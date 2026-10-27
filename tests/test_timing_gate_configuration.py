@@ -1,8 +1,19 @@
 """Timing gates run explicitly rather than making deterministic releases load-sensitive."""
 
 import ast
+import configparser
+import shlex
 
 from conftest import ROOT
+
+
+def test_default_pytest_uses_deterministic_selection_and_readmes_document_timing_opt_in():
+    config = configparser.ConfigParser()
+    config.read(ROOT / "pytest.ini")
+    options = shlex.split(config["pytest"]["addopts"])
+    assert options[options.index("-m") + 1] == "not latency"
+    for name in ("README.md", "README.ko.md", "README.ja.md", "README.zh-CN.md"):
+        assert "python -m pytest -q -m latency tests/test_ro_cli.py tests/test_ro_hooks.py" in (ROOT / name).read_text(encoding="utf-8")
 
 
 def test_timing_functions_carry_the_separate_marker():

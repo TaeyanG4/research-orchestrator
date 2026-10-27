@@ -1,6 +1,6 @@
 {
   "name": "research-orchestrator",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "description": "Coordinate work projects, research, and competitions with presets, classic or unified workflows, configurable guards, operational hooks, and durable handoffs.",
   "author": {
     "name": "TaeyanG4"

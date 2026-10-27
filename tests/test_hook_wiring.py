@@ -42,7 +42,8 @@ def test_hook_samples_have_all_events_and_ten_second_timeouts(name):
                 prefix = f'sh "{root}/hooks/ro-hook.sh" {event}'
                 suffix = hook["command"].removeprefix(prefix)
                 assert hook["command"].startswith(prefix)
-                expected = " --tool edit" if declaration.get("matcher") == "Edit|Write|NotebookEdit" else ""
+                expected = {"Edit|Write|NotebookEdit": " --tool edit", "AskUserQuestion": " --tool ask",
+                            "Agent": " --tool agent"}.get(declaration.get("matcher"), "")
                 assert suffix == (expected if event == "PreToolUse" else " --general")
                 if name == "codex-hooks.sample.json":
                     assert isinstance(hook["commandWindows"], str)
@@ -64,8 +65,8 @@ def test_claude_hooks_use_fixed_plugin_root_and_required_tool_matchers():
     text = (ROOT / "hooks" / "hooks.json").read_text(encoding="utf-8")
     data = json.loads(text)["hooks"]
     tools = {tool for entry in data["PreToolUse"] for tool in entry["matcher"].split("|")}
-    assert tools == {"Bash", "PowerShell", "Edit", "Write", "NotebookEdit"}
-    assert len(data["PreToolUse"]) == 2
+    assert tools == {"Bash", "PowerShell", "Edit", "Write", "NotebookEdit", "AskUserQuestion", "Agent"}
+    assert len(data["PreToolUse"]) == 4
     assert data["PostToolUse"][0]["matcher"] == "Edit|Write|NotebookEdit|Bash|PowerShell"
     assert all(re.fullmatch(r"[A-Za-z]+(?:\|[A-Za-z]+)*", entry["matcher"])
                for event in ("SessionStart", "PreToolUse", "PostToolUse") for entry in data[event])
@@ -138,8 +139,10 @@ def test_posix_hook_wrapper_selects_interpreter_and_preserves_input(tmp_path, av
         assert lines[offset:offset + 2] == ["-E", "-S"]
         assert Path(lines[offset + 2]).resolve() == ROOT / "skills/research-orchestrator/scripts/ro_hook_runner.py"
         assert lines[offset + 3] == "PreToolUse"
-        assert lines[offset + 4] == payload.decode().strip()
-        assert lines[offset + 5].replace("\\", "/").endswith("/" + selected)
+        assert lines[offset + 4] == "--policy-root"
+        assert lines[offset + 5].replace("\\", "/").endswith("/" + tmp_path.name)
+        assert lines[offset + 6] == payload.decode().strip()
+        assert lines[offset + 7].replace("\\", "/").endswith("/" + selected)
     else:
         assert json.loads(result.stdout) == {}
         assert b"missing Python 3 interpreter" in result.stderr

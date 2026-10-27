@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: same-layout-review-transition
+expected_outcome: |
+  Review-only reconfiguration adds truthful pending review fields, preserves records and layout, backs up changed files and passes consistency validation; a self-reviewed verified claim blocks an incompatible review policy without writes.
+context:
+  scaffold_script: place-files.sh

@@ -143,7 +143,8 @@ SETTINGS: tuple[Setting, ...] = (
     Setting("queue_freeze", "Queue freeze", "--queue-freeze", "off, or until YYYY-MM-DD; pause new queue items", "off"),
     Setting("phase_clock", "Phase clock", "--phase-clock", "off, or START,DEADLINE as YYYY-MM-DD,YYYY-MM-DD",
             "off"),
-    Setting("competition", "Competition", "--competition", "off, or <platform>/<slug>, e.g. hub/task-a", "off"),
+    Setting("competition", "Competition", "--competition",
+            "off, or <platform>/<slug> with optional deadline=YYYY-MM-DD suffix", "off"),
     Setting("platform_mode", "Platform mode", "--platform", "multi: several platforms at once; single: one "
             "platform; adaptive: changes over time (default)", "adaptive", ("multi", "single", "adaptive"),
             preset=True, condition="mode", effect="reconfigure", v3=False),
@@ -410,14 +411,34 @@ def parse_queue_freeze(raw: str) -> str:
     raise ValueError(f"Queue freeze '{raw}' must be 'off' or 'until YYYY-MM-DD' with a valid date")
 
 
-def parse_competition(raw: str) -> str:
+def competition_parts(raw: str) -> tuple[str, str | None]:
+    """Separate the persistent binding from an optional setup deadline hint."""
     text = raw.strip()
     if text.lower() == "off":
-        return "off"
-    match = re.fullmatch(r"([A-Za-z0-9][\w.-]*)/([A-Za-z0-9][\w.-]*)", text)
+        return "off", None
+    match = re.fullmatch(r"([A-Za-z0-9][\w.-]*)/([A-Za-z0-9][\w.-]*)(?:\s+deadline=(\d{4}-\d{2}-\d{2}))?", text)
     if not match:
-        raise ValueError(f"Competition '{raw}' must be 'off' or '<platform>/<slug>', e.g. hub/task-a")
-    return f"{match.group(1).lower()}/{match.group(2)}"
+        raise ValueError(f"Competition '{raw}' must be 'off' or '<platform>/<slug>' "
+                         "with optional 'deadline=YYYY-MM-DD'")
+    deadline = match.group(3)
+    if deadline:
+        try:
+            dt.date.fromisoformat(deadline)
+        except ValueError:
+            raise ValueError(f"Competition '{raw}' has an invalid deadline") from None
+    return f"{match.group(1).lower()}/{match.group(2)}", deadline
+
+
+def parse_competition(raw: str) -> str:
+    return competition_parts(raw)[0]
+
+
+def competition_clock_default(flags: dict[str, str | None], stored: dict[str, str]) -> str | None:
+    """Use today as the start only when a supplied deadline fills an unanswered clock."""
+    if flags.get("phase_clock") is not None or stored.get("phase_clock") is not None:
+        return None
+    _competition, deadline = competition_parts(flags.get("competition") or "off")
+    return parse_phase_clock(f"{dt.date.today().isoformat()},{deadline}") if deadline else None
 
 
 def parse_preset_name(raw: str) -> str:
@@ -524,6 +545,7 @@ def resolve(flags: dict[str, str | None], preset: dict[str, object] | None, stor
     # its platform selects the external-action default resolved below.
     competition = parse_competition(flags.get("competition") if flags.get("competition") is not None
                                     else stored.get("competition", SETTING["competition"].default))
+    clock_default = competition_clock_default(flags, stored)
     external_source = stored.get("_external_actions_source")
     if (external_source == "default" and stored.get("external_actions") !=
             default_value("external_actions", stored)):
@@ -545,6 +567,8 @@ def resolve(flags: dict[str, str | None], preset: dict[str, object] | None, stor
                 raw = None  # Only an inherited default follows a changed profile or platform.
         if raw is None:
             raw = fresh_defaults.get(setting.key)
+            if setting.key == "phase_clock" and clock_default is not None:
+                raw = clock_default
             if setting.key == "platforms" and new_project and not preset and values["platform_mode"] != "multi":
                 raw = detect_host()
             if raw is None:
@@ -569,9 +593,9 @@ def question_answers(preset: dict[str, object] | None, flags: dict[str, str | No
     missing: list[str] = []
     defaults: dict[str, str] = {}
     for key in dict.fromkeys([*preset.get("asks", []), "environment", "language"]):
-        inherited_empty_gate = (key == "external_actions" and stored.get(key) == "none" and
-                               stored.get("_external_actions_source") == "default")
-        if flags.get(key) is not None or (stored.get(key) is not None and not inherited_empty_gate):
+        inherited_gate = (key == "external_actions" and stored.get("_external_actions_source") == "default"
+                          and stored.get(key) == default_value(key, stored))
+        if flags.get(key) is not None or (stored.get(key) is not None and not inherited_gate):
             continue
         default = preset.get(key)
         if default is None and key in ("platforms", "environment", "language", "git"):
@@ -584,6 +608,8 @@ def question_answers(preset: dict[str, object] | None, flags: dict[str, str | No
                                             "competition": competition})
             if candidate != "none":
                 default = candidate
+        if default is None and key == "phase_clock":
+            default = competition_clock_default(flags, stored)
         if default is None:
             missing.append(SETTING[key].flag)
         else:

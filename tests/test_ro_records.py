@@ -381,6 +381,60 @@ def test_checker_brief_invalidates_replacement_with_preserved_size_and_mtime(tmp
     assert len(calls) == 2
 
 
+def test_checker_brief_stamps_review_artifacts_without_reading_their_contents(tmp_path, monkeypatch):
+    """A large reviewed directory must not be hashed on every brief inside the hook deadline."""
+    import ro_evidence
+    p = project(tmp_path)
+    run = p.root / "outputs" / "run"
+    run.mkdir(parents=True)
+    for index in range(300):
+        (run / f"part-{index:03d}.csv").write_text("value\n" * 50, encoding="utf-8")
+    handoff = p.root / "handoff.md"
+    handoff.write_text(handoff.read_text(encoding="utf-8") + "\n- Review artifact: outputs/run\n", encoding="utf-8")
+    calls = []
+    checker = records._checker
+    # Above the content-hash cap the stamp falls back to member metadata.
+    monkeypatch.setattr(ro_evidence, "STAMP_HASH_BYTES", 1000)
+    monkeypatch.setattr(records, "_checker", lambda owner: calls.append(owner) or checker(owner))
+    records.brief(p, compact=True)
+    assert len(calls) == 1
+    def no_reading(*_args, **_kwargs):
+        raise AssertionError("a cached brief must not read artifact contents")
+    monkeypatch.setattr(ro_evidence, "hash_artifact", no_reading)
+    monkeypatch.setattr(ro_evidence, "_hash_file", no_reading)
+    records.brief(p, compact=True)
+    assert len(calls) == 1
+    monkeypatch.undo()
+    monkeypatch.setattr(ro_evidence, "STAMP_HASH_BYTES", 1000)
+    monkeypatch.setattr(records, "_checker", lambda owner: calls.append(owner) or checker(owner))
+    records.brief(p, compact=True)
+    assert len(calls) == 1  # the same metadata stamp still hits the cache
+    (run / "part-150.csv").write_text("changed\n", encoding="utf-8")
+    records.brief(p, compact=True)
+    assert len(calls) == 2
+
+
+def test_stat_artifact_stamps_over_cap_directories_by_their_capped_prefix(tmp_path, monkeypatch):
+    import ro_evidence
+    p = project(tmp_path)
+    run = p.root / "outputs" / "many"
+    run.mkdir(parents=True)
+    for index in range(5):
+        (run / f"m{index}.txt").write_text("x", encoding="utf-8")
+    monkeypatch.setattr(ro_evidence, "MANIFEST_CAP", 3)
+    over = ro_evidence.stat_artifact(p, "outputs/many")
+    assert over["kind"] == "directory" and over["over_cap"] == 3 and "unstamped" not in over
+    assert ro_evidence.stat_artifact(p, "outputs/many") == over  # stable, so briefs can reuse the cache
+    for index in range(3, 5):
+        (run / f"m{index}.txt").unlink()
+    assert "over_cap" not in ro_evidence.stat_artifact(p, "outputs/many")  # back under the cap: a new stamp
+    small = ro_evidence.stat_artifact(p, "outputs/many/m1.txt")
+    assert small["kind"] == "file" and len(small["sha256"]) == 64  # small files are content-hashed
+    monkeypatch.setattr(ro_evidence, "STAMP_HASH_BYTES", 0)
+    large = ro_evidence.stat_artifact(p, "outputs/many/m1.txt")
+    assert large["kind"] == "file" and len(large["stat"]) == 4 and "sha256" not in large
+
+
 def test_brief_marks_stale_observations_and_missing_hook_self_test(tmp_path):
     p = project(tmp_path)
     records.observe(p, "Budget", "10", ttl="1s")

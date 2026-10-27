@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: plugin-project-policy-supplements
 expected_outcome: |
-  Installed project hooks preserve enabled question, delegation and read checks with the Claude plugin active, omit inactive checks, avoid duplicate plugin matchers, and refresh cleanly after policies change.
+  Installed project hooks retain question and delegation subscriptions for all policies, omit their duplicate manual registrations with the plugin active, add only enabled read supplements, and refresh cleanly after the read policy changes.
 context:
   scaffold_script: place-files.sh

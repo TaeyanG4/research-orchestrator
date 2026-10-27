@@ -10,7 +10,7 @@
 
 Claude Code, Codex, Google Antigravity에서 쓰는 플러그인으로, 업무 프로젝트·연구·대회 작업이 여러 AI 세션에 걸쳐 끊기지 않고 이어지게 합니다. 스킬, 호스트 훅, `ro` 명령줄 도구, 읽기 전용 리뷰어 에이전트를 함께 제공합니다. 네 개의 Markdown 파일이 설정, 작업 큐, 재사용할 수 있는 발견, 지속되는 인계 기록을 담습니다. 프리셋은 세션이 큐를 나누는 방식, 발견을 검토할 주체, 적용할 근거 검사를 정합니다.
 
-**릴리스 6.0.1.** 5.1.0 이후 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 기존 프로젝트는 그대로 동작하며, 설정을 바꾸기 전에 아래의 마이그레이션 절을 읽으세요.
+**릴리스 6.0.2.** 5.1.0 이후 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 기존 프로젝트는 그대로 동작하며, 설정을 바꾸기 전에 아래의 마이그레이션 절을 읽으세요.
 
 ## 왜 사용하나요
 
@@ -80,13 +80,13 @@ claude --plugin-dir <folder>
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --preset work-project --user user1
 python <skill-root>/scripts/check_project.py .
-ro --slot A brief
-ro --slot A next-id H
-ro --slot A claim <item>
-ro --slot A close
+ro --session <host-session> --slot A brief
+ro --session <host-session> --slot A next-id H
+ro --session <host-session> --slot A claim <item>
+ro --session <host-session> --slot A close
 ```
 
-초기화 도구는 다음 절에서 설명하는 네 파일을 씁니다(`--list-presets`로 다른 프리셋을 볼 수 있습니다). `ro brief`는 설정, 훅 상태, 슬롯 선택, 점유, 작업, 체커 건수를 복원합니다. `ro next-id H`는 `plan.md`에 새로 쓸 항목의 ID를 예약하고, `ro claim`은 그 항목을 내 슬롯에 잠그며(unified 워크플로 전용), `ro close`는 유휴 점유를 해제하고 체커를 실행한 뒤 남은 일을 보고합니다. 에이전트는 세션마다 이 순환을 반복하고, 끝난 항목은 아래 항목 수명 주기에 따라 기록합니다.
+`<host-session>`은 SessionStart가 `Host session:` 뒤에 출력하는 ID이며, 생략하면 `RO_SESSION`이나 Codex 스레드 ID를 씁니다. 초기화 도구는 다음 절에서 설명하는 네 파일을 씁니다(`--list-presets`로 다른 프리셋을 볼 수 있습니다). `ro brief`는 설정, 훅 상태, 슬롯 선택, 점유, 작업, 체커 건수를 복원합니다. `ro next-id H`는 `plan.md`에 새로 쓸 항목의 ID를 예약하고, `ro claim`은 그 항목을 내 슬롯에 잠그며(unified 워크플로 전용), `ro close`는 유휴 점유를 해제하고 체커를 실행한 뒤 남은 일을 보고합니다. 에이전트는 세션마다 이 순환을 반복하고, 끝난 항목은 아래 항목 수명 주기에 따라 기록합니다.
 
 ## 네 개의 파일
 
@@ -128,7 +128,7 @@ ro --slot A close
 
 1. **프리셋**: 위의 여섯 가지 중 하나(`--list-presets`는 저장한 프리셋도 보여 줍니다).
 2. **이름**: 이 세션의 사용자로 기록되는 한 단어, 예: `user1`.
-3. **남은 프리셋 질문**: 플랫폼, `Environment`, `Language`는 감지 정보와 요청에서 추론하며, 명시된 답이 없고 감지가 실패하거나 모호할 때만 묻습니다. 기본값은 `Info:`로 알립니다(`Language` 기본값은 `en`). 대회 프리셋은 대회와 단계 시계도 필요합니다. Git 동기화는 저장소 안에서만 묻습니다. `quick`은 프리셋과 이름, 저장소 안이면 Git 동기화만 필요합니다.
+3. **남은 프리셋 질문**: 플랫폼, `Environment`, `Language`는 감지 정보와 요청에서 추론하며, 명시된 답이 없고 감지가 실패하거나 모호할 때만 묻습니다. 기본값은 `Info:`로 알립니다(`Language` 기본값은 `en`). 대회 프리셋은 대회와 단계 시계도 필요합니다. `--competition "kaggle/<slug> deadline=YYYY-MM-DD"`는 어댑터의 외부 행동 패턴과 단계 시계 마감일을 채우며, 명시한 `--phase-clock`이 우선합니다. Git 동기화는 저장소 안에서만 묻습니다. `quick`은 프리셋과 이름, 저장소 안이면 Git 동기화만 필요합니다.
 
 그다음 에이전트가 초기화 도구를 실행합니다. 초기화 도구는 플래그만 받고 질문하지 않습니다. `<skill-root>`는 `SKILL.md`가 들어 있는 설치 디렉터리입니다. `--answers`는 같은 답을 JSON 객체나 파일로 받으며, 키는 밑줄을 쓴 설정 이름과 `name`, `user`, `agents`, `ordering`입니다. 명시적 플래그가 그 키를 덮어씁니다. 답이 빠지면 오류 메시지가 완전한 예시 명령을 출력합니다.
 
@@ -379,7 +379,7 @@ Codex 훅에 의존하기 전에 `/hooks`에서 신뢰를 설정하세요. `ro` 
 - 호출별 훅은 충돌, 시간 초과, 잘못된 입력, 인터프리터 부재 시 통과시키며, `ro brief`가 훅 자체 시험과 경고 건수를 보고합니다. `ro external`, `ro launch`, Git pre-push 관문은 검증이 실패하거나 실행될 수 없으면 거부하며, pre-push는 메시지와 경로를 포함해 나가는 모든 커밋을 검사합니다.
 - 훅은 협조하는 세션의 사고를 막을 뿐, 적대적 공격에 대한 보안 경계가 아닙니다. 중첩된 인터프리터 본문, here-string 본문, 별칭, 동적 경로, 인코딩된 비밀은 신뢰할 수 있는 파싱 범위 밖입니다.
 
-Claude Code 플러그인에서는 SessionStart가 플러그인 매처가 다루지 않는 선택 검사를 알려 주고 이를 구독할 `install.py --project .`를 출력합니다. Git 체크아웃에 pre-push 관문이 없으면 SessionStart와 `ro brief`가 설치 명령과 함께 `publish gate not installed`도 보고합니다. 래퍼는 Python을 시작하기 전에 `agents.md`를 찾으므로 프로젝트 밖의 호출에는 인터프리터가 필요 없습니다. 작업 레지스트리가 없으면 Stop과 편집 검사는 Python을 생략하고, 변경 없는 PostToolUse 호출은 파일 스탬프로 생략하며, 변경 없는 압축은 체커 요약을 재사용합니다. Windows에서 측정한 호출당 p95는 프로젝트 밖과 작업 없는 Stop·편집에서 23–36 ms, 일반 셸 검사와 변경 없는 PostToolUse에서 48–125 ms로 150 ms 예산 안입니다.
+Claude Code 플러그인은 `AskUserQuestion`과 `Agent`를 구독하며, `Autonomy: away`와 `Brief requirements`가 비활성이면 해당 래퍼는 Python을 생략합니다. Read-bound 구독은 설치 도구에서 선택합니다. SessionStart와 `ro brief`는 Git 체크아웃에 등록된 pre-push 관문이 없을 때만 `publish gate not installed`와 `install.py --project <체크아웃 루트>`를 출력합니다. 등록된 관문이 있으면 호출별 중복 게시 검사를 생략하며, 호출별 사전 검사는 푸시가 실행되는 체크아웃을 읽습니다. 래퍼는 프로젝트 힌트와 명령 작업 디렉터리를 별도로 해석하며 프로젝트 밖에서는 인터프리터가 필요 없습니다. 작업 레지스트리가 없으면 Stop과 편집 검사도 Python을 생략합니다. PostToolUse는 2초 이상 안정된 파일 스탬프만 재사용하고, 브리프는 검토 영수증이나 산출물이 바뀌면 캐시를 갱신하고, 검토 증거는 최대 64 MiB까지만 해시하며 나머지는 미검증으로 표시해 `check_project.py`가 확인하게 합니다. 저장된 Windows 측정의 p95는 프로젝트 밖과 작업 없는 Stop·편집에서 23–36 ms, 일반 셸 검사와 변경 없는 PostToolUse에서 48–125 ms입니다. 새 감독 하위 프로세스의 측정값을 뜻하지 않습니다.
 
 [훅, 기능 표, 신뢰](skills/research-orchestrator/references/hooks-capabilities.md), [공개 관문](skills/research-orchestrator/references/publication-safety.md).
 
@@ -398,7 +398,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --workflow unified --migrate --user <user>
 ```
 
-4. `Workflow`를 바꾸려면 `--migrate`도 필요하며, 먼저 활성 슬롯을 해제하세요. 워크플로 마이그레이션은 `*.pre-migrate` 백업과 복구 저널을 남기지만, 설정만 바꾸는 재구성은 남기지 않습니다.
+4. `Workflow`를 바꾸려면 `--migrate`도 필요하며, 먼저 활성 슬롯을 해제하세요. 모든 설정 전환은 쓰기 전에 변경될 기록을 검증합니다. 호환되는 목표·검토 필드를 정규화하면서 증거와 실질적인 큐 순서를 보존합니다. 조율 파일이 바뀌면 워크플로가 같아도 `*.pre-migrate` 백업과 복구 저널을 사용합니다.
 5. 결과를 확인하고 체커를 다시 실행한 뒤 변경을 인계 이벤트로 기록하세요.
 
 워크플로를 바꾸거나 `--force`를 쓰기 전에 [마이그레이션과 롤백 절차](skills/research-orchestrator/references/migration-v2-to-v3.md)를 읽으세요.
@@ -415,13 +415,13 @@ python -m pytest -q -m "not latency"
 python scripts/validate_release.py
 ```
 
-가벼운 검사는 매니페스트 버전, README 구조와 링크, SVG 유효성, 코어와 참고 문서의 크기 예산, 분야 어휘, 기록 형식, 예제 프로젝트를 확인합니다. 릴리스 검사는 증거 ZIP 내부 항목을 포함한 `docs/`에서 비공개 경로, 계정 이름, 네이티브 식별자, 내부 세션 패턴을 검사합니다. 전체 검사는 결정론적 테스트 모음과 초기화·재구성 시나리오를 더합니다. 시간 측정 테스트에는 `latency` 표지가 붙어 있으며 `python -m pytest -q -m latency`로 따로 실행합니다.
+가벼운 검사는 매니페스트 버전, README 구조와 링크, SVG 유효성, 코어와 참고 문서의 크기 예산, 분야 어휘, 기록 형식, 예제 프로젝트를 확인합니다. 릴리스 검사는 증거 ZIP 내부 항목을 포함한 `docs/`에서 비공개 경로, 계정 이름, 네이티브 식별자, 내부 세션 패턴을 검사합니다. 전체 검사는 결정론적 테스트 모음과 초기화·재구성 시나리오를 더합니다. 시간 측정 테스트에는 `latency` 표지가 붙어 있으며 `python -m pytest -q -m latency tests/test_ro_cli.py tests/test_ro_hooks.py`로 따로 실행합니다.
 
 GitHub Actions는 Windows, Ubuntu, macOS에서 Python 3.12와 읽기 전용 권한으로 전체 검사를 실행한 뒤, OS마다 설치된 훅의 p95를 측정해 아티팩트로 보관합니다. 행동 사례, 트리거 평가, 설치된 호스트 시험 실행을 위한 개발 도구는 [scripts/evals](scripts/evals/README.md), [scripts/trigger](scripts/trigger/README.md), `scripts/host/`에 있습니다.
 
 ## 근거
 
-행동 근거는 과거 기록(이번 릴리스 그대로가 아닌 저장된 실행)이고, Codex 훅은 호출별 신뢰로만 검증되었으며, Windows 시간 측정은 로컬 결과이고, CI는 Windows·Ubuntu·macOS에서 통과했고 설치된 훅의 p95는 약 45–60ms입니다. [근거와 한계](docs/evals/README.md)를 확인하세요.
+행동 근거는 과거 기록(이번 릴리스 그대로가 아닌 저장된 실행)이고, Codex 훅은 호출별 신뢰로만 검증되었으며, Windows 시간 측정은 로컬 결과이고, 릴리스 6.0.1의 CI 실행은 Windows·Ubuntu·macOS에서 통과했고 설치된 훅의 p95는 약 45–60ms였습니다. [근거와 한계](docs/evals/README.md)를 확인하세요.
 
 ## 저장소 구성
 

@@ -10,7 +10,7 @@
 
 一个面向 Claude Code、Codex 和 Google Antigravity 的插件，让工作项目、研究和竞赛在多个 AI 会话之间持续推进。它包含一个技能、主机钩子、`ro` 命令行工具和一个只读审核代理。四个 Markdown 文件保存设置、任务队列、可复用的发现和持久的交接记录。预设决定会话如何共享队列、由谁审核发现，以及适用哪些证据检查。
 
-**版本 6.0.1。** 自 5.1.0 以来的变更见 [CHANGELOG.md](CHANGELOG.md)。现有项目可继续使用；更改其设置前，请先阅读下方的迁移一节。
+**版本 6.0.2。** 自 5.1.0 以来的变更见 [CHANGELOG.md](CHANGELOG.md)。现有项目可继续使用；更改其设置前，请先阅读下方的迁移一节。
 
 ## 为什么使用它
 
@@ -80,13 +80,13 @@ claude --plugin-dir <folder>
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --preset work-project --user user1
 python <skill-root>/scripts/check_project.py .
-ro --slot A brief
-ro --slot A next-id H
-ro --slot A claim <item>
-ro --slot A close
+ro --session <host-session> --slot A brief
+ro --session <host-session> --slot A next-id H
+ro --session <host-session> --slot A claim <item>
+ro --session <host-session> --slot A close
 ```
 
-初始化程序会写入下一节介绍的四个文件（`--list-presets` 可查看其他预设）。`ro brief` 恢复设置、钩子状态、槽位选择、认领、作业和检查器计数。`ro next-id H` 为 `plan.md` 中的新条目预留 ID；`ro claim` 为你的槽位锁定该条目（仅 unified 工作流）；`ro close` 释放空闲认领，运行检查器并报告剩余事项。代理在每个会话中重复这一循环，并按下文的条目生命周期记录每个完成的条目。
+`<host-session>` 是 SessionStart 在 `Host session:` 之后输出的 ID；省略时使用 `RO_SESSION` 或 Codex 线程 ID。初始化程序会写入下一节介绍的四个文件（`--list-presets` 可查看其他预设）。`ro brief` 恢复设置、钩子状态、槽位选择、认领、作业和检查器计数。`ro next-id H` 为 `plan.md` 中的新条目预留 ID；`ro claim` 为你的槽位锁定该条目（仅 unified 工作流）；`ro close` 释放空闲认领，运行检查器并报告剩余事项。代理在每个会话中重复这一循环，并按下文的条目生命周期记录每个完成的条目。
 
 ## 四个文件
 
@@ -128,7 +128,7 @@ ro --slot A close
 
 1. **预设**：上述六种之一（`--list-presets` 也会列出你保存的预设）。
 2. **你的名字**：作为本会话用户记录的一个词，例如 `user1`。
-3. **剩余预设问题**：从检测结果和请求推断平台、`Environment` 和 `Language`，仅在没有明确答案且检测失败或有歧义时询问；默认值通过 `Info:` 报告（`Language` 默认为 `en`）。竞赛预设还需要竞赛与阶段时钟。仅在仓库内询问 Git 同步；`quick` 只需预设和姓名，仓库内再加 Git 同步。
+3. **剩余预设问题**：从检测结果和请求推断平台、`Environment` 和 `Language`，仅在没有明确答案且检测失败或有歧义时询问；默认值通过 `Info:` 报告（`Language` 默认为 `en`）。竞赛预设还需要竞赛与阶段时钟。`--competition "kaggle/<slug> deadline=YYYY-MM-DD"` 提供适配器的外部操作模式和阶段时钟截止日期；显式 `--phase-clock` 优先。仅在仓库内询问 Git 同步；`quick` 只需预设和姓名，仓库内再加 Git 同步。
 
 随后代理会运行初始化程序；它只接受参数，从不提问。`<skill-root>` 是包含 `SKILL.md` 的安装目录。`--answers` 以 JSON 对象或文件接收同样的回答，键为带下划线的设置名以及 `name`、`user`、`agents` 和 `ordering`；显式参数会覆盖这些键。缺少回答时，错误信息会打印一条完整的示例命令。
 
@@ -379,7 +379,7 @@ ro kill <job>
 - 逐次调用的钩子在崩溃、超时、输入格式错误或缺少解释器时放行；`ro brief` 会报告钩子自检和警告计数。当验证失败或无法运行时，`ro external`、`ro launch` 和 Git pre-push 关卡会拒绝执行；pre-push 会扫描每个待推送的提交，包括提交信息和路径。
 - 钩子用于防止协作会话中的意外，并不是针对恶意行为的安全边界。嵌套的解释器代码体、here-string 内容、别名、动态路径和编码过的密钥都超出了可靠解析的范围。
 
-使用 Claude Code 插件时，SessionStart 会指出插件匹配器未覆盖的可选检查，并打印用于订阅它们的 `install.py --project .`；当 Git 检出缺少 pre-push 关卡时，SessionStart 和 `ro brief` 还会报告 `publish gate not installed` 及其安装命令。包装器在启动 Python 之前先查找 `agents.md`，因此项目之外的调用无需解释器。没有作业注册表时，Stop 和编辑检查跳过 Python；未变化的 PostToolUse 调用依据文件时间戳跳过它；未变化的压缩复用检查器摘要。在 Windows 上实测的每次调用 p95：项目之外以及无作业的 Stop 和编辑为 23–36 ms，普通 shell 检查和未变化的 PostToolUse 为 48–125 ms，均在 150 ms 预算之内。
+Claude Code 插件订阅 `AskUserQuestion` 和 `Agent`；`Autonomy: away` 与 `Brief requirements` 未启用时，相应包装器不启动 Python。Read-bound 订阅仍需通过安装程序选择。SessionStart 和 `ro brief` 仅在 Git 检出目录缺少已注册的 pre-push 关卡时输出 `publish gate not installed` 和 `install.py --project <检出根目录>`；已有注册关卡负责发布扫描，避免每次调用重复扫描；逐次调用的预检读取推送所在的检出目录。包装器分别解析项目提示和命令工作目录，项目外不需要解释器。没有作业注册表时，Stop 和编辑检查也跳过 Python。PostToolUse 只复用稳定超过两秒的文件戳；审核回执或产物变化时，简报使缓存检查失效；简报最多对 64 MiB 审核证据计算哈希，其余标为未验证，由 `check_project.py` 完整验证。保存的 Windows 测量显示，项目外及无作业 Stop/编辑调用的 p95 为 23–36 ms，普通 shell 检查和未变化的 PostToolUse 为 48–125 ms；这些数据不代表新的受监督子进程测量。
 
 [钩子、能力矩阵与信任](skills/research-orchestrator/references/hooks-capabilities.md)、[发布关卡](skills/research-orchestrator/references/publication-safety.md)。
 
@@ -398,7 +398,7 @@ python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure --workflow unified --migrate --user <user>
 ```
 
-4. 更改 `Workflow` 还需要 `--migrate`；请先释放活动槽位。工作流迁移会写入 `*.pre-migrate` 备份和恢复日志，而仅修改设置的重新配置不会。
+4. 更改 `Workflow` 还需要 `--migrate`；请先释放活动槽位。每次设置转换都会在写入前验证拟议记录，规范化兼容的目标和审核字段，同时保留证据和实际队列顺序。协调文件发生变化时，即使工作流不变，也会使用 `*.pre-migrate` 备份和恢复日志。
 5. 检查结果，重新运行检查器，并将此次变更记录为交接事件。
 
 在更改工作流或使用 `--force` 之前，请阅读[迁移与回滚流程](skills/research-orchestrator/references/migration-v2-to-v3.md)。
@@ -415,13 +415,13 @@ python -m pytest -q -m "not latency"
 python scripts/validate_release.py
 ```
 
-轻量检查覆盖清单版本、README 结构和链接、SVG 有效性、核心与参考文档的大小预算、领域词汇、记录格式和示例项目。发布检查会扫描 `docs/`（包括证据 ZIP 内的成员），查找私有路径、账户名、原生标识符和内部会话模式。完整检查再加上确定性测试套件以及初始化和重新配置场景。计时测试带有 `latency` 标记，通过 `python -m pytest -q -m latency` 单独运行。
+轻量检查覆盖清单版本、README 结构和链接、SVG 有效性、核心与参考文档的大小预算、领域词汇、记录格式和示例项目。发布检查会扫描 `docs/`（包括证据 ZIP 内的成员），查找私有路径、账户名、原生标识符和内部会话模式。完整检查再加上确定性测试套件以及初始化和重新配置场景。计时测试带有 `latency` 标记，通过 `python -m pytest -q -m latency tests/test_ro_cli.py tests/test_ro_hooks.py` 单独运行。
 
 GitHub Actions 在 Windows、Ubuntu 和 macOS 上以 Python 3.12 和只读权限运行完整检查，随后在每个操作系统上测量已安装钩子的 p95，并将结果保存为构件。用于行为用例、触发评估和已安装主机试运行的开发工具位于 [scripts/evals](scripts/evals/README.md)、[scripts/trigger](scripts/trigger/README.md) 和 `scripts/host/`。
 
 ## 证据
 
-行为证据是历史记录（保存的运行，而非本版本本身），Codex 钩子仅在逐次调用信任下得到验证，Windows 计时为本地结果，CI 已在 Windows、Ubuntu 和 macOS 上通过，已安装钩子的 p95 约为 45–60 ms；请参阅[证据与限制](docs/evals/README.md)。
+行为证据是历史记录（保存的运行，而非本版本本身），Codex 钩子仅在逐次调用信任下得到验证，Windows 计时为本地结果，6.0.1 版本的 CI 运行已在 Windows、Ubuntu 和 macOS 上通过，已安装钩子的 p95 约为 45–60 ms；请参阅[证据与限制](docs/evals/README.md)。
 
 ## 仓库结构
 

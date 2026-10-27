@@ -15,12 +15,14 @@ if __package__:
     from .run_evals import Case, load_cases, write_json, resolve_codex, resolved_model, saved_transport_category
     from .checks import SCRIPTED_CHECKS, CheckContext
     from .proc import no_window_flags
+    from .runtime_checks import EXECUTION_ASSERTIONS, runtime_evidence
     from .contamination import audit_saved_run, recover_reclassified_run, CONTAMINATION_EXCLUSION_REASON
     from .isolation import cleanup, config_arguments, configured_model_settings, prepare_environment
 else:
     from run_evals import Case, load_cases, write_json, resolve_codex, resolved_model, saved_transport_category
     from checks import SCRIPTED_CHECKS, CheckContext
     from proc import no_window_flags
+    from runtime_checks import EXECUTION_ASSERTIONS, runtime_evidence
     from contamination import audit_saved_run, recover_reclassified_run, CONTAMINATION_EXCLUSION_REASON
     from isolation import cleanup, config_arguments, configured_model_settings, prepare_environment
 
@@ -29,6 +31,71 @@ DEFAULT_WORKSPACE = ROOT.parent / "research-orchestrator-workspace"
 DEFAULT_SKILL = ROOT / "skills" / "research-orchestrator"
 DEFAULT_CREATOR = ROOT.parent / "_skill-creator"
 JUDGED_CHECKS = {
+    (case, assertion) for case, assertion in EXECUTION_ASSERTIONS.items()
+} | {
+    # These scenarios compare actual calls, preserved inputs, and multi-step outcomes.
+    ('brief-review-cache', '01-warm-cache.md'),
+    ('brief-review-cache', '02-receipt-invalidation.md'),
+    ('brief-review-cache', '03-artifact-invalidation.md'),
+    ('brief-review-cache', '04-preserved-records.md'),
+    ('brief-review-cache', '05-actual-calls.md'),
+    ('brief-review-cache', '06-hash-budget.md'),
+    ('brief-review-cache', '07-directory-link.md'),
+    ('competition-deadline-defaults', '01-execution.md'),
+    ('competition-deadline-defaults', '02-adapter.md'),
+    ('competition-deadline-defaults', '03-clock.md'),
+    ('competition-deadline-defaults', '04-questions.md'),
+    ('competition-deadline-defaults', '05-explicit.md'),
+    ('competition-deadline-defaults', '06-unknown.md'),
+    ('competition-deadline-defaults', '07-unmapped-transition.md'),
+    ('neutral-profile-scaffolding', '01-general-state.md'),
+    ('neutral-profile-scaffolding', '02-conditional-guidance.md'),
+    ('neutral-profile-scaffolding', '03-specialized-state.md'),
+    ('neutral-profile-scaffolding', '04-no-artificial-work.md'),
+    ('recent-record-wrapper-witness', '01-recent-no-ready.md'),
+    ('recent-record-wrapper-witness', '02-same-size-dispatch.md'),
+    ('recent-record-wrapper-witness', '03-future-conservative.md'),
+    ('recent-record-wrapper-witness', '04-aged-ready.md'),
+    ('registered-push-precheck', '01-registered-skip.md'),
+    ('registered-push-precheck', '02-unregistered-scan.md'),
+    ('registered-push-precheck', '03-authoritative-gate.md'),
+    ('registered-push-precheck', '04-startup-scope.md'),
+    ('registered-push-precheck', '05-target-checkout.md'),
+    ('release-numeric-reference-encoding', '01-damaged-rejected.md'),
+    ('release-numeric-reference-encoding', '02-unicode-restored.md'),
+    ('release-numeric-reference-encoding', '03-questions-preserved.md'),
+    ('release-numeric-reference-encoding', '04-execution-evidence.md'),
+    ('same-layout-profile-transition', '01-execution.md'),
+    ('same-layout-profile-transition', '02-independent-axis.md'),
+    ('same-layout-profile-transition', '03-order.md'),
+    ('same-layout-profile-transition', '04-evidence.md'),
+    ('same-layout-profile-transition', '05-checked.md'),
+    ('same-layout-profile-transition', '06-backups.md'),
+    ('same-layout-profile-transition', '07-rejection.md'),
+    ('same-layout-profile-transition', '08-fenced-sample.md'),
+    ('same-layout-profile-transition', '09-quick-preset.md'),
+    ('same-layout-review-transition', '01-execution.md'),
+    ('same-layout-review-transition', '02-independent-axis.md'),
+    ('same-layout-review-transition', '03-pending.md'),
+    ('same-layout-review-transition', '04-evidence.md'),
+    ('same-layout-review-transition', '05-queue.md'),
+    ('same-layout-review-transition', '06-checked.md'),
+    ('same-layout-review-transition', '07-backup.md'),
+    ('same-layout-review-transition', '08-self-review-rejection.md'),
+    ('separate-latency-tests', '01-default-exclusion.md'),
+    ('separate-latency-tests', '02-latency-opt-in.md'),
+    ('separate-latency-tests', '03-ci-scope.md'),
+    ('wrapper-inactive-policy-shortcut', '01-subscriptions.md'),
+    ('wrapper-inactive-policy-shortcut', '02-inactive-no-python.md'),
+    ('wrapper-inactive-policy-shortcut', '03-open-input.md'),
+    ('wrapper-inactive-policy-shortcut', '04-active-dispatch.md'),
+    ('wrapper-inactive-policy-shortcut', '05-read-boundary.md'),
+    ('wrapper-policy-root-cwd', '01-real-invocations.md'),
+    ('wrapper-policy-root-cwd', '02-policy-denial.md'),
+    ('wrapper-policy-root-cwd', '03-relative-protection.md'),
+    ('wrapper-policy-root-cwd', '04-scratch-clear.md'),
+    ('wrapper-policy-root-cwd', '05-missing-cwd.md'),
+    ("hook-latency-budget", "90-10-report-layers.md"),
     ('setup-json-answers', '06-example-command.md'),
     ('setup-json-answers', '05-answer-recovery.md'),
     ('release-ci-matrix', '90-07-separate-timing.md'),
@@ -134,6 +201,7 @@ JUDGED_CHECKS = {
     ('publish-gate-startup-notice', '03-nongit-control.md'),
     ('publish-gate-startup-notice', '04-unselected-notice.md'),
     ('publish-gate-startup-notice', '05-fail-closed-disclosure.md'),
+    ('publish-gate-startup-notice', '06-nested-project.md'),
     ('record-clock-tolerance', '01-grace-boundary.md'),
     ('record-clock-tolerance', '02-beyond-boundary.md'),
     ('record-clock-tolerance', '03-notebook-registration.md'),
@@ -534,6 +602,22 @@ def assertion_modes(case: Case) -> dict[str, str]:
     return modes
 
 
+def require_runtime_execution(case: Case, results: dict, context: CheckContext) -> dict:
+    """A correct-looking report cannot earn runtime credit without its calls."""
+    filename = EXECUTION_ASSERTIONS.get(case.name)
+    if filename is None:
+        return results
+    assertion = next((item for item in case.assertions if item.path.name == filename), None)
+    prerequisite = results.get(assertion.text, {}) if assertion else {}
+    captured, evidence = runtime_evidence(context, case.name)
+    if captured and prerequisite.get("passed") is True:
+        return results
+    reason = "Requested runtime execution is unverified: " + (evidence if not captured else prerequisite.get(
+        "evidence", "missing required execution assertion"))
+    return {text: expectation(text, False, reason + "; " + result["evidence"])
+            for text, result in results.items()}
+
+
 def grade_run(case: Case, run_dir: Path, *, checker_skill: Path = DEFAULT_SKILL,
               python: str = sys.executable, creator: Path = DEFAULT_CREATOR,
               codex: str = "codex", model: str | None = None, timeout: int = 600) -> dict:
@@ -581,6 +665,7 @@ def grade_run(case: Case, run_dir: Path, *, checker_skill: Path = DEFAULT_SKILL,
     judgement = judge_run(case, run_dir, judged, creator=creator, codex=codex, model=model,
                           timeout=timeout) if judged else {"expectations": [], "grader_duration_seconds": 0}
     results.update({item["text"]: item for item in judgement["expectations"]})
+    results = require_runtime_execution(case, results, context)
     if run.get("returncode") != 0 or run.get("error"):
         failure = f"Executor did not complete successfully: {run.get('error') or run.get('status')}"
         results = {text: expectation(text, False, failure + "; " + result["evidence"])

@@ -106,9 +106,18 @@ def test_compact_session_history_survives_reconfiguration_without_rewriting(tmp_
     set_queue(target, ITEM.replace("H-A-01", "H-A-03"))
     append_events(target, SESSION.replace("— session", "— H-A-04").replace("- Completed: H-A-01, H-A-02\n", ""))
     checker = check(target, max(NOW, dt.datetime.now()))
+    assert checker.plan_header["Ordering"] == "queue"
+    assert {i.field for i in found(checker, "ERROR", "plan.field.missing")} == (
+        check_project.WORK_PLAN_OPTIONAL - set(check_project.WORK_ROUTING_DEFAULTS) - check_project.PLAN_SCORES)
+    assert {i.field for i in found(checker, "ERROR", "event.field.missing")} == check_project.SESSION_OPTIONAL
+    # Preserving queue order makes scores optional; explicitly ranking by them
+    # still requires every score, regardless of the old session history.
+    plan = target / "plan.md"
+    plan.write_text(plan.read_text(encoding="utf-8").replace("Ordering: queue", "Ordering: priority"),
+                    encoding="utf-8", newline="\n")
+    checker = check(target, max(NOW, dt.datetime.now()))
     assert {i.field for i in found(checker, "ERROR", "plan.field.missing")} == (
         check_project.WORK_PLAN_OPTIONAL - set(check_project.WORK_ROUTING_DEFAULTS))
-    assert {i.field for i in found(checker, "ERROR", "event.field.missing")} == check_project.SESSION_OPTIONAL
 
 
 @pytest.mark.parametrize("field", ["Host", "User", "Action", "Result", "Completed"])

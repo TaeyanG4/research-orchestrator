@@ -359,39 +359,71 @@ def _checker(project: Project):
     return checker, code
 
 
+UNVERIFIED_REVIEW = "event.stage.review.unverified"
+
+
 def _checker_brief(project: Project, *, compact: bool = False) -> tuple[dict, int, dict]:
     """Reuse stamped summaries at compact; jobs and observations stay live on every brief."""
+    from ro_evidence import BRIEF_HASH_BYTES, hash_budget
+    # One budget covers stamping and the checker; digests from the stamp are reused.
+    with hash_budget(BRIEF_HASH_BYTES):
+        return _bounded_checker_brief(project, compact)
+
+
+def _bounded_checker_brief(project: Project, compact: bool) -> tuple[dict, int, dict]:
     import ro_settings as rs
+    from ro_evidence import stat_artifact
     root = Path(__file__).resolve().parent.parent
     dependencies = [*(project.root / name for name in FILES), project.state / "checker-baseline.json",
+                    project.state / "receipts.json",
                     project.root / rs.TRANSACTION,
                     *(root / "scripts" / name for name in ("check_project.py", "ro_settings.py", "ro_ids.py", "ro_markdown.py", "ro_records.py",
-                                                           "init_research_orchestrator.py")),
+                                                           "ro_stages.py", "ro_evidence.py", "init_research_orchestrator.py")),
                     *sorted((root / "templates").rglob("*.template"))]
     stamp = []
     for path in dependencies:
         stat = path.stat() if path.exists() else None
         stamp.append([str(path), stat.st_mtime_ns if stat else None, stat.st_ctime_ns if stat else None,
                       stat.st_size if stat else None, stat.st_ino if stat else None])
+    # Review receipts bind content, including directory members. A parent directory's
+    # timestamp cannot reveal an edited member, so the stamp is bounded: content up to
+    # STAMP_HASH_BYTES, member metadata above it. Stamps and a rerun checker share one
+    # BRIEF_HASH_BYTES budget, so a large reviewed artifact is reported as unverified in the
+    # brief instead of being hashed inside the hook deadline; check_project.py verifies it.
+    artifacts = sorted(set(re.findall(r"^- Review artifact:[ \t]*([^\n]+)",
+                                     mask_fences(_text(project, "handoff.md")), re.M)))
+    uncached = False
+    for artifact in artifacts:
+        try:
+            review_stamp = stat_artifact(project, artifact.strip())
+        except (OSError, ValueError) as exc:
+            review_stamp = {"unavailable": type(exc).__name__}
+        uncached = uncached or bool(review_stamp.get("unstamped"))
+        stamp.append(["review", artifact, review_stamp])
     now = time.time()
     checks = ("guard.insight.overdue", "guard.direction.stale", "guard.phase.milestone",
-              "guard.override.recheck", "guard.family.saturated")
+              "guard.override.recheck", "guard.family.saturated", "event.stage.review")
     try:
         saved = project.read_json("checker-brief.json", {})
         age = now - saved.get("at", 0)
-        if (saved.get("stamp") == stamp and 0 <= age and (compact or age < 60)
+        if (not uncached and saved.get("stamp") == stamp and 0 <= age and (compact or age < 60)
                 and saved.get("day") == dt.date.today().isoformat()):
             counts, code, guards = saved["counts"], saved["code"], saved["guards"]
             if (all(type(counts.get(level)) is int and counts[level] >= 0 for level in ("ERROR", "WARN", "INFO"))
                     and code in (0, 1, 2) and isinstance(guards, dict)
-                    and all(key in checks and isinstance(ids, list) and all(isinstance(i, str) for i in ids)
-                            for key, ids in guards.items())):
+                    and all(key in (*checks, UNVERIFIED_REVIEW) and isinstance(ids, list)
+                            and all(isinstance(i, str) for i in ids) for key, ids in guards.items())):
                 return counts, code, guards
     except (OSError, ValueError, TypeError, KeyError, AttributeError):
         pass
     checker, code = _checker(project)
     counts = {level: sum(issue.severity == level for issue in checker.issues) for level in ("ERROR", "WARN", "INFO")}
-    guards = {check: [issue.record for issue in checker.issues if issue.check == check] for check in checks}
+    # Review evidence the budget left unverified is listed apart from failed or stale reviews.
+    deferred = [issue for issue in checker.issues
+                if issue.check == "event.stage.review" and "hash budget" in issue.message]
+    guards = {check: [issue.record for issue in checker.issues
+                      if issue.check == check and not any(issue is item for item in deferred)] for check in checks}
+    guards[UNVERIFIED_REVIEW] = [issue.record for issue in deferred]
     try:
         with project.lock(timeout=0.15):
             project.write_json("checker-brief.json", {"stamp": stamp, "at": now, "day": dt.date.today().isoformat(),
@@ -403,75 +435,15 @@ def _checker_brief(project: Project, *, compact: bool = False) -> tuple[dict, in
 
 def publish_gate_guidance(project: Project, shell: str) -> list[str]:
     """Report a missing checkout registration without implying host hooks guard pushes."""
-    from ro_command import install_command
-    from ro_proc import no_window_flags
-    root = next((path for path in (project.root, *project.root.parents)
-                 if (path / ".git").exists()), None)
-    if root is None:
+    from ro_command import install_command, literal
+    from ro_gate import registration
+    root, registered = registration(project.root)
+    if root is None or registered:
         return []
-    try:
-        result = subprocess.run(["git", "-C", str(root), "rev-parse", "--git-path", "hooks"],
-                                capture_output=True, text=True, check=True, timeout=1,
-                                creationflags=no_window_flags())
-        scope = os.path.normcase(str(root.resolve()))
-        key = hashlib.sha256(scope.encode("utf-8")).hexdigest()
-        hooks = result.stdout.strip()
-        if hooks and (root / hooks / "research-orchestrator" / "registrations" / (key + ".json")).is_file():
-            return []
-    except (OSError, subprocess.SubprocessError):
-        pass  # Missing Git or unreadable configuration cannot confirm a gate.
-    command = install_command(shell, "--project .") or "python <checkout>/install.py --project ."
+    # Name the checkout root: install.py refuses --project from a nested directory.
+    target = literal(str(root), shell)
+    command = install_command(shell, "--project " + target) or f"python <checkout>/install.py --project {target}"
     return ["publish gate not installed — " + command]
-
-
-def plugin_matcher_guidance(project: Project, values: dict[str, str]) -> list[str]:
-    """Expose opt-in checks the lightweight plugin registration does not subscribe to."""
-    required = {}
-    if values.get("autonomy") == "away":
-        required["ask.away"] = ("AskUserQuestion",)
-    if values.get("brief_requirements", "none") != "none":
-        required["brief.requirements"] = ("Agent",)
-    if values.get("read_bound") == "on":
-        required["jobs.read-bound"] = ("Glob", "Grep", "Read")
-    if not required:
-        return []
-    config = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
-    paths = [config / "settings.json", project.root / ".claude/settings.json",
-             project.root / ".claude/settings.local.json"]
-    enabled, entries = {}, []
-    for path in paths:
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-            plugins = data.get("enabledPlugins", {})
-            if isinstance(plugins, dict):
-                enabled.update(plugins)
-            declarations = data.get("hooks", {}).get("PreToolUse", [])
-            if isinstance(declarations, list):
-                entries.extend(declarations)
-        except (OSError, ValueError, TypeError, AttributeError):
-            continue
-    if not any(value is True and str(key).split("@", 1)[0] == "research-orchestrator"
-               for key, value in enabled.items()) and not os.environ.get("CLAUDE_PLUGIN_ROOT"):
-        return []
-    covered = set()
-    for entry in entries:
-        if not isinstance(entry, dict) or not isinstance(entry.get("hooks"), list):
-            continue
-        if not any(isinstance(hook, dict) and hook.get("type") == "command"
-                   and re.search(r"(?:[/\\])ro-hook\.(?:sh|cmd)(?:[\"'\s]|$)", str(hook.get("command", "")))
-                   and re.search(r"(?:^|\s)PreToolUse(?:\s|$)", str(hook.get("command", "")))
-                   for hook in entry["hooks"]):
-            continue
-        matcher = entry.get("matcher", "")
-        if not isinstance(matcher, str):
-            continue
-        try:
-            covered.update(tool for tools in required.values() for tool in tools
-                           if not matcher or matcher == "*" or re.fullmatch(matcher, tool))
-        except re.error:
-            continue
-    missing = [check for check, tools in required.items() if not all(tool in covered for tool in tools)]
-    return ["/".join(missing) + " not subscribed; run install.py --project ."] if missing else []
 
 
 def runtime_guidance(values: dict[str, str], project: Project | None = None) -> list[str]:
@@ -489,7 +461,6 @@ def runtime_guidance(values: dict[str, str], project: Project | None = None) -> 
                          "add its reported shim directory to PATH. The ro command prefix above works now.")
     if project is not None:
         lines.extend(publish_gate_guidance(project, shell))
-        lines.extend(plugin_matcher_guidance(project, values))
     return lines
 
 
@@ -557,11 +528,15 @@ def brief(project: Project, max_chars: int = 8000, *, compact: bool = False) -> 
         counts, code, guards = _checker_brief(project, compact=True) if compact else _checker_brief(project)
         lines.append("Checker: " + "; ".join(f"{severity} {counts[severity]}" for severity in ("ERROR", "WARN", "INFO")))
         for check in ("guard.insight.overdue", "guard.direction.stale", "guard.phase.milestone",
-                      "guard.override.recheck", "guard.family.saturated"):
+                      "guard.override.recheck", "guard.family.saturated", "event.stage.review"):
             records = guards.get(check, [])
             if records:
                 ids = list(dict.fromkeys(_fact_id(record) for record in records))[:8]
                 lines.append(f"{check}: {len(records)}; IDs {', '.join(ids)}")
+        if unverified := guards.get(UNVERIFIED_REVIEW, []):
+            ids = list(dict.fromkeys(_fact_id(record) for record in unverified))[:8]
+            lines.append(f"event.stage.review unverified within the brief's hash budget: {len(unverified)}; "
+                         f"IDs {', '.join(ids)}; verify with check_project.py or ro receipt check")
         if code == 2:
             lines.append("Checker unavailable: project files missing or unreadable")
     except (OSError, ValueError, KeyError, AttributeError):

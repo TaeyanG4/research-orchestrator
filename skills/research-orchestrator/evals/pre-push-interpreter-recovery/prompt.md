@@ -9,4 +9,6 @@ Our publication gate stopped launching after Python was upgraded. Use the scenar
 
 Use recovery.json keys override, python3, python, py, unavailable and denied. Each row has selected_command (an argv array, empty if unavailable), exit_code, stderr and scanner_calls. Each scanner call records stdin_hex and remote. Also record refs_hex and remote at the document root, plus override_command (the expected synthetic override argv).
 
+Print the captured recovery results to the command output and retain the harness source, so the report can be checked against actual dispatcher calls with the mocked launches.
+
 Input files: recovery.txt

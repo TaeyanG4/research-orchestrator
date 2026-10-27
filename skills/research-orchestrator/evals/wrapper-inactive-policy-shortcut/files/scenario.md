@@ -1,0 +1,3 @@
+# Scenario
+
+Inspect hooks/hooks.json for AskUserQuestion and Agent entries with their tool hints. Configure Autonomy: present and Brief requirements: none. Point RO_HOOK_PYTHON at a sentinel that logs invocation and echoes its input. Invoke each wrapper with an open stdin pipe and verify that inactive subscriptions finish before stdin closes. Then set Autonomy: away and Brief requirements: reviewer: Scope without reinstalling. Invoke with captured input and verify the sentinel receives it unchanged. Repeat with a missing setting and a conflicting duplicate setting: missing is inactive, conflicting is conservative dispatch.

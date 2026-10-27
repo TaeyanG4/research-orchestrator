@@ -1,0 +1,16 @@
+[
+  {
+    "directory": "mapped",
+    "competition": "kaggle/fixture-task"
+  },
+  {
+    "directory": "explicit-disabled",
+    "competition": "kaggle/fixture-task",
+    "external_actions": "none",
+    "phase_clock": "off"
+  },
+  {
+    "directory": "unknown",
+    "competition": "hub/fixture-task"
+  }
+]

@@ -254,7 +254,7 @@ These decisions reconcile §3.2 and §7 with the shipped P1 settings table ([P1 
 
 ## Reconciliation after round 11 (2026-10-27)
 
-- Reduce ?2.4's proposed standing-rule replacement declaration and `mistake ? enforced by <check/hook id>` lesson syntax to writing guidance. Semantic replacement and useful lessons cannot be established from a marker alone; no `rules.standing.replaces` or `rules.lesson.format` finding is shipped. Existing Project rules budgets and override validation remain.
-- Reduce ?6's per-column-probe setting to task-specific Project rules prose; `Per-column probes:` is not a validated setting. Record the actual scope and limits when a task needs probes. Code-competition runtime checks remain an operator decision from dated source limits and measured runtime, now explicit in the adapter; no live platform request or runtime-limit checker is added.
+- Reduce §2.4's proposed standing-rule replacement declaration and `mistake → enforced by <check/hook id>` lesson syntax to writing guidance. Semantic replacement and useful lessons cannot be established from a marker alone; no `rules.standing.replaces` or `rules.lesson.format` finding is shipped. Existing Project rules budgets and override validation remain.
+- Reduce §6's per-column-probe setting to task-specific Project rules prose; `Per-column probes:` is not a validated setting. Record the actual scope and limits when a task needs probes. Code-competition runtime checks remain an operator decision from dated source limits and measured runtime, now explicit in the adapter; no live platform request or runtime-limit checker is added.
 
 Reconciled 2026-10-27: the shipped initializer has six built-in presets; future timestamps share a five-minute tolerance. The current local wrapper fast-path measurement restores 150 ms p95; historical timings remain scoped to their recorded runtimes.

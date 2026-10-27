@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: stop-once-per-job
 expected_outcome: |
-  Stop denies once for each unmonitored owned job in one session, then warns without denying; a newly listed job receives its own first denial.
+  Captured adapter calls and independently retained responses show that Stop denies once for each unmonitored owned job in one session, then warns without denying; a newly listed job receives its own first denial. An authored response array alone does not establish execution.
 context:
   scaffold_script: place-files.sh

@@ -909,24 +909,54 @@ def test_pretool_latency_does_not_depend_on_large_coordination_files(tmp_path) -
     assert p95 < .150, f"in-process hook p95 {p95 * 1000:.1f} ms >= 150 ms"
     # Include the production child's -E -S startup policy, parsing and JSON output.
     # Inherited PYTHONDONTWRITEBYTECODE otherwise defeats the per-user cache being measured.
-    def invoke():
-        result = subprocess.run([sys.executable, "-E", "-S", str(SCRIPTS / "ro.py"), "--project", str(project.root),
-                                 "hook", "PreToolUse"], input=json.dumps(payload), capture_output=True,
+    def invoke(baseline=False):
+        args = ["-c", "pass"] if baseline else [str(SCRIPTS / "ro.py"), "--project", str(project.root),
+                                                "hook", "PreToolUse"]
+        result = subprocess.run([sys.executable, "-E", "-S", *args], input=json.dumps(payload), capture_output=True,
                                 text=True, encoding="utf-8", timeout=10)
-        assert result.returncode == 0 and json.loads(result.stdout) == {}, result.stderr
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == "" if baseline else json.loads(result.stdout) == {}, result.stderr
     # Compile into the isolated user cache before measuring repeated hook latency.
     for _ in range(2):
+        invoke(baseline=True)
         invoke()
     batches = []
+    baseline_batches = []
     for _ in range(3):
         process_samples = []
+        baseline_samples = []
         for _ in range(20):
+            # Adjacent calls share runner load; both include identical interpreter flags and pipes.
+            start = time.perf_counter()
+            invoke(baseline=True)
+            baseline_samples.append(time.perf_counter() - start)
             start = time.perf_counter()
             invoke()
             process_samples.append(time.perf_counter() - start)
         batches.append(sorted(process_samples)[18])
+        baseline_batches.append(sorted(baseline_samples)[18])
     p95_process = sorted(batches)[1]
-    assert p95_process < .150, f"subprocess hook p95 {p95_process * 1000:.1f} ms >= 150 ms"
+    p95_baseline = sorted(baseline_batches)[1]
+    overhead = p95_process - p95_baseline
+    print(f"\nLATENCY subprocess hook p95={p95_process * 1000:.1f} ms; "
+          f"interpreter p95={p95_baseline * 1000:.1f} ms; overhead={overhead * 1000:.1f} ms")
+    if destination := os.environ.get("RO_LATENCY_REPORT"):
+        path = Path(destination)
+        report = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        report["subprocess"] = {
+            "layer": "direct-child", "samples_per_batch": 20, "warmups": 2,
+            "batch_p95_ms": [value * 1000 for value in batches],
+            "baseline_batch_p95_ms": [value * 1000 for value in baseline_batches],
+            "p95_ms": p95_process * 1000, "baseline_p95_ms": p95_baseline * 1000,
+            "overhead_ms": overhead * 1000, "overhead_budget_ms": 150, "absolute_budget_ms": 300,
+            "in_process_p95_ms": p95 * 1000, "hook_output_correct": True,
+            "passed": overhead < .150 and p95_process < .300,
+        }
+        path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    assert overhead < .150, (f"subprocess hook p95 {p95_process * 1000:.1f} ms minus interpreter "
+                             f"baseline p95 {p95_baseline * 1000:.1f} ms = {overhead * 1000:.1f} ms "
+                             ">= 150 ms overhead budget")
+    assert p95_process < .300, f"subprocess hook p95 {p95_process * 1000:.1f} ms >= 300 ms absolute ceiling"
 
 
 @pytest.fixture

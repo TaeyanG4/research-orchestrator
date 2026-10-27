@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: neutral-profile-scaffolding
+expected_outcome: |
+  General work and research scaffolds omit unused compute summaries while competition or a collector retains relevant state.
+context:
+  scaffold_script: place-files.sh

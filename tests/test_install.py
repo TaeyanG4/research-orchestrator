@@ -212,7 +212,7 @@ def test_reinstall_is_idempotent_and_keeps_foreign_hooks_with_a_backup(home):
     merged = json.loads(settings.read_text(encoding="utf-8"))
     assert merged["model"] == "x" and merged["hooks"]["PreToolUse"][0] == foreign
     assert [entry["matcher"] for entry in merged["hooks"]["PreToolUse"]] == [
-        "Bash", "Bash|PowerShell", "Edit|Write|NotebookEdit"]
+        "Bash", "Bash|PowerShell", "Edit|Write|NotebookEdit", "AskUserQuestion", "Agent"]
     backups = list(settings.parent.glob("settings.json.bak-*"))
     assert len(backups) == 1 and backups[0].read_text(encoding="utf-8") == original
     before = snapshot(home)
@@ -593,6 +593,7 @@ def test_powershell_literals_preserve_dollar_quotes_and_backticks(tmp_path):
 
 @pytest.mark.parametrize("layout", ["linked-worktrees", "shared-hooks-path"])
 def test_shared_git_gate_owns_each_scope_and_uninstall_preserves_the_other(home, tmp_path, layout):
+    from ro_gate import registration
     first = make_project(tmp_path, "scope-one", "--preset", "quick", "--user", "operator")
     subprocess.run(["git", "init", "-q", str(first)], check=True, capture_output=True)
     if layout == "linked-worktrees":
@@ -616,6 +617,11 @@ def test_shared_git_gate_owns_each_scope_and_uninstall_preserves_the_other(home,
     records = {json.loads(path.read_text(encoding="utf-8"))["scope"]: path.read_bytes()
                for path in registrations.glob("*.json")}
     assert len(records) == 2
+    assert registration(first) == (first, True)
+    assert registration(second) == (second, True)
+    nested = second / "nested"
+    nested.mkdir()
+    assert registration(nested) == (second, True)
 
     def check(project, expected):
         result = subprocess.run([shutil.which("sh"), (hookdir / "pre-push").as_posix(), "origin"],
@@ -630,10 +636,14 @@ def test_shared_git_gate_owns_each_scope_and_uninstall_preserves_the_other(home,
     remaining = list(registrations.glob("*.json"))
     assert len(remaining) == 1
     assert remaining[0].read_bytes() == records[os.path.normcase(str(second.resolve()))]
+    assert registration(first) == (first, False)
+    assert registration(second) == (second, True)
     check(first, 0)
     check(second, 1)
     install("--home", str(home), "--project", str(second), "--host", "codex", "--uninstall")
     assert list(registrations.glob("*.json")) == []
+    assert registration(first) == (first, False)
+    assert registration(second) == (second, False)
     check(first, 0)
     check(second, 0)
 
@@ -721,13 +731,13 @@ def test_project_read_matcher_is_opt_in_and_independent_of_plugin(home, tmp_path
     assert not any("Read" in entry["matcher"].split("|") for entry in entries)
 
 
-@pytest.mark.parametrize("autonomy,brief,expected", [
-    ("present", "none", set()),
-    ("away", "none", {"AskUserQuestion"}),
-    ("present", "reviewer: Inspect evidence", {"Agent"}),
-    ("away", "reviewer: Inspect evidence", {"AskUserQuestion", "Agent"}),
+@pytest.mark.parametrize("autonomy,brief", [
+    ("present", "none"),
+    ("away", "none"),
+    ("present", "reviewer: Inspect evidence"),
+    ("away", "reviewer: Inspect evidence"),
 ])
-def test_project_claude_matchers_skip_tools_with_no_configured_check(home, tmp_path, autonomy, brief, expected):
+def test_project_claude_matchers_survive_governing_policy_changes(home, tmp_path, autonomy, brief):
     project = tmp_path / "project"
     project.mkdir()
     rules = project / "agents.md"
@@ -737,16 +747,16 @@ def test_project_claude_matchers_skip_tools_with_no_configured_check(home, tmp_p
     def tools():
         entries = setup.claude_template("${CLAUDE_PROJECT_DIR}/.claude/skills/research-orchestrator")["PreToolUse"]
         return {tool for entry in entries for tool in entry["matcher"].split("|")}
-    assert tools() & {"AskUserQuestion", "Agent"} == expected
+    assert {"AskUserQuestion", "Agent"} <= tools()
     assert {"Edit", "Write", "NotebookEdit", "Bash", "PowerShell"} <= tools()
-    assert "rerun install.py --project" in " ".join(setup.notes)
+    assert "rerun install.py --project" not in " ".join(setup.notes)
     rules.write_text("## Project settings\n- Autonomy: away\n- Brief requirements: reviewer: Inspect evidence\n",
                      encoding="utf-8")
     assert {"AskUserQuestion", "Agent"} <= tools()
 
 
 @pytest.mark.parametrize("scope", ["home", "missing", "unreadable", "no-section"])
-def test_unknown_project_policy_keeps_optional_claude_matchers_disabled(home, tmp_path, scope):
+def test_unknown_project_policy_keeps_question_and_agent_claude_matchers(home, tmp_path, scope):
     arguments = ["--home", str(home), "--host", "claude-code"]
     if scope != "home":
         project = tmp_path / "project"
@@ -759,5 +769,5 @@ def test_unknown_project_policy_keeps_optional_claude_matchers_disabled(home, tm
     setup = installer.Installer(installer.parser().parse_args(arguments))
     entries = setup.claude_template("portable-root")["PreToolUse"]
     tools = {tool for entry in entries for tool in entry["matcher"].split("|")}
-    assert not {"AskUserQuestion", "Agent"} & tools
+    assert {"AskUserQuestion", "Agent"} <= tools
     assert {"Edit", "Write", "NotebookEdit", "Bash", "PowerShell"} <= tools

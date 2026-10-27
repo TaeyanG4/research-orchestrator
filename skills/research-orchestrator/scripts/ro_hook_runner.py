@@ -302,14 +302,23 @@ def finished(project, event, output, code, failure=False):
 
 def run(event: str, raw: bytes, project, check: str | None = None, general: bool = False,
         interpreter: str | None = None, timeout: float = DEADLINE,
-        in_process: bool = False) -> tuple[dict, int]:
+        in_process: bool = False, policy_root: str | None = None) -> tuple[dict, int]:
     payload = {}
+    command_directory = os.path.abspath(project.root)
+    if policy_root:
+        project = SimpleNamespace(root=policy_root, slot=project.slot, session=project.session)
     try:
         if len(raw) > MAX_INPUT:
             raise ValueError("oversized input")
         if event != "pre-push":
             original = json.loads(raw or b"{}")
-            payload = normalize_payload(original)
+            incoming = original
+            if policy_root and isinstance(original, dict) and "cwd" not in original:
+                # A host may provide only a relative tool workdir, or no cwd at
+                # all. Resolve that against the wrapper's invocation directory,
+                # independently of the project that owns settings and jobs.
+                incoming = {**original, "cwd": command_directory}
+            payload = normalize_payload(incoming)
             if not valid_payload(payload):
                 raise ValueError("invalid input")
             if payload != original:
@@ -318,11 +327,22 @@ def run(event: str, raw: bytes, project, check: str | None = None, general: bool
             # replace the association selected by a command in that session.
             session = str(payload.get("session_id", project.session))
             slot = payload.get("slot") if session else payload.get("slot", project.slot)
-            project = SimpleNamespace(root=payload.get("cwd", project.root), slot=slot,
+            project = SimpleNamespace(root=policy_root or payload.get("cwd", project.root), slot=slot,
                                       session=session)
     except (ValueError, UnicodeError, TypeError, RecursionError):
         return finished(project, event, failed(project, event, {}, "malformed or oversized input"), 0, failure=True)
     if quiet(event, payload, project.root):
+        if event == "PostToolUse" and policy_root:
+            # A recent snapshot cannot publish coarse-timestamp witnesses yet.
+            # The next unchanged wrapper call should publish them once aged,
+            # rather than leaving every later call on the Python path forever.
+            try:
+                if not os.path.isfile(os.path.join(project.root, ".ro", "records-hook.ready")):
+                    from ro_hooks import _wrapper_snapshot
+                    from ro_state import Project
+                    _wrapper_snapshot(Project(project.root, project.slot, project.session, require_slot=False))
+            except (OSError, ValueError, TypeError):
+                pass  # This optional shortcut cannot change the hook decision.
         return finished(project, event, {}, 0)
     if in_process:
         # Only main() enables this path: it owns the process and has armed an
@@ -331,7 +351,7 @@ def run(event: str, raw: bytes, project, check: str | None = None, general: bool
         import io
         captured = io.StringIO()
         args = SimpleNamespace(project=project.root, slot=project.slot, session=project.session,
-                               event=event, check=check, general=general, remote=None)
+                               event=event, check=check, general=general, remote=None, policy_root=policy_root)
         try:
             from ro import hook_main
             with contextlib.redirect_stdout(captured):
@@ -352,12 +372,15 @@ def run(event: str, raw: bytes, project, check: str | None = None, general: bool
     if project.slot:
         command += ["--slot", project.slot]
     command += ["--session", project.session, "hook", event]
+    if policy_root:
+        command += ["--policy-root", policy_root]
     if check:
         command += ["--check", check]
     if general:
         command.append("--general")
     try:
-        result = subprocess.run(command, input=raw, capture_output=True, timeout=timeout, cwd=project.root,
+        result = subprocess.run(command, input=raw, capture_output=True, timeout=timeout,
+                                cwd=command_directory if policy_root else project.root,
                                 creationflags=no_window_flags())
         if result.returncode not in ((0, 1) if event == "pre-push" else (0,)):
             raise RuntimeError("child crash")
@@ -388,13 +411,15 @@ def main() -> int:
     if not arguments or arguments[0] not in ("SessionStart", "PreToolUse", "PostToolUse", "Stop", "pre-push"):
         print(__doc__, file=sys.stderr)
         return 2
-    event, check, general = arguments.pop(0), None, False
+    event, check, general, policy_root = arguments.pop(0), None, False, None
     while arguments:
         option = arguments.pop(0)
         if option == "--general":
             general = True
-        elif option == "--tool" and event == "PreToolUse" and arguments and arguments[0] == "edit":
+        elif option == "--tool" and event == "PreToolUse" and arguments and arguments[0] in ("edit", "ask", "agent"):
             arguments.pop(0)  # Wrapper hint only; the payload remains authoritative.
+        elif option == "--policy-root" and arguments:
+            policy_root = arguments.pop(0)
         elif option == "--check" and arguments and arguments[0] in ("publish.scan", "external.gate"):
             check = arguments.pop(0)
         else:
@@ -425,7 +450,7 @@ def main() -> int:
         output, code = run(event, sys.stdin.buffer.read(MAX_INPUT + 1),
                            SimpleNamespace(root=os.getcwd(), slot=os.environ.get("RO_SLOT"),
                                            session=os.environ.get("RO_SESSION") or os.environ.get("CODEX_THREAD_ID", "")),
-                           check, general, in_process=in_process)
+                           check, general, in_process=in_process, policy_root=policy_root)
         if in_process:
             with finished_lock:
                 done = True

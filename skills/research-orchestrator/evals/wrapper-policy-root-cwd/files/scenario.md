@@ -1,0 +1,3 @@
+# Scenario
+
+Create a policy project with block enforcement for shell.background and jobs.mutate-bound. Launch wrappers from a sibling directory without agents.md. The hint points to a child of the policy project. Add a synthetic active job binding to a protected folder in the command directory. Check a background command, rm input.txt with relative workdir protected, the same command with workdir scratch, and rm protected/input.txt from the command directory. Only the scratch mutation is clear. Use the native environment path semantics. Repeat mutations with command cwd present in the payload and with that field omitted: the wrapper invocation directory provides the latter's base, while the hint selects settings and job ownership.

@@ -157,14 +157,26 @@ def test_original_v2_template_upgrades_without_force(tmp_path, mode) -> None:
     settings.update(platform_mode=mode, git="off")
     if mode == "single":
         settings.update(platforms="Claude Code", reviewer="off", collector="off")
+        # The frozen example has two hosts. Build a valid single-host variant
+        # before taking the preservation snapshot; do not ask upgrade to hide it.
+        for name in ("discoveries.md", "handoff.md"):
+            path = target / name
+            text = path.read_text(encoding="utf-8").replace("Codex", "Claude Code")
+            if name == "discoveries.md":
+                text = text.replace(": CLOSED —", ": CLOSED — same host —")
+            path.write_text(text, encoding="utf-8", newline="\n")
     rendered = init.render_agents(settings, "Original template project", "v2")
     region = "\n## Project rules\n\n- Retain the original local maintenance rule.\n"
     agents.write_text(rendered + region, encoding="utf-8", newline="\n")
     before = {name: (target / name).read_bytes() for name in PROJECT_FILES}
-    assert not found(check(target), check_id="agents.rules.edited")
+    initial = check(target)
+    assert not found(initial, "ERROR"), [issue.render() for issue in initial.issues]
+    assert not found(initial, check_id="agents.rules.edited")
     result = run_init(target, "--reconfigure")
     assert result.returncode == 0, result.stderr
-    assert not found(check(target), check_id="agents.rules.stale")
+    upgraded = check(target)
+    assert not found(upgraded, "ERROR"), [issue.render() for issue in upgraded.issues]
+    assert not found(upgraded, check_id="agents.rules.stale")
     assert agents.read_text(encoding="utf-8").endswith(region)
     assert before == {name: (target / name).read_bytes() for name in before}
 

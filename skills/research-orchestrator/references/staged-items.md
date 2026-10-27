@@ -26,7 +26,7 @@ After any stage produces `Decision: changed`, record its observed evidence and d
 
 Earlier work summaries naming one changed stage in `Action` remain supported. Before replacing such a summary, preserve its stage ID, evidence, discovery, artifact and original observation time in a dedicated event; only then remove the summary's stage-specific decision fields. Keep a separate event and stage-scoped receipt for each changed stage.
 
-The checker reports absent or stale reviews; the next launch for an item waits for every changed-stage event belonging to it to have a current receipt. Operational stages add no after-result gate, and unrelated items remain runnable. If no independent reviewer is available, preserve the result and pending review in the handoff, close the session, and leave the dependent launch blocked; do not invent a reviewer or lower the policy.
+The checker reports absent or stale reviews; the next launch for an item waits for every changed-stage event belonging to it to have a current receipt. A brief runs inside the hook deadline, so it hashes at most 64 MiB of review evidence; evidence beyond that is listed as `unverified within the brief's hash budget`, which is not a failed review. `python <skill-root>/scripts/check_project.py .` or `ro receipt check <artifact> --scope <stage>:after` verifies it in full, and the launch gate always does. Operational stages add no after-result gate, and unrelated items remain runnable. If no independent reviewer is available, preserve the result and pending review in the handoff, close the session, and leave the dependent launch blocked; do not invent a reviewer or lower the policy.
 
 A changed-stage event, including in work sessions:
 

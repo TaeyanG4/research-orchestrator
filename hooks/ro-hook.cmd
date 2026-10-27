@@ -22,7 +22,7 @@ rem A drive root already ends in a separator; retain any original UNC/device pre
 set "ro_hook_prefix=%ro_hook_dir%"
 if not "%ro_hook_prefix:~-1%"=="\" if not "%ro_hook_prefix:~-1%"=="/" set "ro_hook_prefix=%ro_hook_prefix%\"
 if exist "%ro_hook_prefix%agents.md" if not exist "%ro_hook_prefix%agents.md\" (
-    set "ro_hook_project=1"
+    set "ro_hook_project=%ro_hook_dir%"
     exit /b 0
 )
 for %%P in ("%ro_hook_prefix%..") do set "ro_hook_parent=%%~fP"
@@ -31,6 +31,14 @@ set "ro_hook_dir=%ro_hook_parent%"
 goto parent
 
 :project
+rem Keep question/delegation subscriptions installed as policy changes. The
+rem shortcut reads agents.md only; the host's stdin stays for the runner.
+if "%~1"=="PreToolUse" if "%~2"=="--tool" (
+    if "%~3"=="ask" call :policy_quiet "Autonomy" "present"
+    if "%~3"=="agent" call :policy_quiet "Brief requirements" "none"
+    if "%~3"=="ask" if not errorlevel 1 (echo {} & exit /b 0)
+    if "%~3"=="agent" if not errorlevel 1 (echo {} & exit /b 0)
+)
 rem A missing primary registry is quiet only when recovery state is absent too.
 if "%~1"=="Stop" (
     if not exist "%ro_hook_prefix%.ro\jobs.json" if not exist "%ro_hook_prefix%.ro\recovery\jobs.json" (
@@ -98,8 +106,20 @@ exit /b 0
 :run
 setlocal DisableDelayedExpansion
 set "RO_HOOK_PYTHON=%cand%"
-"%cand%" %launcher% -E -S "%runner%" %*
+"%cand%" %launcher% -E -S "%runner%" %* --policy-root "%ro_hook_project%"
 exit /b %errorlevel%
+
+:policy_quiet
+rem findstr is a Windows utility, independent of Python or the configured PATH.
+set "ro_hook_findstr=%SystemRoot%\System32\findstr.exe"
+if not exist "%ro_hook_findstr%" exit /b 1
+"%ro_hook_findstr%" /i /c:"%~1" "%ro_hook_prefix%agents.md" >nul
+if errorlevel 2 exit /b 1
+if errorlevel 1 exit /b 0
+"%ro_hook_findstr%" /i /c:"%~1" "%ro_hook_prefix%agents.md" | "%ro_hook_findstr%" /i /v /r /c:"^[ ]*-[ ]*%~1:[ ]*%~2[ ]*$" >nul
+if errorlevel 2 exit /b 1
+if errorlevel 1 exit /b 0
+exit /b 1
 
 :post_clean
 if "%RO_HOOK_DIAGNOSTICS%"=="1" exit /b 1

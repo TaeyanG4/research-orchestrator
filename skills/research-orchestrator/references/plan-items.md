@@ -22,7 +22,7 @@ For routine work, keep acceptance criteria and deliverable lists in the agreed b
 
 Research and competition normally use scored items. If queue order expresses the actual dependencies better, initialize with `--ordering queue` (including `team-research`), or put `Ordering: queue` in the existing plan header, before any section, and omit scores and `Priority`. Routing fields are optional in every profile: omitted `Resource`, `Parallel`, and `Other` mean `CPU`, `NO`, and `NONE`. This keeps a small study readable without concealing a nondefault execution need.
 
-`Resource` is the local compute class; put named exclusive resources such as a shared database or licensed seat in `Other`, so non-compute contention is visible.
+`Resource` is the local capacity class an item needs: `CPU`, `GPU` or `EITHER` (the values `ro launch` accepts; omitted means `CPU`). Put named exclusive resources such as a shared database or licensed seat in `Other`, so contention is visible. Handoff events may record `Resource: none` for steps that used no local capacity.
 
 The scored shape is:
 

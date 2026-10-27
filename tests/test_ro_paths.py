@@ -157,3 +157,27 @@ def test_windows_path_translation_is_out_of_scope(tmp_path, spelling):
         target = r"\\storage\share\runs\job-a\input.txt"
     findings = pre_checks(Call("shell", "bash", f"rm '{target}'"), tmp_path, [entry], values)
     assert all(outcome(finding, values) != "block" for finding in findings)
+
+
+def test_binding_matches_another_spelling_of_the_same_folder(tmp_path):
+    """macOS /var vs /private/var and Windows 8.3 names give one folder two spellings."""
+    import os
+    import subprocess
+    import sys
+    from ro_checks import path_checks
+    real = tmp_path / "real-run"
+    real.mkdir()
+    alias = tmp_path / "alias-run"
+    if os.name == "nt":
+        made = subprocess.run(["cmd", "/c", "mklink", "/J", str(alias), str(real)], capture_output=True)
+        if made.returncode:
+            pytest.skip("directory junctions are unavailable")
+    else:
+        os.symlink(real, alias, target_is_directory=True)
+    family = "windows" if os.name == "nt" else ("macos" if sys.platform == "darwin" else "linux")
+    job = {"id": "J-A-0001", "status": "running", "bound": [str(alias)]}
+    findings = path_checks([str(real / "input.txt")], "jobs.mutate-bound", tmp_path, [job], family)
+    assert [finding.check for finding in findings] == ["jobs.mutate-bound"]
+    other = tmp_path / "other"
+    other.mkdir()
+    assert path_checks([str(other / "input.txt")], "jobs.mutate-bound", tmp_path, [job], family) == []

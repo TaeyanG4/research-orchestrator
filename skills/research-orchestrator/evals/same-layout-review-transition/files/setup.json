@@ -1,0 +1,9 @@
+{
+  "profile": "work",
+  "workflow": "unified",
+  "verification": "self",
+  "guards": "off",
+  "platforms": "Shell",
+  "environment": "linux/bash",
+  "user": "operator"
+}

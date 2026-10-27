@@ -68,10 +68,16 @@ def test_minimal_setup_requires_inferred_flags_and_policy_specific_pointers(tmp_
 def test_installer_runtime_check_ignores_paths_only_in_shim_comments(tmp_path):
     ctx = context(tmp_path, "installer-runtime-selection")
     runtime = "sandbox/.codex/skills/research-orchestrator/scripts/ro.py"
-    data = {"upgrade": {"surviving_runtime": runtime, "shim_text": f"# {runtime}\nexit 0\n"}}
-    save(ctx, "runtime-results.json", data)
+    commented = {"upgrade": {"surviving_runtime": runtime, "shim_text": f"# {runtime}\nexit 0\n"}}
+    executed = {"upgrade": {"surviving_runtime": runtime, "shim_text": f'exec python "{runtime}" "$@"\n'}}
+    # The case is execution-backed: each report must match the output of a completed harness call.
+    events = [{"type": "item.completed", "item": {"type": "command_execution", "command": "python harness.py",
+                                                  "exit_code": 0, "aggregated_output": json.dumps(data)}}
+              for data in (commented, executed)]
+    (tmp_path / "events.jsonl").write_text("\n".join(map(json.dumps, events)), encoding="utf-8")
+    (tmp_path / "transcript.md").write_text("", encoding="utf-8")
+    save(ctx, "runtime-results.json", commented)
     check = CHECKS[ctx.case_dir.name, "01-updated-cli.md"]
     assert not check(ctx)[0]
-    data["upgrade"]["shim_text"] = f'exec python "{runtime}" "$@"\n'
-    save(ctx, "runtime-results.json", data)
+    save(ctx, "runtime-results.json", executed)
     assert check(ctx)[0]

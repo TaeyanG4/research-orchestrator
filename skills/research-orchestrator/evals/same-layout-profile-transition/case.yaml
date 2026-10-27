@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: same-layout-profile-transition
+expected_outcome: |
+  Profile-only reconfiguration preserves queue scheduling, evidence and fenced samples, normalizes compatible fields with custom or quick presets, backs up changed records and rejects an incompatible host-policy transition without writes.
+context:
+  scaffold_script: place-files.sh

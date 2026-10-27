@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-Each project's installed manual research-orchestrator PreToolUse registrations include Agent exactly once when Brief requirements is configured and zero times when it is none, for both plugin states.
+Each project has Agent exactly once across its effective plugin and manual PreToolUse registrations, for both Brief requirements values; manual registrations contain it only when the plugin is inactive.

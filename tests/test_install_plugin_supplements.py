@@ -67,7 +67,8 @@ def test_installed_project_policy_matrix(tmp_path, monkeypatch, plugin_active, a
     tools = [name for entry in owned for name in entry["matcher"].split("|")]
     reads = {"Glob", "Grep", "Read"} if read_bound == "on" else set()
     covered = {"Bash", "PowerShell", "Edit", "Write", "NotebookEdit"}
-    assert set(tools) == optional | reads | (set() if plugin_active else covered)
+    always_pre = covered | {"AskUserQuestion", "Agent"}
+    assert set(tools) == reads | (set() if plugin_active else always_pre)
     assert len(tools) == len(set(tools))
     assert set(hooks) == ({"PreToolUse"} if plugin_active else {"PreToolUse", "PostToolUse", "SessionStart", "Stop"})
     assert [entry for entry in hooks["PreToolUse"] if not setup.owned(entry)] == [foreign]
@@ -83,11 +84,12 @@ def test_installed_project_policy_matrix(tmp_path, monkeypatch, plugin_active, a
         assert set(manual_tools).isdisjoint(plugin_tools)
         effective_tools = manual_tools + plugin_tools
         assert len(effective_tools) == len(set(effective_tools))
-        assert set(effective_tools) == covered | (optional | reads if event == "PreToolUse" else set())
+        assert set(effective_tools) == (always_pre | reads if event == "PreToolUse" else covered)
         for entry in manual + provided:
             assert len(entry["hooks"]) == 1
             for name in entry["matcher"].split("|"):
                 suffix = " --tool edit" if name in {"Edit", "Write", "NotebookEdit"} else ""
+                suffix = {"AskUserQuestion": " --tool ask", "Agent": " --tool agent"}.get(name, suffix)
                 if event == "PostToolUse":
                     suffix = " --general"
                 assert entry["hooks"][0]["command"].endswith(f" {event}{suffix}")
@@ -100,7 +102,7 @@ def test_installed_project_policy_matrix(tmp_path, monkeypatch, plugin_active, a
     refreshed = register()
     refreshed_tools = {name for entry in refreshed["hooks"]["PreToolUse"] if setup.owned(entry)
                        for name in entry["matcher"].split("|")}
-    assert refreshed_tools == (set() if plugin_active else covered)
+    assert refreshed_tools == (set() if plugin_active else always_pre)
     assert [entry for entry in refreshed["hooks"]["PreToolUse"] if not setup.owned(entry)] == [foreign]
 
 
@@ -108,7 +110,7 @@ def test_installed_project_policy_matrix(tmp_path, monkeypatch, plugin_active, a
 def test_policy_subscriptions_only_add_tools_missing_from_shipped_matchers(tmp_path, monkeypatch, plugin_active):
     plugin = json.loads((installer.HOOKS / "hooks.json").read_text(encoding="utf-8"))
     general = next(entry for entry in plugin["hooks"]["PreToolUse"] if "Bash" in entry["matcher"].split("|"))
-    general["matcher"] += "|AskUserQuestion|Read"
+    general["matcher"] += "|Read"
     source = tmp_path / "hooks"
     source.mkdir()
     (source / "hooks.json").write_text(json.dumps(plugin), encoding="utf-8")
@@ -123,8 +125,8 @@ def test_policy_subscriptions_only_add_tools_missing_from_shipped_matchers(tmp_p
     monkeypatch.setattr(setup, "plugin_active", lambda host: plugin_active)
     template = setup.hook_template("claude-code", setup.claude_template("portable-root"))
     manual = [name for entry in template["PreToolUse"] for name in entry["matcher"].split("|")]
-    covered = {"Bash", "PowerShell", "Edit", "Write", "NotebookEdit", "AskUserQuestion", "Read"}
-    assert set(manual) == {"Agent", "Glob", "Grep"} | (set() if plugin_active else covered)
+    covered = {"Bash", "PowerShell", "Edit", "Write", "NotebookEdit", "AskUserQuestion", "Agent", "Read"}
+    assert set(manual) == {"Glob", "Grep"} | (set() if plugin_active else covered)
     assert len(manual) == len(set(manual))
 
 
@@ -139,4 +141,4 @@ def test_plugin_subtraction_tracks_retained_tools_per_event(tmp_path, monkeypatc
     supplemental = setup.hook_template("claude-code", template)
     assert {event: [name for entry in entries for name in entry["matcher"].split("|")]
             for event, entries in supplemental.items()} == {
-                "PreToolUse": ["AskUserQuestion", "Read", "Agent"], "PostToolUse": ["Read"]}
+                "PreToolUse": ["Read"], "PostToolUse": ["Read"]}

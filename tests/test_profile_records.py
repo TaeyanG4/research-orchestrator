@@ -4,6 +4,18 @@ import pytest
 from conftest import ROOT, check, init, rs, run_init
 
 
+@pytest.mark.parametrize("profile", ["work", "research", "competition"])
+@pytest.mark.parametrize("collector", ["off", "Shell/worker"])
+def test_compute_guidance_only_when_competition_or_collector_needs_it(tmp_path, profile, collector):
+    assert init.main([str(tmp_path), "--preset", "quick", "--profile", profile,
+                      "--collector", collector, "--guards", "off", "--platforms", "Shell"]) == 0
+    text = (tmp_path / "handoff.md").read_text(encoding="utf-8")
+    expected = profile == "competition" or collector != "off"
+    assert ("describe local compute" in text) == expected
+    assert ("`Active compute`" in text) == expected
+    assert "{{" not in text
+
+
 @pytest.mark.parametrize("preset", ["solo-research", "team-research", "work-project"])
 @pytest.mark.parametrize("collector", ["off", "Shell/worker"])
 def test_summary_omission_depends_on_collector(tmp_path, preset, collector):

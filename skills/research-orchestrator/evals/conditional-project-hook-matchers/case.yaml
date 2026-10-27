@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: conditional-project-hook-matchers
 expected_outcome: |
-  Project registrations omit question and agent tools while their checks are inactive, restore them after a policy change and reinstall, and retain mutation/shell tools; generic plugin registrations omit the optional tools.
+  Project and plugin registrations retain question, agent, mutation and shell tools across policy changes. Question and delegation wrappers avoid Python while inactive; those settings need no reinstallation. Read-tool subscriptions remain a project opt-in.
 context:
   scaffold_script: place-files.sh

@@ -221,16 +221,7 @@ class Installer:
             for entry in entries:
                 for hook in entry["hooks"]:
                     hook["command"] = hook["command"].replace('"${CLAUDE_PLUGIN_ROOT}/hooks/ro-hook.sh"', quoted)
-        policy = self.project_hook_policy()
-        enabled = []
-        if policy is not None:
-            if policy.get("autonomy", "present") == "away":
-                enabled.append("AskUserQuestion")
-            if policy.get("brief_requirements", "none") != "none":
-                enabled.append("Agent")
-            self.notes.append("Claude Code project matchers follow Autonomy and Brief requirements at installation; "
-                              "rerun install.py --project <project> --host claude-code after changing either setting.")
-        subscriptions = [enabled, ["Glob", "Grep", "Read"] if self.read_bound() else []]
+        subscriptions = [["Glob", "Grep", "Read"] if self.read_bound() else []]
         covered = {name for entry in template["PreToolUse"] for name in entry["matcher"].split("|")}
         for names in subscriptions:
             remaining = [name for name in names if name not in covered]

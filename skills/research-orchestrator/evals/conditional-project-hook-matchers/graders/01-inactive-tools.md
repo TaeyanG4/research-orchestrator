@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-matcher-results.json omits AskUserQuestion and Agent from the initial project's PreToolUse matchers.
+matcher-results.json includes AskUserQuestion and Agent in the initial project PreToolUse matchers.

@@ -32,7 +32,7 @@ Claude's six expected decisions come from the supplied diagnostics-based candida
 
 Codex's persisted `/hooks` trust route was not exercised. Ordinary `codex exec` must not be relied on for hook enforcement until trust is established; trusted invocations can enforce listed checks. Rely on `ro` commands and Git pre-push; see [capability evidence](../../skills/research-orchestrator/references/hooks-capabilities.md).
 
-The current [local fast-path samples](evidence/hook-fast-paths.json) support the restored 150 ms p95 gate; [measurement details](hook-latency-gatefix.md) distinguish wrapper paths from checker-only cache timing.
+The current [local fast-path samples](evidence/hook-fast-paths.json) support the 150 ms p95 gate for installed wrappers and in-process checks. The direct subprocess check requires hook p95 minus bare-interpreter p95 < 150 ms and an absolute hook p95 < 300 ms, separating machine-dependent startup cost from hook work. Hook and baseline use `python -E -S`, two warm-ups and the median of three 20-sample nearest-rank p95s; the baseline runs `-c "pass"`. With `RO_LATENCY_REPORT`, the JSON retains installed-watchdog metrics at the top level and adds `subprocess` with hook p95, baseline p95, their difference, both budgets and batch values. [Measurement details](hook-latency-gatefix.md) distinguish these layers from checker-only cache timing.
 
 Local latency records invoke wrappers and runner code without a host application. They establish only their recorded Windows layers and cache/load conditions; older measurements are not a controlled speedup baseline. The 6.0.1 CI artifacts record the installed-hook p95 on each runner; they are single runs on shared CI machines, not a controlled comparison.
 
@@ -54,7 +54,7 @@ The coordinator fills this row after the final local run against the publication
 
 | Date | Interpreter | Pytest summary | validate_release result | Commit |
 |---|---|---|---|---|
-| 2026-10-27 | CPython 3.12 on GitHub Actions (windows-latest 3.12.10, ubuntu-latest 3.12.15, macos-latest 3.12.10) | windows 3,648 passed; ubuntu 3,542 passed and 105 skipped; macOS 3,542 passed and 105 skipped; 2 `latency` tests deselected and passed in the separate CI step on each runner | `VALIDATION: PASS` on all three runners | tree `9c6d931807c1` (the tested 6.0.1 tree; only this row and the CI result sentences differ) |
+| 2026-10-27 | CPython 3.12 on GitHub Actions (windows-latest 3.12.10, ubuntu-latest 3.12.15, macos-latest 3.12.10) | windows 3,916 passed; ubuntu 3,797 passed and 118 skipped; macOS 3,797 passed and 118 skipped; 2 `latency` tests deselected and passed in the separate CI step on each runner | `VALIDATION: PASS` on all three runners | commit `c3a8f9c` (the evaluated 6.0.2 candidate; only this row and a duplicated inventory marker differ) |
 
 ## Dated host scope and interpretation
 

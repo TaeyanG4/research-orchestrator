@@ -8,11 +8,13 @@ import hashlib
 import json
 import ntpath
 import os
+from pathlib import Path
 import posixpath
 import re
 import time
 
-from ro_checks import Call, Finding, adapt, command_parts, git_push, normal_path, outcome, pre_checks
+from ro_checks import (Call, Finding, adapt, command_parts, git_push, normal_path, outcome, pre_checks,
+                       push_target_moved)
 from ro_markdown import unfenced
 from ro_time import FUTURE_TOLERANCE
 from ro_state import Project, atomic_text, redact
@@ -255,6 +257,7 @@ def _wrapper_snapshot(project: Project) -> None:
               ("warnings.log", warnings), ("warnings-shown.json", project.state / "warnings-shown.json")]
     stamps = project.state / "records-hook-stamps"
     stamps.mkdir(exist_ok=True)
+    now = time.time()
     for name, path in paths:
         witness = stamps / name
         if not path.exists():
@@ -263,6 +266,12 @@ def _wrapper_snapshot(project: Project) -> None:
                 return
             continue
         stat = path.stat()
+        # POSIX test -nt may round to whole seconds. A recent same-size edit
+        # cannot be distinguished safely until its timestamp is older than that
+        # resolution window; future timestamps stay conservative too.
+        if stat.st_mtime > now - 2:
+            witness.unlink(missing_ok=True)
+            return
         if name in FILES and snapshot.get(name, {}).get("stamp") != [stat.st_mtime_ns, stat.st_size]:
             return
         witness.write_text(str(stat.st_size) + "\n", encoding="ascii", newline="\n")
@@ -383,17 +392,32 @@ def hook(project: Project, event: str, payload: dict, check: str | None = None, 
     findings: list[Finding] = []
     failures = set()
     if event == "PreToolUse":
+        os_family = values["environment"].split("/")[0]
         parsed = command_parts(call, values) if call.tool == "shell" else None
-        is_push = parsed is not None and git_push(parsed.parts, values["environment"].split("/")[0])
-        if is_push and not general and check in (None, "publish.scan"):
+        is_push = parsed is not None and git_push(parsed.parts, os_family)
+        needs_publish = is_push and not general and check in (None, "publish.scan")
+        directory, uncertain = effective_directory(project, payload, os_family)
+        # The push runs in the command's checkout, which may differ from the policy root;
+        # only that checkout's own installed gate makes the advisory pre-check redundant.
+        # A checkout chosen inside the command (git -C, cd ... &&) is not resolved here.
+        moved = needs_publish and push_target_moved(parsed.parts, os_family)
+        if needs_publish and not uncertain and not moved:
+            from ro_gate import registration
+            needs_publish = not registration(Path(directory))[1]
+        if moved:
+            # The hook cwd's staged changes are not what this push sends; only advise.
+            findings.append(Finding("publish.scan", "This push selects its checkout inside the command (git -C, "
+                                    "--git-dir, --work-tree, GIT_DIR/GIT_WORK_TREE or a directory change), so the staged pre-check "
+                                    "did not inspect it; that checkout's Git pre-push gate is authoritative."))
+        elif needs_publish:
             try:
                 from ro_evidence import scan_publish
-                findings.extend(Finding("publish.scan", message) for message in scan_publish(project))
+                findings.extend(Finding("publish.scan", message)
+                                for message in scan_publish(project, checkout=None if uncertain else directory))
             except Exception as exc:
                 best_effort_warning(project, "publish.scan failure: " + type(exc).__name__)
                 failures.add("publish.scan")
                 findings.append(Finding("publish.scan", "Publish pre-check failed; run the authoritative git pre-push scan."))
-        directory, uncertain = effective_directory(project, payload, values["environment"].split("/")[0])
         findings = pre_checks(call, project.root, jobs, values, parsed, findings,
                               cwd=directory, cwd_uncertain=uncertain)
     elif event == "PostToolUse":

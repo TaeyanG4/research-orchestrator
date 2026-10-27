@@ -145,7 +145,9 @@ def test_a_new_legacy_shaped_review_after_upgrade_is_not_preserved(tmp_path):
     text = path.read_text(encoding="utf-8")
     path.write_text(text + "\n" + text[text.index("## D-A-001"):].replace("D-A-001", "D-A-002"),
                     encoding="utf-8", newline="\n")
-    assert reconfigure(target) == 0
+    before = {path.relative_to(target): path.read_bytes() for path in target.rglob("*") if path.is_file()}
+    assert reconfigure(target) == 1
+    assert {path.relative_to(target): path.read_bytes() for path in target.rglob("*") if path.is_file()} == before
     current = check(target, NOW)
     assert [i.record for i in found(current, "ERROR", "discovery.state.unbacked")] == ["D-A-002"]
 

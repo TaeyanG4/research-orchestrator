@@ -9,4 +9,6 @@ Exercise Stop using the supplied disposable registry scenario and the installed 
 
 Save stop-results.json as an array containing the four raw JSON hook responses in order and retain the disposable project under project/.
 
+Print the raw responses from the adapter calls to the command output as well, and retain any harness source used, so the saved report can be compared with the actual execution.
+
 Input files: scenario.md

@@ -635,30 +635,44 @@ def normalize_plan_aliases(plan: str, settings: dict[str, str]) -> str:
                "Hypothesis/Goal": "Goal" if compact else "Hypothesis",
                "Next step": "Next test"}
     output = []
+    in_item = False
     for original, visible in visible_lines(plan.replace("\r\n", "\n")):
-        match = ITEM_FIELD.match(original.rstrip("\r\n")) if visible else None
+        if visible and original.startswith("#"):
+            in_item = original.startswith("### H-")
+        match = ITEM_FIELD.match(original.rstrip("\r\n")) if visible and in_item else None
         if match and match[1] in aliases:
             original = original.replace("- " + match[1] + ":", "- " + aliases[match[1]] + ":", 1)
         output.append(original)
     normalized = "".join(output)
-    if not compact:
-        for item in parse_plan_items(normalized):
-            block = "\n".join(item.lines)
-            updated = block
-            if not any(line.startswith("- Sources:") for line in unfenced(block)):
-                updated = updated.replace("- Hypothesis:", "- Sources: none\n- Hypothesis:", 1)
-            if not any(line.startswith("- Improvement:") for line in unfenced(block)):
-                following = {"Impact", "Information", "Confidence", "Unblock", "Diversity", "Cost",
-                             "Priority", "Resource", "Parallel", "Other", "Next test"}
-                lines = updated.splitlines()
-                for index, line in enumerate(unfenced(updated)):
-                    match = ITEM_FIELD.match(line)
-                    if match and match[1] in following:
-                        lines.insert(index, "- Improvement: none")
-                        break
-                updated = "\n".join(lines)
-            normalized = normalized.replace(block, updated, 1)
-    return normalized
+    if compact:
+        return normalized
+    # Work by source positions, not block replacement: an identical fenced
+    # example may precede the real item and must remain an example.
+    lines = list(visible_lines(normalized))
+    additions: dict[int, list[str]] = {}
+    following = {"Impact", "Information", "Confidence", "Unblock", "Diversity", "Cost",
+                 "Priority", "Resource", "Parallel", "Other", "Next test"}
+    for start, (original, visible) in enumerate(lines):
+        if not visible or not original.startswith("### H-"):
+            continue
+        end = start + 1
+        fields = {}
+        while end < len(lines):
+            original, visible = lines[end]
+            if visible and original.startswith("#"):
+                break
+            match = ITEM_FIELD.match(original.rstrip("\r\n")) if visible else None
+            if match:
+                fields.setdefault(match[1], end)
+            end += 1
+        if "Sources" not in fields and "Hypothesis" in fields:
+            additions.setdefault(fields["Hypothesis"], []).append("- Sources: none\n")
+        if "Improvement" not in fields:
+            before = next((offset for name, offset in fields.items() if name in following), None)
+            if before is not None:
+                additions.setdefault(before, []).append("- Improvement: none\n")
+    return "".join("".join(additions.get(index, [])) + original
+                   for index, (original, _visible) in enumerate(lines))
 
 
 def normalize_discovery_review_fields(text: str) -> str:
@@ -793,6 +807,40 @@ def checker_errors(target: Path, proposed_files: dict[str, str] | None = None,
             if issue.severity == "ERROR" and (proposed_files is not None or issue.check not in MIGRATION_FIXES)]
 
 
+def transition_records(target: Path, settings: dict[str, str], source: dict[str, str]) -> dict[str, str]:
+    """Prepare compatible record changes for every policy transition, before any writes."""
+    proposed = {name: read_raw_text(target / name) for name in COORDINATION_FILES[1:]
+                if (target / name).is_file()}
+    if "plan.md" in proposed:
+        plan = proposed["plan.md"]
+        newline = text_newline(plan)
+        source_compact = source.get("profile") == "work" or source.get("preset") == "quick"
+        target_compact = settings["profile"] == "work" or settings["preset"] == "quick"
+        if "Ordering" not in plan_schedule(plan) and source_compact != target_compact:
+            # Preserve the effective source ordering when the destination has a
+            # different implicit default; a policy change is not a queue reorder.
+            section = re.search(r"^## ", mask_fences(plan), re.M)
+            if section:
+                order = "queue" if source_compact else "priority"
+                plan = plan[:section.start()] + f"Ordering: {order}" + newline * 2 + plan[section.start():]
+        if source_compact != target_compact or source.get("profile") != settings["profile"]:
+            plan = normalize_plan_aliases(plan, settings).replace("\n", newline)
+        proposed["plan.md"] = plan
+    if "discoveries.md" in proposed and source.get("verification") == "self" and settings["verification"] != "self":
+        proposed["discoveries.md"] = normalize_discovery_review_fields(proposed["discoveries.md"])
+    if "handoff.md" in proposed:
+        proposed["handoff.md"] = ensure_guard_sections(proposed["handoff.md"], settings)
+    return proposed
+
+
+def transition_metadata(target: Path, settings: dict[str, str], old: str) -> dict[str, str]:
+    stored = rs.read_settings(read_raw_text(target / "agents.md"), target)
+    return {"from": old, "to": settings["workflow"],
+            "template_before": json.dumps({"version": stored.version,
+                "render_key": " ".join(f"{key}={value}" for key, value in stored.rendered.items())}),
+            "template_after": template_metadata(settings)}
+
+
 def migrate(target: Path, settings: dict[str, str], old: str, project: str, agents_text: str,
             args: argparse.Namespace) -> int:
     new = settings["workflow"]
@@ -815,17 +863,10 @@ def migrate(target: Path, settings: dict[str, str], old: str, project: str, agen
         for error in errors:
             print(f"  {error}", file=sys.stderr)
         return 1
-    source_settings = rs.read_settings(read_raw_text(target / "agents.md"), target).values
-    if ("Ordering" not in plan_schedule(plan) and
-            (source_settings.get("profile") == "work" or source_settings.get("preset") == "quick")):
-        # Compact work already follows file order. Make that effective policy explicit
-        # before applying a profile whose implicit default would rank by scores.
-        index = plan.find("\n## ")
-        plan = plan[:index] + "\nOrdering: queue\n" + plan[index:]
-    source_compact = source_settings.get("profile") == "work" or source_settings.get("preset") == "quick"
-    target_compact = settings["profile"] == "work" or settings["preset"] == "quick"
-    if source_compact != target_compact:
-        plan = normalize_plan_aliases(plan, settings)
+    stored = rs.read_settings(read_raw_text(target / "agents.md"), target)
+    source_settings = rendered_settings(stored, rs.resolve({}, None, stored.values))
+    proposed = transition_records(target, settings, source_settings)
+    plan, handoff = proposed["plan.md"], proposed["handoff.md"]
     if new == "unified":
         new_plan, count = plan_to_unified(plan, settings, project)
     else:
@@ -839,21 +880,17 @@ def migrate(target: Path, settings: dict[str, str], old: str, project: str, agen
     empty_sections = agent_sections(["A"]) if old == "classic" else queue_section()
     placeholders = {line for line in empty_sections.splitlines() if line.startswith("_")}
     dropped = dropped_lines(plan, old_header, placeholders)
-    proposed = {"agents.md": agents_text, "plan.md": new_plan, "handoff.md": handoff}
-    if review_migration:
-        proposed["discoveries.md"] = normalize_discovery_review_fields(read_raw_text(target / "discoveries.md"))
+    proposed.update({"agents.md": agents_text, "plan.md": new_plan, "handoff.md": handoff})
     errors = checker_errors(target, proposed, settings)
     if errors:
         print("Error: the proposed migration fails consistency checks; no files were changed:", file=sys.stderr)
         for error in errors:
             print(f"  {error}", file=sys.stderr)
         return 1
-    write_atomically(target, {target / name: text for name, text in proposed.items()},
-                     {"from": old, "to": new,
-                      "template_before": json.dumps({"version": rs.read_settings(read_raw_text(target / "agents.md")).version,
-                          "render_key": " ".join(f"{key}={value}" for key, value in
-                              rs.read_settings(read_raw_text(target / "agents.md"), target).rendered.items())}),
-                      "template_after": template_metadata(settings)})
+    write_atomically(target, {target / name: proposed[name]
+                             for name in ("agents.md", "plan.md", "handoff.md", "discoveries.md")
+                             if name != "discoveries.md" or review_migration},
+                     transition_metadata(target, settings, old))
     print(f"[MIGRATE] Workflow {old} → {new}: {count} plan item(s) moved; backups *.pre-migrate")
     for line in dropped:
         print(f"[DROP] plan.md: {line}")
@@ -899,7 +936,7 @@ def require_answers(target: Path, preset: dict[str, object] | None, flags: dict[
         if key == "git" and not in_repository(target):
             continue  # Git sync is asked only inside a git repository
         flag = rs.SETTING[key].flag
-        if key in ("environment", "language"):
+        if key in ("environment", "language", "external_actions", "phase_clock"):
             print(f"Info: {rs.SETTING[key].label}: {value} (default; override with {flag})", file=sys.stderr)
         else:
             print(f"Info: preset {name} asks for {flag}; using its default '{value}' (pass {flag} to answer it)",
@@ -977,15 +1014,23 @@ def reconfigure(target: Path, args: argparse.Namespace) -> int:
         code = migrate(target, settings, old_workflow, project, content, args)
     else:
         if args.migrate:
-            print(f"Notice: Workflow stays {old_workflow}; nothing to migrate.", file=sys.stderr)
-        agents_md.write_text(content, encoding="utf-8", newline="\n")
-        save_template_metadata(target, settings)
-        handoff_path = target / "handoff.md"
-        if handoff_path.is_file():
-            handoff = read_raw_text(handoff_path)
-            updated = ensure_guard_sections(handoff, settings)
-            if updated != handoff:
-                handoff_path.write_text(updated, encoding="utf-8", newline="\n")
+            print(f"Notice: Workflow stays {old_workflow}; checking the settings transition.", file=sys.stderr)
+        source = rendered_settings(stored, current or stored.values)
+        proposed = transition_records(target, settings, source)
+        proposed["agents.md"] = content
+        errors = checker_errors(target, proposed, settings)
+        if errors:
+            print("Error: the proposed settings transition fails consistency checks; no files were changed:",
+                  file=sys.stderr)
+            for error in errors:
+                print(f"  {error}", file=sys.stderr)
+            return 1
+        changed = {target / name: value for name, value in proposed.items()
+                   if read_raw_text(target / name) != value}
+        if changed:
+            write_atomically(target, changed, transition_metadata(target, settings, old_workflow))
+        else:
+            save_template_metadata(target, settings)
         print(f"[REWRITE] {agents_md}" + (" (## Project rules kept verbatim)" if region else ""))
         print(f"Settings: {rs.describe(settings)}")
         print("Log the change as a handoff event with heading 'none', then run check_project.py.")

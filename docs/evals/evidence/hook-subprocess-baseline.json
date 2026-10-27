@@ -1,0 +1,41 @@
+{
+  "os": "Windows",
+  "python": "3.12.6",
+  "layer": "installed-watchdog",
+  "samples_per_batch": 20,
+  "warmups": 2,
+  "batch_p95_ms": [
+    80.49760002177209,
+    82.20059995073825,
+    78.33149994257838
+  ],
+  "p95_ms": 80.49760002177209,
+  "budget_ms": 150,
+  "hook_output_correct": true,
+  "passed": true,
+  "subprocess": {
+    "layer": "direct-child",
+    "samples_per_batch": 20,
+    "warmups": 2,
+    "batch_p95_ms": [
+      113.02869999781251,
+      116.66199995670468,
+      119.73969999235123
+    ],
+    "baseline_batch_p95_ms": [
+      23.755299975164235,
+      25.32540005631745,
+      25.262400042265654
+    ],
+    "p95_ms": 116.66199995670468,
+    "baseline_p95_ms": 25.262400042265654,
+    "overhead_ms": 91.39959991443902,
+    "overhead_budget_ms": 150,
+    "absolute_budget_ms": 300,
+    "in_process_p95_ms": 0.2354000462219119,
+    "hook_output_correct": true,
+    "passed": true
+  },
+  "measured_on": "2026-10-27",
+  "scope": "Local synthetic calls without an agent host; not CI evidence."
+}

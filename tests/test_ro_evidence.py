@@ -831,7 +831,7 @@ def test_publish_staged_scan_uses_original_parent_despite_replacement(history):
 
 def test_scan_deadline_applies_across_windows_and_restores_context(tmp_path, monkeypatch):
     project = EvidenceProject(tmp_path)
-    monkeypatch.setattr(evidence, "_staged_diff", lambda _: b"+" + b"a" * 1000000)
+    monkeypatch.setattr(evidence, "_staged_diff", lambda *_: b"+" + b"a" * 1000000)
     monkeypatch.setattr(evidence, "SCAN_SECONDS", .001)
     original = evidence._remaining
     def slow_check():
@@ -846,7 +846,7 @@ def test_scan_deadline_applies_across_windows_and_restores_context(tmp_path, mon
 def test_publish_literal_crossing_scan_window_is_detected(tmp_path, monkeypatch):
     project = EvidenceProject(tmp_path)
     monkeypatch.setattr(project, "settings", lambda: {"publish_scan": "literal:restricted-content"})
-    monkeypatch.setattr(evidence, "_staged_diff", lambda _: b"+" + b"a" * 65530 + b"restricted-content")
+    monkeypatch.setattr(evidence, "_staged_diff", lambda *_: b"+" + b"a" * 65530 + b"restricted-content")
     assert evidence.scan_publish(project)
 
 

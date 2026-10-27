@@ -1,0 +1,3 @@
+# Scenario
+
+Create all four coordination files and acknowledge a record snapshot. Freeze the snapshot clock. Give plan.md an mtime one second before that clock and attempt to publish wrapper witnesses. Make a same-size edit with an mtime in the same coarse second and invoke PostToolUse through the wrapper with an interpreter sentinel. Then acknowledge the current records, set all snapshot dependencies at least two seconds before the controlled clock, and publish witnesses again. Include a future timestamp negative control. No ready marker may be present while any dependency is younger than two seconds or in the future.

@@ -142,6 +142,17 @@ def check_vocabulary(errors: list[str], root: Path = ROOT) -> None:
                 errors.append(f"vocabulary: {path.relative_to(root)}:{line_number}: " + ", ".join(terms))
 
 
+def check_doc_encoding(errors: list[str], root: Path = ROOT) -> None:
+    """Catch lost section signs and range dashes before publishing Markdown."""
+    skill = root / "skills" / "research-orchestrator"
+    paths = [*(root / "docs").rglob("*.md"), *root.glob("README*.md"), root / "CHANGELOG.md",
+             skill / "SKILL.md", *(skill / "references").rglob("*.md")]
+    for path in sorted(path for path in paths if path.is_file()):
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if re.search(r"\?(?=\d)|(?<=\d)\?(?=[A-Za-z]*\d)", line):
+                errors.append(f"encoding: {path.relative_to(root)}:{number}: question mark in numeric reference")
+
+
 def check_release_receipt(errors: list[str], root: Path = ROOT) -> None:
     """Require the coordinator's completed local receipt only at publication time."""
     if os.environ.get("RO_RELEASE_RECEIPT_REQUIRED") != "1":
@@ -343,6 +354,14 @@ def check_manifests(errors: list[str]) -> None:
             versions[rel] = value
     if len(set(map(str, versions.values()))) > 1:
         errors.append(f"manifest versions differ: {versions}")
+    # Each README's release line names the same version as the manifests.
+    version = str(next(iter(versions.values()), ""))
+    for name in READMES:
+        line = next((row for row in (ROOT / name).read_text(encoding="utf-8").splitlines()
+                     if re.match(r"\*\*\S+ \d+\.\d+\.\d+", row)), "")
+        found = re.search(r"\d+\.\d+\.\d+", line)
+        if version and (not found or found.group(0) != version):
+            errors.append(f"{name}: release line names {found.group(0) if found else 'no version'}, manifests {version}")
 
     openai_yaml = (SKILL / "agents" / "openai.yaml").read_text(encoding="utf-8")
     for required in (
@@ -917,6 +936,7 @@ def main(argv: list[str] | None = None) -> int:
 
     check_manifests(errors)
     check_publication(errors)
+    check_doc_encoding(errors)
     check_legacy_name(errors)
     check_vocabulary(errors)
     check_release_receipt(errors)

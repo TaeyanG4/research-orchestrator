@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: plugin-policy-subscription-notice
 expected_outcome: |
-  Plugin-only opt-in policies receive an actionable project-install command; default policies and complete supplemental registrations stay quiet, and partial read subscriptions remain visible.
+  Read-bound policies need complete project read-tool subscriptions. Question and delegation checks are already subscribed by the plugin, and defaults or complete read supplements need no repair.
 context:
   scaffold_script: place-files.sh

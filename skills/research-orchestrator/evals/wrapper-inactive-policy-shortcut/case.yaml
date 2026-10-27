@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: wrapper-inactive-policy-shortcut
+expected_outcome: |
+  Question and delegation tools remain subscribed but their inactive policies return without starting Python or consuming an open input pipe; activating policy immediately restores dispatch.
+context:
+  scaffold_script: place-files.sh

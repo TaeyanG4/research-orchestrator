@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: release-numeric-reference-encoding
+expected_outcome: |
+  The release encoding check rejects lost numeric-reference characters in nested Markdown and accepts restored Unicode and normal questions.
+context:
+  scaffold_script: place-files.sh

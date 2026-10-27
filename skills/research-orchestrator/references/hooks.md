@@ -36,8 +36,8 @@ Quotes, comments, Bash `&&`, `|&`, `&>`, descriptor redirects and the PowerShell
 
 ## Cost and diagnostics
 
-Wrappers search ancestors of the working directory, `CLAUDE_PROJECT_DIR` and `CODEX_PROJECT_DIR` for `agents.md` before looking for Python. Without it they return `{}` with no interpreter. Set the host's working directory or project variable; the shell gate does not parse JSON stdin.
+Wrappers find `agents.md` from working-directory ancestors or `CLAUDE_PROJECT_DIR`/`CODEX_PROJECT_DIR`; without it they return `{}` without Python. They pass the policy root separately from command cwd, preserving relative paths, and never parse stdin.
 
-Ordinary Read/Glob/Grep calls have no default matcher. Stop and Edit/Write/NotebookEdit wrappers return without Python when both jobs registries are absent. PostToolUse also returns without Python when mtime witnesses for `agents.md`, `plan.md`, `discoveries.md`, `handoff.md`, the record cache and acknowledged warnings are unchanged. Changes, missing witnesses or diagnostics reach Python; cmd's minute-resolution timestamps take the conservative path within the cache minute. Python compares `(mtime_ns, size)` and warning digests before acknowledging a new snapshot.
+Read/Glob/Grep need opt-in registration. AskUserQuestion and Agent wrappers skip Python while their governing policies are inactive; Stop and Edit/Write/NotebookEdit do so when both jobs registries are absent. PostToolUse skips Python when witnesses for the four coordination files, record cache and acknowledged warnings match. Changes, missing witnesses or diagnostics reach Python. Files younger than two seconds get no witnesses: coarse timestamps can hide same-size edits. cmd also waits past the cache minute. Python checks `(mtime_ns, size)` and warning digests before acknowledging snapshots.
 
 Enable `RO_HOOK_DIAGNOSTICS=1` or `.ro/hook-diagnostics.on` to log events, check IDs and decisions, excluding commands and environment values.

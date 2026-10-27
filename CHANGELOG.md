@@ -1,5 +1,43 @@
 # Changelog
 
+## 6.0.2
+
+### Added
+
+- Claude Code plugin subscriptions for questions and delegated agents apply `Autonomy` and `Brief requirements` without reinstalling hooks when those settings change.
+
+### Changed
+
+- README quick starts pass `--session <host-session>` like the skill's own commands and say where the ID comes from.
+- Default pytest runs exclude latency tests; the separate timing command and CI step remain documented without claiming new measurements.
+- General work and research handoffs omit unused compute guidance; competition and enabled collectors retain the relevant summaries. Resource guidance describes local capacity and named exclusive resources.
+- Competition adapters supply external-action defaults. A `deadline=YYYY-MM-DD` suffix on `--competition` fills an unanswered phase clock; explicit answers take precedence.
+
+### Removed
+
+- Duplicate per-call publication scans when the checkout already has a registered Git pre-push gate. The gate still checks outgoing history.
+
+### Fixed
+
+- Settings-only transitions validate proposed records, preserve evidence and effective queue order, normalize compatible goal fields, and add truthful pending-review fields. Incompatible transitions leave the project unchanged.
+- Ordinary and compact briefs refresh review findings when receipts or reviewed artifacts change, including directory members.
+- Runtime evaluation checks require captured invocations and retained responses before crediting execution reports.
+- Recent record edits no longer qualify for timestamp-only wrapper shortcuts. Lost section signs, arrows and range dashes are restored, and release checks reject damaged numeric references in documentation, READMEs, the changelog and the skill's references.
+- Briefs stamp review artifacts with a bounded stamp (content digests up to 32 MiB, member names, sizes and times above it). Stamping and the brief's checker share one 64 MiB hash budget per brief and reuse each digest, so evidence beyond it is reported as unverified in the brief, on its own line with the verification command and not as a failed review, instead of being hashed inside the hook deadline; `check_project.py` or `ro receipt check` still verifies it in full. A review directory over the manifest cap, which no receipt can verify, keeps a stable stamp, so compaction reuses the cached result. Stamps record directory links and junctions, which full hashing refuses, so adding one invalidates a cached clean review.
+- The release check compares each README's release line with the manifest version.
+- A publication-gate registration counts only while the installed pre-push dispatcher is still in place, and the push pre-check reads the checkout the command runs in rather than the policy root, so a removed hook or a different checkout keeps its advisory scan and installation guidance. A push that picks its checkout inside the command (`git -C`, also attached, `--git-dir`, `--work-tree`, `GIT_DIR`/`GIT_WORK_TREE`, `env -C`, or a directory change first) gets an advisory, without a scan of unrelated staged changes, naming that checkout's own pre-push gate as authoritative. The installation notice names the checkout root instead of `--project .`, which the installer refuses for nested folders.
+- The plan-item guide lists the `Resource` values `ro launch` accepts (`CPU`, `GPU`, `EITHER`) and keeps `none` for handoff events.
+- Job-binding checks match a bound folder reached through another spelling of the same location (macOS `/var` and `/private/var`, Windows short names, junctions and symbolic links), so a command run from the resolved path is still checked.
+
+### Security
+
+- Hook wrappers pass the resolved project policy root through to dispatch while keeping the command working directory separate, so environment hints cannot silently bypass configured checks or change relative-path interpretation.
+- Inactive question and delegation policies skip Python; SessionStart recommends project gate installation only when a Git checkout lacks its registration.
+
+### Migration
+
+- Settings transitions that change coordination records now use the existing `*.pre-migrate` backups and recovery journal even when the workflow stays the same. A workflow change still requires `--migrate` and released slots.
+
 ## 6.0.1
 
 ### Added

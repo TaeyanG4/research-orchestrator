@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: competition-deadline-defaults
+expected_outcome: |
+  A mapped competition supplies external command patterns and an unanswered phase clock; explicit settings retain precedence and an unmapped platform still requires external-command policy.
+context:
+  scaffold_script: place-files.sh

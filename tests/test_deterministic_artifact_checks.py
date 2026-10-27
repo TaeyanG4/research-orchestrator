@@ -159,24 +159,40 @@ def test_publication_redaction_checks_diagnostics_not_just_the_report(tmp_path, 
     assert checks.SCRIPTED_CHECKS['publication-destination-history', '03-credential-redacted.md'](ctx)[0] is redacted
 
 
-@pytest.mark.parametrize('change', ['none', 'wrong-tail', 'wrong-boundary', 'wrong-correctness', 'missing'])
+@pytest.mark.parametrize('change', ['none', 'wrong-tail', 'wrong-boundary', 'wrong-correctness', 'missing',
+                                   'wrong-baseline', 'wrong-overhead', 'old-budget',
+                                   'overhead-boundary', 'absolute-boundary'])
 def test_scripted_latency_recomputes_all_samples_and_enforces_strict_boundary(tmp_path, change):
     ctx = context(tmp_path, 'hook-latency-budget')
-    values = [183, 225, 151, 150, 151, 149, 99]
+    values = [183, 225, 151, 150, 151, 149, 99, 230, 300]
     source = ctx.data('measurements.json')['runs']
     rows = [{'id': row['id'], 'p95_ms': value, 'budget_ms': 150,
              'pass': value < 150 and row['hook_output_correct']} for row, value in zip(source, values)]
+    for index, baseline, overhead, passed in [(2, 60, 91, True), (7, 80, 150, False), (8, 220, 80, False)]:
+        rows[index].update(baseline_p95_ms=baseline, overhead_ms=overhead, overhead_budget_ms=150,
+                           budget_ms=300, absolute_budget_ms=300, **{'pass': passed})
     if change == 'wrong-tail':
         rows[0]['p95_ms'] = 310
     elif change == 'wrong-boundary':
         rows[3]['pass'] = True
     elif change == 'wrong-correctness':
-        rows[-1]['pass'] = True
+        next(row for row in rows if row['id'] == 'incorrect-output')['pass'] = True
     elif change == 'missing':
         rows.pop()
+    elif change == 'wrong-baseline':
+        rows[2]['baseline_p95_ms'] = 90
+    elif change == 'wrong-overhead':
+        rows[2]['overhead_ms'] = 61
+    elif change == 'old-budget':
+        rows[2].update(budget_ms=150, **{'pass': False})
+    elif change == 'overhead-boundary':
+        rows[7]['pass'] = True
+    elif change == 'absolute-boundary':
+        rows[8]['pass'] = True
     write(ctx, 'verdicts.json', rows)
     names = ['90-01-windows-margin.md', '90-02-exact-boundary.md', '90-03-tighter-paths.md',
-             '90-04-all-percentiles.md', '90-05-correctness-required.md']
+             '90-04-all-percentiles.md', '90-05-correctness-required.md',
+             '90-08-overhead-boundary.md', '90-09-absolute-boundary.md']
     assert all(checks.SCRIPTED_CHECKS['hook-latency-budget', name](ctx)[0] for name in names) is (change == 'none')
 
 

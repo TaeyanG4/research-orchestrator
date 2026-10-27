@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-Each project's installed manual research-orchestrator PreToolUse registrations include AskUserQuestion exactly once when Autonomy is away and zero times when Autonomy is present, for both plugin states.
+Each project has AskUserQuestion exactly once across its effective plugin and manual PreToolUse registrations, for both Autonomy values; manual registrations contain it only when the plugin is inactive.

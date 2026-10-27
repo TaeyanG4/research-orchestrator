@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: brief-review-cache
+expected_outcome: |
+  Ordinary and compact briefs detect changed review evidence immediately while coordination records remain unchanged.
+context:
+  scaffold_script: place-files.sh

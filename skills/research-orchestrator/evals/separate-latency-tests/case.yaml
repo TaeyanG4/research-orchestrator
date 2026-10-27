@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: separate-latency-tests
+expected_outcome: |
+  The documented deterministic command excludes latency by default and the separate explicit latency command retains its CI coverage without invented results.
+context:
+  scaffold_script: place-files.sh

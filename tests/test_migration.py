@@ -78,11 +78,11 @@ def test_preflight_refuses_with_a_taken_slot(tmp_path) -> None:
     target = copy_fixture("v2", tmp_path / "proj")
     (target / ".git").mkdir()
     assert run_init(target, "--reconfigure").returncode == 0
-    before = snapshot(target)
+    before = {path.relative_to(target): path.read_bytes() for path in target.rglob("*") if path.is_file()}
     refused = run_init(target, "--reconfigure", "--workflow", "unified", "--migrate")
     assert refused.returncode == 1
-    assert snapshot(target) == before
-    assert not list(target.glob("*.pre-migrate"))
+    # The prior upgrade's backups stay intact; refusal creates or changes nothing.
+    assert {path.relative_to(target): path.read_bytes() for path in target.rglob("*") if path.is_file()} == before
 
 
 def test_preflight_refuses_when_the_checker_reports_errors(tmp_path) -> None:
