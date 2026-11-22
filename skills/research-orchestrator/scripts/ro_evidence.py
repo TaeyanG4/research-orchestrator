@@ -383,10 +383,13 @@ def _actions(text: str) -> list[dict]:
     return actions
 
 
+PREPARED_CANDIDATE = re.compile(r"(.+?),\s*hash\s+(?:sha256:)?([0-9a-fA-F]{64})\s*")
+
+
 def _candidate(fields: dict) -> tuple[str, str]:
-    match = re.fullmatch(r"(.+?),\s*hash\s+(?:sha256:)?([0-9a-fA-F]{64})\s*", fields.get("Candidate", ""))
+    match = PREPARED_CANDIDATE.fullmatch(fields.get("Candidate", ""))
     if not match:
-        raise ValueError("prepared action requires Candidate: <artifact>, hash <sha256>")
+        raise ValueError("prepared action requires Candidate: <artifact>, hash <sha256> with nothing after the hash")
     return match[1].strip(), match[2].lower()
 
 
@@ -685,8 +688,12 @@ def _select_external(project, args):
 
 
 def _retry_reconciled(previous, expected_at):
+    # not-accepted: the service did not take the action.
+    # accepted-cancelled: the service took it, but the owner cancelled the run before it started
+    # (e.g. a notebook commit stuck in a queue); the evidence must cite the service's cancel state.
     value = previous.get("Reconciled", "")
-    match = re.fullmatch(r"not-accepted \(observed (\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?)\);\s*(\S.*)", value)
+    match = re.fullmatch(r"(?:not-accepted|accepted-cancelled) \(observed (\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?)\);\s*(\S.*)",
+                         value)
     try:
         reconciled_at = dt.datetime.fromisoformat(match[1]) if match else None
         prior_times = []
@@ -699,7 +706,7 @@ def _retry_reconciled(previous, expected_at):
     except ValueError:
         valid = False
     if not valid:
-        raise ValueError("Retry of requires prior Reconciled: not-accepted (observed timestamp); evidence")
+        raise ValueError("Retry of requires prior Reconciled: not-accepted|accepted-cancelled (observed timestamp); evidence")
 
 
 def _durable_retry_history(project, actions, action_id, digest, destination, expected_at):
@@ -740,7 +747,61 @@ def _durable_retry_history(project, actions, action_id, digest, destination, exp
             raise ValueError("prior external action is still in-flight; reconcile after its runner ends")
 
 
+def _validate_prepared(project, text: str, actions: list[dict], action: dict, artifact: str,
+                       digest: str) -> tuple[str, dict]:
+    """Every pre-execution rule for one prepared action; `ro external --check` runs the same ones."""
+    fields, action_id = action["fields"], action["id"]
+    if (project.root / ro_settings.TRANSACTION).is_file():
+        # The ledger update after journaling the attempt would be refused, burning the prepared entry.
+        raise ValueError("an interrupted record transaction is pending; run `ro close-item --recover` first")
+    if project.read_json(f"external-attempts/{action_id}.json", None) is not None:
+        raise ValueError("external prepared action was already attempted; reconcile and create an explicit retry")
+    # Duplicate IDs can mix done/prepared entries: never execute one and then
+    # accidentally update a different entry, leaving the action reusable.
+    if len(re.findall(rf"^### {re.escape(action_id)}\b", mask_fences(text), re.M)) != 1:
+        raise ValueError("selected external ledger ID must have exactly one heading")
+    destination = fields.get("Destination", "").strip()
+    if not destination:
+        raise ValueError("prepared action requires a destination")
+    written = re.search(r"\(written (\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?)\)", fields.get("Expected", ""))
+    try:
+        expected_at = dt.datetime.fromisoformat(written[1]) if written else None
+    except ValueError:
+        expected_at = None
+    if expected_at is None or expected_at >= dt.datetime.now() or not fields["Expected"][:written.start()].strip():
+        raise ValueError("Expected must end with (written YYYY-MM-DD HH:MM) taken from the clock before execution")
+    scope = fields.get("Scope") or fields.get("Contract") or action_id
+    _valid_receipt(project, artifact, scope, destination)
+    valid_retry, duplicate, superseded = external_retry_checks([(a["id"], a["fields"]) for a in actions])[action_id]
+    if fields.get("Retry of", "").strip() and not valid_retry:
+        raise ValueError("Retry of must name an earlier matching action without a reference cycle")
+    if duplicate and not valid_retry:
+        raise ValueError("duplicate external action requires an explicit Retry of")
+    if superseded:
+        raise ValueError("duplicate external action has a later or undated attempt; reconcile before execution")
+    _durable_retry_history(project, actions, action_id, digest, destination, expected_at)
+    previous_id = fields.get("Retry of", "").strip()
+    if not previous_id:
+        return destination, {}
+    previous = next(a["fields"] for a in actions if a["id"] == previous_id)
+    _retry_reconciled(previous, expected_at)
+    return destination, project.read_json(f"external-attempts/{previous_id}.json", {})
+
+
+def external_check(project, args) -> str:
+    """Validate a prepared action now, with the executor's rules, without journaling or running it."""
+    if not args.action or not re.fullmatch(X_PATTERN, args.action):
+        raise ValueError("external --check needs --action X-<slot>-NNN")
+    with project.lock("external"):
+        text, actions, (action, artifact, digest) = _select_external(project, args)
+        destination, _prior = _validate_prepared(project, text, actions, action, artifact, digest)
+    return (f"external {action['id']}: ready — candidate {artifact} matches its hash, Expected precedes now, "
+            f"receipt and retry history are valid for {destination}")
+
+
 def external(project, args) -> str:
+    if getattr(args, "check", False):
+        return external_check(project, args)
     command = list(args.command)
     if command and command[0] == "--":
         command.pop(0)
@@ -766,39 +827,7 @@ def external(project, args) -> str:
                 raise ValueError("prepared action selection changed; select an explicit --action")
             fields, action_id = action["fields"], action["id"]
             journal_name = f"external-attempts/{action_id}.json"
-            if project.read_json(journal_name, None) is not None:
-                raise ValueError("external prepared action was already attempted; reconcile and create an explicit retry")
-            # Duplicate IDs can mix done/prepared entries: never execute one and then
-            # accidentally update a different entry, leaving the action reusable.
-            if len(re.findall(rf"^### {re.escape(action_id)}\b", mask_fences(text), re.M)) != 1:
-                raise ValueError("selected external ledger ID must have exactly one heading")
-            destination = fields.get("Destination", "").strip()
-            if not destination:
-                raise ValueError("prepared action requires a destination")
-            written = re.search(r"\(written (\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?)\)", fields.get("Expected", ""))
-            try:
-                expected_at = dt.datetime.fromisoformat(written[1]) if written else None
-            except ValueError:
-                expected_at = None
-            if expected_at is None or expected_at >= dt.datetime.now() or not fields["Expected"][:written.start()].strip():
-                raise ValueError("Expected must be written before external execution")
-            scope = fields.get("Scope") or fields.get("Contract") or action_id
-            _valid_receipt(project, artifact, scope, destination)
-            valid_retry, duplicate, superseded = external_retry_checks([(a["id"], a["fields"]) for a in actions])[action_id]
-            if fields.get("Retry of", "").strip() and not valid_retry:
-                raise ValueError("Retry of must name an earlier matching action without a reference cycle")
-            if duplicate and not valid_retry:
-                raise ValueError("duplicate external action requires an explicit Retry of")
-            if superseded:
-                raise ValueError("duplicate external action has a later or undated attempt; reconcile before execution")
-            _durable_retry_history(project, actions, action_id, digest, destination, expected_at)
-            previous_id = fields.get("Retry of", "").strip()
-            if previous_id:
-                previous = next(a["fields"] for a in actions if a["id"] == previous_id)
-                _retry_reconciled(previous, expected_at)
-                prior_attempt = project.read_json(f"external-attempts/{previous_id}.json", {})
-            else:
-                prior_attempt = {}
+            destination, prior_attempt = _validate_prepared(project, text, actions, action, artifact, digest)
             # Recompute immediately before acting; a review never authorizes changed bytes.
             if hash_artifact(project, artifact)["sha256"] != digest:
                 raise ValueError("artifact changed during external validation")
@@ -831,6 +860,11 @@ def external(project, args) -> str:
                 pass  # The pre-spawn journal still prohibits replay.
             raise
         status = "unknown" if getattr(result, "timed_out", False) else "done" if result.returncode == 0 else "error"
+        reason = "deadline or stream read failed; reconcile remote state" if status == "unknown" else ""
+        success = getattr(args, "success_regex", None)
+        if status == "done" and success and not safe_regex(success).search(f"{result.stdout}\n{result.stderr}"):
+            # Some CLIs print a refusal and still exit 0 (2026-10-30 X-A-060/062): unknown until reconciled.
+            status, reason = "unknown", "exit 0 without the --success-regex text; reconcile remote state"
         attempt.update(status=status, returncode=result.returncode,
                          finished_at=dt.datetime.now(dt.timezone.utc).isoformat())
         # Preserve remote acceptance evidence even when the final ledger update
@@ -838,7 +872,7 @@ def external(project, args) -> str:
         try:
             response = _external_result(project, action_id, returncode=result.returncode,
                                         stdout=result.stdout, stderr=result.stderr,
-                                        start_error="deadline or stream read failed; reconcile remote state" if status == "unknown" else "",
+                                        start_error=reason,
                                         stdout_omitted=getattr(result, "stdout_omitted", 0),
                                         stderr_omitted=getattr(result, "stderr_omitted", 0))
         finally:

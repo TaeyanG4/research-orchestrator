@@ -37,14 +37,18 @@ def test_v34_upgrade_preserves_old_and_new_user_policy_verbatim(tmp_path):
 
 
 def test_v34_templates_are_frozen_with_their_released_bytes():
-    assert rs.CURRENT_TEMPLATE == "v3.5"
+    assert rs.CURRENT_TEMPLATE == "v3.6"
     digests = {
-        "AGENTS.md.template": "b9fa844d65a0601c686bca948e74cd862e3e945cb87c242dd5b40e8b087fa5ba",
-        "PROJECT_RULES.md.template": "fbad56e0a33a2da8787733a92708c2aa45d8f7db6552e595216e06f3bc0efcc8",
+        "v3.4": {"AGENTS.md.template": "b9fa844d65a0601c686bca948e74cd862e3e945cb87c242dd5b40e8b087fa5ba",
+                 "PROJECT_RULES.md.template": "fbad56e0a33a2da8787733a92708c2aa45d8f7db6552e595216e06f3bc0efcc8"},
+        # Released with 7.0.0; frozen when 8.0.0 moved to v3.6.
+        "v3.5": {"AGENTS.md.template": "4ea90a69ec2272763afeaa64f0b4724cfdbb1df3359d0f6eee6f3902f65fc296",
+                 "PROJECT_RULES.md.template": "fbad56e0a33a2da8787733a92708c2aa45d8f7db6552e595216e06f3bc0efcc8"},
     }
-    for name, digest in digests.items():
-        data = (SKILL / "templates/v3.4" / name).read_bytes().replace(b"\r\n", b"\n")
-        assert hashlib.sha256(data).hexdigest() == digest
+    for version, files in digests.items():
+        for name, digest in files.items():
+            data = (SKILL / "templates" / version / name).read_bytes().replace(b"\r\n", b"\n")
+            assert hashlib.sha256(data).hexdigest() == digest
 
 
 def test_reviewer_contract_resolves_installed_policy_without_repository_cwd(tmp_path):

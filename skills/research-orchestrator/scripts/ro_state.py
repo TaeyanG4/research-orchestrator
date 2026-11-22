@@ -133,11 +133,38 @@ def redact(text: str) -> str:
     return re.sub(r"(https?://)[^/@\s]+:[^/@\s]+@", r"\1[REDACTED]@", text)
 
 
+RECORD_FILES = ("agents.md", "plan.md", "discoveries.md", "handoff.md")
+
+
+def keep_newlines(path: Path, text: str) -> str:
+    """Return text a CRLF file can take back without converting its line endings.
+
+    Readers that use universal newlines hand back LF-only text; writing it unchanged converted CRLF
+    records to LF behind the user's back (2026-11-11 14:50, 2026-11-15 04:20). Text that still holds a
+    carriage return came from a newline-preserving read and is written exactly as given, so a mixed
+    file keeps every untouched line. A new file keeps the caller's text.
+    """
+    if "\r" in text:
+        return text
+    try:
+        with Path(path).open("rb") as source:
+            head = source.read(262144)
+    except OSError:
+        return text
+    crlf = head.count(b"\r\n")
+    return text.replace("\n", "\r\n") if crlf > head.count(b"\n") - crlf else text
+
+
 def atomic_text(path: Path, text: str) -> None:
-    """Replace one file atomically; callers hold their project lock."""
+    """Replace one file atomically in its existing line-ending style; callers hold their project lock."""
     import uuid
     path = Path(path)
+    if path.name in RECORD_FILES and (path.parent / rs.TRANSACTION).is_file():
+        # Recovery of an interrupted multi-file transaction would overwrite this write.
+        raise ValueError(f"an interrupted record transaction (.ro/migration.json) must finish before {path.name} "
+                         "changes; run `ro close-item --recover`")
     path.parent.mkdir(parents=True, exist_ok=True)
+    text = keep_newlines(path, text)
     temporary = path.with_name(f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
     try:
         with temporary.open("w", encoding="utf-8", newline="\n") as output:

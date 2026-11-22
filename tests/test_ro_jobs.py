@@ -903,3 +903,87 @@ def test_idle_monitor_backs_off_and_writes_only_changes(project, monkeypatch) ->
     assert len(writes) <= 4  # Monitor start, exit and outcome; never one write per poll.
     assert max(sleeps) > jobs.POLL_SECONDS and max(sleeps) <= jobs.MAX_POLL_SECONDS
     assert jobs._poll_bound({"started": time.time(), "expect": 0.05}) == jobs.POLL_SECONDS
+
+
+# ---- 2026-11 enveda incidents ----
+
+def test_heartbeat_folder_must_exist_relative_to_run_dir(project) -> None:
+    """2026-11-05 17:20: a relative heartbeat doubled the run-dir and reported a false silence."""
+    run = project.root / "runs" / "h53"
+    run.mkdir(parents=True)
+    with pytest.raises(ValueError, match="relative to --run-dir"):
+        jobs.launch(project, options([sys.executable, "-c", "pass"], run_dir=str(run),
+                                     heartbeat="runs/h53/heartbeat.txt"))
+    assert project.read_json("jobs.json", []) == []
+
+
+def test_missing_script_names_the_project_relative_path(project) -> None:
+    """2026-11-10 15:42 and 2026-11-18 04:27: a project-relative script under a --run-dir exited at once."""
+    run = project.root / "runs" / "consult"
+    run.mkdir(parents=True)
+    (project.root / "scripts").mkdir()
+    (project.root / "scripts" / "task.py").write_text("print('x')\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="it exists at .*task.py"):
+        jobs.launch(project, options([sys.executable, "-X", "utf8", "scripts/task.py"], run_dir=str(run)))
+    jobs._check_script(project.root, run, [sys.executable, "-m", "pytest"], "linux")  # modules are not files
+    jobs._check_script(project.root, run, [sys.executable, "-c", "print(1)", "out.py"], "linux")
+
+
+def test_launch_requires_a_matching_seal(project) -> None:
+    """Fable review m6: a seal no step consumed; a preregistered rule can now gate its run."""
+    import ro_write
+    rule = project.root / "rule.json"
+    rule.write_text('{"threshold": 0.01}\n', encoding="utf-8")
+    command = [sys.executable, "-c", "pass"]
+    with pytest.raises(ValueError, match="has no seal"):
+        jobs.launch(project, options(command, require_seal=[str(rule)]))
+    ro_write.seal(project, str(rule))
+    rule.write_text('{"threshold": 0.02}\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="changed after its seal"):
+        jobs.launch(project, options(command, require_seal=[str(rule)]))
+    assert project.read_json("jobs.json", []) == []
+    rule.write_text('{"threshold": 0.01}\n', encoding="utf-8")
+    jobs.launch(project, options(command, require_seal=[str(rule)], confirm="0s"))
+    jobs.monitor(project, stored(project)["id"])
+
+
+def test_job_child_receives_its_slot(project) -> None:
+    """H-A-60 C3: a job's own `ro` calls failed with 'select a slot' after --slot launches."""
+    project.slot = "B"
+    jobs.launch(project, options([sys.executable, "-c", "import os; print('slot=' + os.environ['RO_SLOT'])"],
+                                 item="H-B-01", confirm="0s"))
+    jobs.monitor(project, stored(project)["id"])
+    assert "slot=B" in Path(stored(project)["log"]).read_text(encoding="utf-8")
+
+
+def test_one_monitor_watches_several_jobs_and_jobs_running_filters(project, capsys) -> None:
+    """2026-11-06: sequential monitors left later jobs unwatched; the Stop hook repeated 69 times."""
+    plan = project.root / "plan.md"
+    plan.write_text(plan.read_text(encoding="utf-8").replace(
+        "- Goal: run the bounded test worker\n", "- Goal: run the bounded test worker\n- Resource: CPU\n- Parallel: YES\n"),
+        encoding="utf-8")
+    for item in ("H-A-01", "H-A-02"):
+        jobs.launch(project, options([sys.executable, "-c", "import time; time.sleep(.3)"], item=item,
+                                     confirm="0s"))
+    ids = [entry["id"] for entry in project.read_json("jobs.json", [])]
+    assert all(job_id in jobs.jobs(project, running=True) for job_id in ids)
+    assert jobs.monitor(project, ids) == "all 2 jobs reached an outcome; Job lines above"
+    printed = capsys.readouterr().out
+    assert all(f"Job: {job_id};" in printed for job_id in ids)
+    assert all(jobs.monitor_outcome(entry) for entry in project.read_json("jobs.json", []))
+    assert jobs.jobs(project, running=True) == "No running or unreported jobs."
+
+
+def test_reconcile_closes_a_job_whose_processes_vanished(project) -> None:
+    """2026-11-01 19:10: after a host restart the job stayed attention and jobs.json was edited by hand."""
+    entry = {"id": "J-A-0007", "item": "H-A-01", "slot": "A", "status": "attention", "pid": 999999999,
+             "start": "gone", "tree_owned": True, "child_started": True,
+             "child": {"pid": 999999998, "start": "gone"}, "windows_job": "ro-missing-job-object",
+             "started": time.time() - 60, "expect": 30, "run_dir": str(project.root), "bound": [], "inputs": []}
+    project.write_json("jobs.json", [entry])
+    with pytest.raises(ValueError, match="needs --evidence"):
+        jobs.reconcile(project, "J-A-0007", "  ")
+    line = jobs.reconcile(project, "J-A-0007", "no PID or command line alive; shard files hashed")
+    assert "reconciled by the owner" in line
+    saved = stored(project)
+    assert saved["tree_empty"] and not jobs.running_job(saved) and jobs.monitor_outcome(saved)

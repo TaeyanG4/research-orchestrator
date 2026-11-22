@@ -14,6 +14,7 @@
   "queue_limits": "stop at 50, resume at 5",
   "reviewer": "off",
   "fallback": "same-host",
+  "brief_requirements": "general-purpose: ro-delegate: v1",
   "asks": [
     "platforms",
     "git"

@@ -39,7 +39,7 @@ try:  # hard imports: a broken installation is a structural error, never skipped
     from ro_records import (HANDOFF_SECTIONS, PLAN_SECTIONS, SCRIPT_SUFFIXES, SHARED_SECTION, TOOLS, _active_text,
                             tool_directories, tool_entries)
     import ro_settings as rs
-    from ro_evidence import external_retry_checks
+    from ro_evidence import PREPARED_CANDIDATE, external_retry_checks
     import init_research_orchestrator as init
 except ImportError as exc:  # pragma: no cover - exercised only by a broken install
     print(f"CONSISTENCY: cannot import the skill's local modules ({exc}); the installation is broken")
@@ -60,7 +60,7 @@ DISCOVERY_FIELDS = ["Source", "Host", "User", "Date", "Cross-check", "Finding", 
 DISCOVERY_OPTIONAL = {"Session", "Decision class", "Instrument", "Family", "Result", "Override",
                       "Override resolved", "Rejected on", "Consistency", "Kind", "Status", "Due", "Gap",
                       "Decomposition", "Core families", "Data audit", "Intake", "Rejected consistent gains",
-                      "Decisions", "Outcome", "Control"}
+                      "Decisions", "Outcome", "Control", "Correction", "Current"}
 EVENT_FIELDS = [
     "Host", "User", "Action", "Result", "Artifacts", "Discovery updates", "Review verdict",
     "Resource", "Other executor", "New plan items",
@@ -601,8 +601,9 @@ class Checker:
                       "(kept verbatim by --reconfigure)", "rules")
         elif state == "stale":
             self.warn("agents.rules.stale", "agents.md", "the generated rules in agents.md do not match its settings "
-                      f"({', '.join(rs.SETTING[key].label for key in rs.RULE_KEYS)}); if you edited those settings, "
-                      "run init_research_orchestrator.py . --reconfigure", "rules")
+                      f"({', '.join(rs.SETTING[key].label for key in rs.RULE_KEYS)}) or the current template "
+                      f"{rs.CURRENT_TEMPLATE}; run init_research_orchestrator.py . --reconfigure, which keeps "
+                      "'## Project rules' verbatim", "rules")
         generated = rs.split_agents(text)[0]
         summary = re.search(r"^Summary: .*$", generated, re.M)
         if summary is None or summary.group(0) != rs.summary_line(values):
@@ -724,6 +725,11 @@ class Checker:
                 important_stages(item.fields)
             except ValueError as error:
                 self.error("plan.stages.important", where, str(error), item.key, "Important stages", item.owner)
+            next_test = item.fields.get("Next test", item.fields.get("Next step", ""))
+            if len(next_test.encode("utf-8")) > 2048:
+                # Old and new instructions piled up until no one knew which held (H-A-60 A11: 6.8 KB in one item).
+                self.warn("plan.next.size", where, "Next test passes 2 KiB; rewrite it as the current instruction "
+                          "and keep the history in events", item.key, "Next test", item.owner)
             ready = item.fields.get("Ready by")
             if ready is not None and self.iso_day(ready) is None:
                 self.warn("plan.ready-by.invalid", where, "Ready by must be YYYY-MM-DD", item.key, "Ready by")
@@ -825,7 +831,8 @@ class Checker:
                 needs.insert(1, ("a '## Agent:' section in plan.md", name in self.plan_sections))
             missing = [label for label, present in needs if not present]
             if missing:
-                self.error("agent.section.missing", "plan.md/handoff.md", f"agent {name} is missing {', '.join(missing)}",
+                self.error("agent.section.missing", "plan.md/handoff.md", f"agent {name} is missing {', '.join(missing)}"
+                           " (Active agent(s) lists every slot with a handoff section, released ones included)",
                            f"slot:{name}", "", name)
 
     def check_handoff_sections(self) -> None:
@@ -1480,7 +1487,10 @@ class Checker:
                                  "external action ID must be X-<slot>-NNN", "ID", "ERROR")
             invalid = {
                 "Kind": fields.get("Kind") not in {"submission", "deploy", "release", "publish", "message", "other"},
-                "Candidate": not ARTIFACT.fullmatch(fields.get("Candidate", "")),
+                # A prepared entry must pass the executor's own rule, so a note after the hash fails when
+                # written, not at execution (2026-11-10 09:11, 2026-11-15 03:34).
+                "Candidate": not ARTIFACT.fullmatch(fields.get("Candidate", "")) or (
+                    fields.get("Status") == "prepared" and not PREPARED_CANDIDATE.fullmatch(fields.get("Candidate", ""))),
                 "Destination": not fields.get("Destination", "").strip(),
                 "Result": fields.get("Result") != "pending" and
                           (self.observed_stamp(fields.get("Result", "")) is None or
@@ -1925,9 +1935,10 @@ class Checker:
                 print(f"CONSISTENCY: cannot read the project files: {exc}")
             return 2
         if (self.root / rs.TRANSACTION).is_file():
-            self.error("migration.unfinished", rs.TRANSACTION.as_posix(), "a workflow migration was interrupted and "
-                       "the files may be half migrated; run init_research_orchestrator.py . --reconfigure, which "
-                       "completes it (or restores the *.pre-migrate backups), then run this check again", "migration")
+            self.error("migration.unfinished", rs.TRANSACTION.as_posix(), "a multi-file record transaction (a workflow "
+                       "migration or `ro close-item`) was interrupted and the files may be half written; run "
+                       "`ro close-item --recover` or init_research_orchestrator.py . --reconfigure, which completes it "
+                       "(or restores the *.pre-migrate backups), then run this check again", "migration")
         self.check_settings(texts["agents.md"])
         self.check_project_rules(texts["agents.md"])
         self.parse_handoff(unfenced(texts["handoff.md"]))

@@ -13,7 +13,7 @@ import re
 from ro_ids import D_PATTERN, H_PATTERN
 from ro_markdown import unfenced as _unfenced
 from ro_records import (HANDOFF_SECTIONS, INDEX_LIMIT_BYTES, PLAN_SECTIONS, SHARED_SECTION, _active_text, _clip,
-                        _discovery_entries, _text, index_text)
+                        _discovery_entries, _items, _text, index_text)
 from ro_state import Project
 
 # Startup-read limits behind the checker's history.size warning; archiving aims for half.
@@ -60,9 +60,18 @@ def size_findings(discoveries: str, handoff: str) -> list[tuple[str, str]]:
                          "and settle pending reviews, which stay listed"))
     size = len(handoff.encode("utf-8"))
     if size > HANDOFF_WARN_BYTES:
+        ledger = _ledger_bytes(handoff)
         findings.append(("handoff.md", f"handoff.md is {size // 1024} KiB (limit {HANDOFF_WARN_BYTES // 1024} KiB); "
-                         f"run `ro archive events` to move older completed-log events to {ARCHIVE_DIR}/"))
+                         f"run `ro archive events` to move older completed-log events to {ARCHIVE_DIR}/"
+                         + (f"; the External actions ledger ({ledger // 1024} KiB) is not archived, and "
+                            "`--dry-run` shows how far events can go" if ledger >= 16 * 1024 else "")))
     return findings
+
+
+def _ledger_bytes(handoff: str) -> int:
+    """Size of the External actions section, which no archive command moves."""
+    match = re.search(r"(?ms)^## External actions[ \t]*\n.*?(?=^## |\Z)", handoff)
+    return len(match.group(0).encode("utf-8")) if match else 0
 
 
 def _lines(text: str) -> list[str]:
@@ -311,7 +320,8 @@ def archive_events(project: Project, before: str = "", dry_run: bool = False) ->
         events = _events(text)
         if not events:
             return "Nothing to archive: handoff.md has no dated events."
-        live_items = set(H_ID.findall(_active_text(_text(project, "plan.md"), PLAN_SECTIONS)))
+        # Item headings only: an ID merely cited in another item's text is not live (2026-11-08 14:17).
+        live_items = {key for key, *_ in _items(_text(project, "plan.md"))}
         # Each slot's latest event may be an open session summary; it stays.
         latest = {slot: start for start, _stop, _date, slot, _key in events}
         size, target = len(text.encode("utf-8")), HANDOFF_WARN_BYTES // 2
@@ -341,6 +351,11 @@ def archive_events(project: Project, before: str = "", dry_run: bool = False) ->
             block = "".join(lines[start:stop])
             groups.setdefault(_archive_name("handoff", date), []).append((block.splitlines()[0], block))
         summary = f"{len(chosen)} events to " + ", ".join(sorted(groups)) + f"; handoff.md about {size // 1024} KiB"
+        if size > HANDOFF_WARN_BYTES:
+            # Say what remains instead of letting the size warning recommend this command forever.
+            summary += (f", still above {HANDOFF_WARN_BYTES // 1024} KiB: the External actions ledger "
+                        f"({_ledger_bytes(text) // 1024} KiB) is not archived, and events of live items and each "
+                        "slot's latest event stay")
         if dry_run:
             return "Would archive " + summary
         for location, blocks in groups.items():

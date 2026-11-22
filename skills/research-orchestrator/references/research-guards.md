@@ -50,6 +50,13 @@ Before trusting a gain selected by search, compare it with a placebo or negative
 - **Research:** change a coding policy using a held-out expert audit; a panel derived from existing targets cannot decide a target change.
 - **Competition:** treat external scores as an instrument with measured resolution and recorded refresh dynamics; an own-lineage panel cannot decide a core approach change alone.
 
+Before writing a decision rule, check that the instrument can decide it, then seal the rule (`ro seal <file>`; `ro launch --require-seal <file>` refuses a run whose rule changed since):
+
+- It can show both outcomes: one positive control moves it. A measure that can only read zero closes nothing.
+- It contains what the method targets: count that stratum first; zero or a handful means `no measurement`, not a rejection.
+- A rescue after the result (a subgroup, a later gate) is a new hypothesis, confirmed on a different sample before it counts.
+- Report a partial run by sign and size only; rank after the whole run. When the instrument system changes, carry its earlier required steps over.
+
 ## G3 — Family saturation
 
 **Why:** repeated ties can consume the remaining window while a different family remains unexplored.

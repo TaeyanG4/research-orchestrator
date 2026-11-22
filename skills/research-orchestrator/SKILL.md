@@ -55,9 +55,9 @@ Another active slot's resumable state and detailed evidence are private, so reas
 1. **Claim or own:** select work through the active workflow. Use [references/plan-items.md](references/plan-items.md) for duplicate checks, scoring, and item fields before adding or choosing an item.
 2. **Work:** run the next step that can change a decision (a test, a comparison, a build, a draft). Search `ro tools` before writing a script. For long jobs, follow [launch, monitor, record, close](references/operations-safety.md#lookup-launch-monitor-and-stop); confirmation is not completion.
 3. **Discovery:** record reusable findings and decisions, including negative or inconclusive experiment outcomes to avoid repeats. Research and competition keep one discovery per experiment; reviews update the reviewed discovery. With no eligible reviewer, [leave review pending and close without polling](references/verification.md#common-rules). Work keeps reusable results (below).
-4. **Event:** append an event pointing to the discovery using [references/records.md](references/records.md). Non-experiment steps such as a claim, take-over, routing change, or session close may have no discovery.
+4. **Event:** append an event pointing to the discovery with `ro event` ([references/records.md](references/records.md)). Non-experiment steps such as a claim, take-over, routing change, or session close may have no discovery.
 5. **Follow-ups:** decide what the result changes using the follow-up procedure in the plan-items reference, including a reason when nothing follows.
-6. **Remove:** delete the completed item from the live queue; do not keep `[done]` items. Complete discovery → event → follow-ups → removal together before starting something else, so the files describe one consistent outcome.
+6. **Remove:** delete the completed item from the live queue; do not keep `[done]` items. Complete discovery → event → follow-ups → removal together (`ro close-item` writes all four) before starting something else.
 
 For `work` (`quick`, `work-project`), use compact items in queue or header `Next:` order; scores are optional. Keep reusable discoveries, dated changed-stage events, and one session summary with `Completed: <IDs>`, finalized at close. See plan-items and records for formats. Duplicate checks apply. Research and competition keep per-item records; header `Ordering: queue` makes scores optional there too.
 
@@ -107,7 +107,7 @@ Fix your records, missing structure, and cited Shared state values. Put another 
 | Resource / Parallel / Other | Exclusive resources, workers, or host limit retries | [references/compute.md](references/compute.md) |
 | Git sync | Commit or push coordination records | [references/git-sync.md](references/git-sync.md) |
 | Plan collector | Run a collection round | [references/plan-collector.md](references/plan-collector.md) |
-| Operational commands | IDs, claims, jobs, observations, briefs | [references/operations-safety.md](references/operations-safety.md) |
+| Operational commands | IDs, claims, jobs, observations, briefs, delegation | [references/operations-safety.md](references/operations-safety.md) |
 | Session | Take, resume, or close a slot | [references/sessions.md](references/sessions.md) |
 | Plan | Add, score, or derive follow-ups | [references/plan-items.md](references/plan-items.md) |
 | Records | Write discovery, event, or shared update; archive history | [references/records.md](references/records.md) |
@@ -118,4 +118,4 @@ Fix your records, missing structure, and cited Shared state values. Put another 
 
 ## Safety
 
-Hooks can block configured deterministic hazards such as detached shell work, unsafe heredocs, changes to running-job inputs, publication findings, and ungated external actions; their actual coverage depends on the host and settings. Read [references/hooks.md](references/hooks.md) for enforcement policy and [hooks-capabilities.md](references/hooks-capabilities.md) for the capability matrix before relying on them. Inspect warning counts in `ro brief` and details in `.ro/warnings.log`. This makes missing hook coverage visible instead of treating silence as proof that an action was checked.
+Hooks can block configured deterministic hazards such as detached shell work, backticks in unquoted heredocs, changes to running-job inputs, publication findings, and ungated external actions; each check covers only the forms [references/hooks.md](references/hooks.md) names, and coverage depends on the host. Read [hooks-capabilities.md](references/hooks-capabilities.md) for the capability matrix before relying on them. Inspect warning counts in `ro brief` and details in `.ro/warnings.log`; silence is not proof that an action was checked.

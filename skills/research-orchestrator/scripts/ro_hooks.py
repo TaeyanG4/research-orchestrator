@@ -14,7 +14,7 @@ import re
 import time
 
 from ro_checks import (Call, Finding, adapt, command_parts, git_push, normal_path, outcome, pre_checks,
-                       push_target_moved)
+                       push_target_moved, record_hints)
 from ro_markdown import unfenced
 from ro_time import FUTURE_TOLERANCE
 from ro_state import Project, atomic_text, redact
@@ -123,7 +123,22 @@ def _emit(project: Project, event: str, findings: list[Finding], values: dict[st
     if warned and not context:
         for finding in warned:
             best_effort_warning(project, finding.check + ": " + finding.message, (_warning_key(finding),))
-    return response(event, blocked, [finding.check + ": " + finding.message for finding in warned], context)
+    return response(event, list(dict.fromkeys(blocked)), _merged(warned), context)
+
+
+def _merged(findings: list[Finding]) -> list[str]:
+    """One line per distinct message naming every job it concerns; it used to repeat once per job."""
+    groups: dict[object, tuple[str, list[str]]] = {}
+    for index, finding in enumerate(findings):
+        text = finding.check + ": " + finding.message
+        first = finding.identity[0] if finding.identity else None
+        if isinstance(first, str) and re.fullmatch(r"J-[A-Za-z0-9]+-\d+", first):
+            jobs = groups.setdefault(text, (text, []))[1]
+            if first not in jobs:
+                jobs.append(first)
+        else:
+            groups[index] = (text, [])  # Distinct records with the same message stay separate.
+    return [text + (f" ({', '.join(jobs)})" if len(jobs) > 1 else "") for text, jobs in groups.values()]
 
 
 def host_call(payload: dict, values: dict[str, str]) -> Call:
@@ -422,7 +437,7 @@ def hook(project: Project, event: str, payload: dict, check: str | None = None, 
                               cwd=directory, cwd_uncertain=uncertain)
     elif event == "PostToolUse":
         if call.tool in ("Edit", "Write", "shell", "NotebookEdit"):
-            findings = _snapshot(project)
+            findings = _snapshot(project) + record_hints(call)
         # A host without additionalContext at PreToolUse gets the log on the next post call.
         path = project.state / "warnings.log"
         if path.exists():

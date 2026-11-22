@@ -496,6 +496,37 @@ def _check_compute_claims(project: Project, item: str, request: dict) -> None:
                 raise ValueError(f"compute reservation conflicts with handoff claim for {held_item}")
 
 
+INTERPRETERS = {"python", "python3", "py", "pythonw", "rscript", "bash", "sh", "node", "julia", "perl", "ruby", "pwsh",
+                "powershell"}
+
+
+def _check_script(root: Path, run_dir: Path, command: list[str], os_family: str) -> None:
+    """Refuse a missing script right after a known interpreter; later operands may be outputs."""
+    name = re.split(r"[\\/]", command[0])[-1].lower().removesuffix(".exe")
+    if not (name in INTERPRETERS or re.fullmatch(r"python\d+(?:\.\d+)?", name)):
+        return
+    index = 1
+    while index < len(command) and command[index].startswith("-"):
+        option = command[index]
+        if option in ("-m", "-c", "-Command", "-command", "-e"):
+            return  # A module or inline code, not a script file.
+        if name in ("bash", "sh") and not option.startswith("--") and "c" in option[1:]:
+            return  # Bundled shell options such as -lc run inline code.
+        if option in ("-File", "-file"):
+            index += 1
+            break
+        index += 2 if option in ("-X", "-W") else 1
+    if index >= len(command) or Path(command[index]).suffix.lower() not in SCRIPT_SUFFIXES:
+        return
+    script = _literal_path(run_dir, command[index], os_family)
+    if script.is_file():
+        return
+    alternative = _literal_path(root, command[index], os_family)
+    hint = (f"; it exists at {alternative} — pass that absolute path" if alternative.is_file() and alternative != script
+            else "")
+    raise ValueError(f"script {command[index]} resolves to {script} (relative to --run-dir) and does not exist{hint}")
+
+
 def launch(project: Project, args: argparse.Namespace) -> str:
     command = list(getattr(args, "cmd", None) or getattr(args, "command", None) or [])
     if command and command[0] == "--":
@@ -516,6 +547,16 @@ def launch(project: Project, args: argparse.Namespace) -> str:
         safe_regex(pattern)
     heartbeat = getattr(args, "heartbeat", None)
     heartbeat_path = str(_literal_path(run_dir, heartbeat, os_family)) if heartbeat else None
+    # Relative --heartbeat and script paths resolve against --run-dir; a wrong base reported a false
+    # heartbeat silence or killed the job at once (2026-11-05 17:20, 2026-11-10 15:42, 2026-11-18 04:27).
+    if heartbeat_path and not Path(heartbeat_path).parent.is_dir():
+        raise ValueError(f"--heartbeat resolves to {heartbeat_path} (relative to --run-dir); its folder does not exist")
+    _check_script(project.root, run_dir, command, os_family)
+    for sealed in getattr(args, "require_seal", None) or []:
+        # A preregistered rule edited after sealing must not gate the run it was written for. Like the
+        # script and heartbeat, a relative path resolves against --run-dir.
+        from ro_write import seal
+        seal(project, str(_literal_path(run_dir, sealed, os_family)), check=True)
     max_silence = duration(getattr(args, "max_silence", None) or "20m")
     receipt = getattr(args, "require_receipt", None)
     from ro_stages import launch_review
@@ -650,55 +691,75 @@ def _poll_bound(entry: dict) -> float:
     return max(POLL_SECONDS, min(bounds))
 
 
-def monitor(project: Project, job_id: str) -> str:
+def monitor(project: Project, job_ids: str | list[str]) -> str:
+    """Watch one or more jobs until each reaches an outcome.
+
+    One monitor for several jobs replaces a loop of sequential monitors, which left later jobs
+    unwatched and repeated the Stop-hook reminder (2026-11-06: 69 times in one session).
+    """
+    job_ids = [job_ids] if isinstance(job_ids, str) else list(dict.fromkeys(job_ids))
     identity = process_start(os.getpid())
     if not identity:
         raise ValueError("cannot establish monitor process identity")
     with project.lock():
         entries = _all(project)
-        entry = _get(entries, job_id)
-        if live_monitor(entry):
-            raise ValueError("job already has a live monitor")
-        entry["monitor"] = {"pid": os.getpid(), "start": identity, "active": True, "since": time.time()}
+        for job_id in job_ids:
+            if live_monitor(_get(entries, job_id)):
+                raise ValueError(f"{job_id} already has a live monitor")
+        for job_id in job_ids:
+            _get(entries, job_id)["monitor"] = {"pid": os.getpid(), "start": identity, "active": True,
+                                                "since": time.time()}
         project.write_json("jobs.json", entries)
     delay = POLL_SECONDS
+    pending, lines = list(job_ids), []
     try:
-        while True:
+        while pending:
+            bound = MAX_POLL_SECONDS
             with project.lock():
                 entries = _all(project)
                 before = json.dumps(entries, sort_keys=True)
-                entry = _get(entries, job_id)
-                _refresh(entry)
-                if entry.get("orphaned"):
-                    reason = entry["outcome"]
-                elif not running_job(entry) and entry.get("status") != "starting":
-                    if _error_match(entry, complete=True):
-                        reason = "error pattern matched"
-                        _incident(entry, reason)
+                for job_id in list(pending):
+                    entry = _get(entries, job_id)
+                    _refresh(entry)
+                    if entry.get("orphaned"):
+                        reason = entry["outcome"]
+                    elif not running_job(entry) and entry.get("status") != "starting":
+                        if _error_match(entry, complete=True):
+                            reason = "error pattern matched"
+                            _incident(entry, reason)
+                        else:
+                            reason = entry.get("outcome", "process exited")
                     else:
-                        reason = entry.get("outcome", "process exited")
-                else:
-                    reason = _condition(entry)
+                        reason = _condition(entry)
+                        if reason:
+                            _incident(entry, reason)
+                        else:
+                            _recovered(entry)
                     if reason:
-                        _incident(entry, reason)
+                        entry["monitor"].update(active=False, reason=reason, ended=time.time())
+                        pending.remove(job_id)
+                        lines.append(handoff_line(entry, reason))
+                        if len(job_ids) > 1:
+                            print(lines[-1], flush=True)  # Report each outcome as it arrives.
                     else:
-                        _recovered(entry)
-                if reason:
-                    entry["monitor"].update(active=False, reason=reason, ended=time.time())
+                        bound = min(bound, _poll_bound(entry))
                 changed = json.dumps(entries, sort_keys=True) != before
                 if changed:
                     project.write_json("jobs.json", entries)  # Change-only writes: no fsync per idle poll.
-                if reason:
-                    return handoff_line(entry, reason)
-            delay = POLL_SECONDS if changed else min(delay * 1.5, _poll_bound(entry))
-            time.sleep(delay)
+            if pending:
+                delay = POLL_SECONDS if changed else min(delay * 1.5, bound)
+                time.sleep(delay)
+        return lines[0] if len(job_ids) == 1 else f"all {len(job_ids)} jobs reached an outcome; Job lines above"
     finally:
         with project.lock():
             entries = _all(project)
-            entry = _get(entries, job_id)
-            owner = entry.get("monitor") or {}
-            if owner.get("pid") == os.getpid() and owner.get("start") == identity:
-                owner.update(active=False, ended=time.time())
+            changed = False
+            for job_id in job_ids:
+                owner = _get(entries, job_id).get("monitor") or {}
+                if owner.get("pid") == os.getpid() and owner.get("start") == identity and owner.get("active"):
+                    owner.update(active=False, ended=time.time())
+                    changed = True
+            if changed:
                 project.write_json("jobs.json", entries)
 
 
@@ -769,7 +830,7 @@ def kill(project: Project, job_id: str) -> str:
     return handoff_line(entry, "job process tree killed")
 
 
-def jobs(project: Project, prune: bool = False) -> str:
+def jobs(project: Project, prune: bool = False, running: bool = False) -> str:
     with project.lock():
         entries = _all(project)
         for entry in entries:
@@ -780,9 +841,40 @@ def jobs(project: Project, prune: bool = False) -> str:
             entries = [entry for entry in entries if running_job(entry) or entry.get("status") == "starting"
                        or not monitor_outcome(entry)]
         project.write_json("jobs.json", entries)
+    if running:
+        # Jobs that still hold ownership or lack an outcome; a long registry hid them (H-A-60 A16).
+        entries = [entry for entry in entries if running_job(entry) or entry.get("status") == "starting"
+                   or not monitor_outcome(entry)]
     return "\n".join(f"{entry['id']} {entry['item']} {entry['status']}; monitor "
                      + ("live" if live_monitor(entry) else "outcome recorded" if monitor_outcome(entry) else "outcome missing")
-                     for entry in entries) or "No jobs."
+                     for entry in entries) or ("No running or unreported jobs." if running else "No jobs.")
+
+
+def reconcile(project: Project, job_id: str, evidence: str) -> str:
+    """Close a job whose supervisor and child are gone but whose tree cannot be proven empty.
+
+    After a host restart the named Windows job object disappears, so the job stayed `attention`
+    forever and the registry was edited by hand (2026-11-01 19:10). The owner supplies the evidence.
+    """
+    evidence = " ".join(evidence.split())
+    if not evidence:
+        raise ValueError("reconcile needs --evidence: what shows the processes are gone and what the outputs hold")
+    with project.lock():
+        entries = _all(project)
+        entry = _get(entries, job_id)
+        if entry.get("slot") and entry["slot"] != project.slot:
+            raise ValueError(f"{job_id} belongs to slot {entry['slot']}")
+        _refresh(entry)
+        if _live_supervisor(entry) or _live_child(entry) or _tree_alive(entry) is True:
+            raise ValueError(f"{job_id} still has a live process; monitor it or use `ro kill {job_id}`")
+        if monitor_outcome(entry) and not running_job(entry):
+            return handoff_line(entry, entry["monitor"]["reason"])
+        reason = f"reconciled by the owner: {evidence}"
+        now = time.time()
+        entry.update(status="killed", outcome=reason, ended=now, tree_empty=True)
+        entry["monitor"] = {**(entry.get("monitor") or {}), "active": False, "reason": reason, "ended": now}
+        project.write_json("jobs.json", entries)
+    return handoff_line(entry, reason)
 
 
 def _runner(root: str, job_id: str) -> int:
@@ -808,9 +900,11 @@ def _runner(root: str, job_id: str) -> int:
             entry.update(pid=os.getpid(), start=identity, status="starting", tree_owned=True)
             project.write_json("jobs.json", entries)
         # The detached runner has no console; the job child gets a hidden one instead of a window.
+        # The job's `ro` calls act for its slot even when the launch named it with --slot (H-A-60 C3).
+        child_env = {**os.environ, "RO_SLOT": str(entry.get("slot") or project.slot)}
         child = subprocess.Popen(command, cwd=entry["run_dir"], stdin=subprocess.DEVNULL,
                                  stdout=sys.stdout, stderr=sys.stderr, close_fds=True,
-                                 creationflags=no_window_flags())
+                                 creationflags=no_window_flags(), env=child_env)
         child_identity = process_start(child.pid)
         retained_handles: set[tuple[int, str]] = set()
         if os.name == "nt":

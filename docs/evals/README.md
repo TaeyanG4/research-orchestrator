@@ -1,6 +1,6 @@
 # Evidence index
 
-Historical scores below describe saved executions. Deterministic tests validate implementation, formats and examples; further behaviour runs and trigger reruns were deferred for 6.0.0 by the recorded owner decision; persisted Codex `/hooks` trust remains unverified. New repair cases are unexecuted, and so are the cases added in 7.0.0 (`history-archive`, `tool-registry` and the new `brief-review-cache` variants).
+Historical scores below describe saved executions. Deterministic tests validate implementation, formats and examples; further behaviour runs and trigger reruns were deferred for 6.0.0 by the recorded owner decision; persisted Codex `/hooks` trust remains unverified. New repair cases are unexecuted, and so are the cases added in 7.0.0 (`history-archive`, `tool-registry` and the new `brief-review-cache` variants) and in 8.0.0 (`delegation-brief-header`, run once outside the builder evidence: [result](evidence/delegation-brief-header-2026-11-22.md)).
 
 | Measurement | Result | Runtime digest / identity | Grader / evidence |
 |---|---|---|---|

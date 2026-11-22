@@ -24,7 +24,7 @@ from ro_markdown import mask_fences, unfenced, visible_lines
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 PRESETS_DIR = SKILL_ROOT / "presets"
-CURRENT_TEMPLATE = "v3.5"
+CURRENT_TEMPLATE = "v3.6"
 FROZEN_TEMPLATES = tuple(sorted(path.name for path in (SKILL_ROOT / "templates").iterdir()
                                 if path.is_dir() and re.fullmatch(r"v\d+(?:\.\d+)*", path.name)))
 TEMPLATE_VERSIONS = (*FROZEN_TEMPLATES, CURRENT_TEMPLATE)
@@ -43,10 +43,12 @@ PROFILE_GUARDS = {
     "research": ("G1", "G5", "G6", "GD", "E1"),
     "competition": tuple(guard for guard in GUARD_IDS if guard != "G12"),
 }
+SKILL_VERSION = "8.0.0"  # Matches plugin.json and the top CHANGELOG heading.
 DEFAULT_GUARD_THRESHOLDS = "saturation=5, direction-review=7d, insight-due=48h, effort=55%, milestones=10/25/75"
 CHECK_IDS = ("shell.background", "shell.detach", "shell.heredoc", "shell.cd", "jobs.mutate-bound",
              "jobs.read-bound", "jobs.unmonitored", "records.timestamp", "records.id",
-             "publish.scan", "external.gate", "ask.away", "brief.requirements")
+             "publish.scan", "external.gate", "ask.away", "brief.requirements",
+             "shell.backslash", "fs.delete", "records.direct")
 DEFAULT_BLOCK = "shell.background, shell.heredoc, jobs.mutate-bound, publish.scan"
 
 

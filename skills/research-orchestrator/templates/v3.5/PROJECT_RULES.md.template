@@ -1,0 +1,14 @@
+## Project rules
+
+### Standing rules
+
+<!-- Budget: {{STANDING_RULES_BUDGET}} UTF-8 bytes, excluding comments and surrounding whitespace. -->
+<!-- - <rule> | Replaces: <rule or none>. Remove superseded guidance so policies do not accumulate. -->
+
+### Active overrides
+
+<!-- - <scope> | Checks: <IDs> | Reason: <why> | Expires: YYYY-MM-DD | Record: <optional ID>. Process/ranking only. -->
+
+### Lessons
+
+<!-- One line each: - <mistake> → enforced by <check id | none> -->

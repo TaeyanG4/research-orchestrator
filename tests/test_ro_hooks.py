@@ -387,7 +387,10 @@ def test_simultaneous_same_text_job_warnings_survive_state_failure(tmp_path, mon
         raise PermissionError("unwritable")
     monkeypatch.setattr(project, "write_json", refuse)
     result = hooks._emit(project, "PreToolUse", findings + findings, configured("warn"), {})
-    assert result["hookSpecificOutput"]["additionalContext"].count("jobs.mutate-bound:") == 2
+    context = result["hookSpecificOutput"]["additionalContext"]
+    # Same-text warnings merge into one line that names every job (2026-11 enveda: 7-14 repeats per call).
+    assert context.count("jobs.mutate-bound:") == 1
+    assert "J-A-0001" in context and "J-A-0002" in context
 
 
 def test_combined_hook_runs_all_checks_once_and_never_deduplicates_blocks(tmp_path, monkeypatch):

@@ -25,6 +25,8 @@ Use `D-<Agent>-<NNN>`, such as `D-A-001`, numbered sequentially by the creating 
 
 Prefer this field order for readability. `Source`, `Host`, `User`, and first-recorded `Date` retain the original attribution; use `unknown` only when migrating older notes. An optional `Session:` after `Date` records the source session identity. Review syntax, required identities, eligible reviewers, states, and revisions have their single home in [verification.md](verification.md).
 
+State in the finding what was measured, on which set and against which baseline; a conclusion wider than that set is a hypothesis. A later correction goes in `Correction: (YYYY-MM-DD HH:MM, <D-ID>) <text>`, and when a later discovery changes this one's state, add `Current: <D-ID>`; `ro index <ID>` prints both first and the startup index shows `Current`.
+
 Write findings in the configured language, preserving the claim and conditions so the startup index supports duplicate checks. For applicable non-operational decisions add `Outcome: supported | rejected | inconclusive`; [decision-guards.md](decision-guards.md) defines rejection evidence. Open matching entries' evidence on demand. Merge duplicate discoveries.
 
 ## Archiving history
@@ -66,6 +68,8 @@ Append events; preserve earlier history so later sessions can reconstruct decisi
 - New plan items: H-A-02, H-A-03 / none — <reason>
 ```
 
+Write it with `ro event <key> --action … --result … --discovery-updates … --new-plan-items …` (or `--from <file>` of field lines): the command takes the clock time and Host/User from your slot, and the checker's own rules refuse a malformed event before it is written. Each field is one line, with one `- Job:` line per event.
+
 The heading ends with the completed item ID: `none` when nothing completes, the new ID for a take-over, or `<ID>/s<N>` for a stage (which does not complete the item). Use the real current time. Prefer IDs or `none — <reason>` in `Discovery updates` and `New plan items`; bare `none` is an INFO reminder. The core's lifecycle defines when a discovery may be absent.
 
 For work (`quick` and `work-project`), use one completion summary per session:
@@ -89,6 +93,6 @@ When the handoff log becomes hard to scan, run `ro archive events` (see [Archivi
 
 ## Shared-file edits
 
-Before changing `plan.md`, `discoveries.md`, or `handoff.md`, re-read its latest contents and patch only the relevant section or append the entry. Replacing a whole file from a stale copy can erase another session's work. Apply the project's [git-sync.md](git-sync.md) mode.
+Before changing `plan.md`, `discoveries.md`, or `handoff.md`, re-read its latest contents and patch only the relevant section or append the entry. Replacing a whole file from a stale copy can erase another session's work. Prefer the commands: `ro set-field <ID|slot> <Field> <value>` replaces one line and keeps every other byte, and `ro close-item <ID> --from <draft>` (`## D-…` discoveries, `## Event` fields, optional `## Follow-ups` items) finishes an item in one journaled transaction that `ro close-item --recover` completes or rolls back; until then `ro` refuses to write the records, and recovery stops rather than overwrite a file someone changed (only a restore killed inside its own copy is redone unchecked): save that file elsewhere, copy its `.close-backup` back, recover, rerun the close if it rolled back, then reapply the change. A script that edits several records must validate everything before its first write and keep each file's line endings. Apply the project's [git-sync.md](git-sync.md) mode.
 
 Keep linked changes together before doing unrelated work: item completion follows the core lifecycle; ownership changes follow the workflow's event rule; slot creation updates all its entries as [sessions.md](sessions.md) describes; compute claims and collection rounds follow their references. Queue an item before any handoff line names it, so the checker never sees a forward reference to missing work.

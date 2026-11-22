@@ -123,8 +123,16 @@ def launch_review(project, item: str, artifact: str | None) -> None:
         receipt_check(project, artifact)
     for event in re.finditer(r"^### (\d{4}-\d{2}-\d{2} \d{2}:\d{2})[^\n]*\n(.*?)(?=^#{1,3} |\Z)",
                              _text(project, "handoff.md"), re.M | re.S):
-        fields = _fields(event[2])
         heading = event[0].split("\n", 1)[0]
-        stages = set(STAGE.findall(heading)) or set(STAGE.findall(fields.get("Action", "")))
+        # Find the item's events before parsing fields: a malformed unrelated event (two Job lines)
+        # used to refuse every launch in the project (2026-10-31 03:46, 2026-11-08 17:09).
+        stages = set(STAGE.findall(heading))
+        if not stages:
+            action = re.search(r"^- Action:[ \t]*([^\n]*)", event[2], re.M)
+            stages = set(STAGE.findall(action[1] if action else ""))
         if any(value.partition("/")[0] == base for value in stages):
+            try:
+                fields = _fields(event[2])
+            except ValueError as exc:
+                raise ValueError(f"{heading}: {exc}; keep one line per field (one `- Job:` line per event)") from exc
             result_review(project, heading, fields, event[1])

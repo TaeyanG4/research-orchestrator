@@ -63,6 +63,9 @@ def test_preset_files_list_every_key_with_the_spec_values() -> None:
     for name, (profile, workflow, verification, item_size, guards, enforcement, mode, asks) in EXPECTED.items():
         data = json.loads((SKILL / "presets" / f"{name}.json").read_text(encoding="utf-8"))
         optional = {"receipt_policy"} if name.startswith("competition-") else set()
+        if name != "quick":  # Presets that delegate work require the generated brief header (8.0.0).
+            optional.add("brief_requirements")
+            assert data["brief_requirements"] == "general-purpose: ro-delegate: v1"
         assert set(data) == set(rs.REQUIRED_PRESET_FILE_KEYS) | optional
         assert data["block"] == rs.DEFAULT_BLOCK + (", external.gate" if profile == "competition" else "")
         assert (data["profile"], data["workflow"], data["verification"], data["item_size"], data["guards"],

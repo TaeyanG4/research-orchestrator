@@ -55,4 +55,14 @@ For a code competition, submit the completed notebook version using the CLI's `-
 - Final submission selection is made on the website; there is no general CLI/API command that marks the final picks. Verify the chosen entries there and mirror them in Shared state with a rationale.
 - Rules text and live API allowances can disagree. Use current authoritative account status for the available allowance and the rules for what is permitted; resolve uncertainty before consuming an attempt.
 
+Observed in one 2026-10/11 competition (CLI 2.2.4); behaviour, not guarantees:
+
+- Pace every API call, reads included. Frequent status polling drew HTTP 429 and then web blocks. Wait most of a run's expected time without polling, then poll at long intervals with one watcher; after one 429, stop all calls to the service for a cool-down. Count requests where the HTTP call is made: spacing the starts of CLI commands does not space the requests a child process sends. Paginated listings need a stop on an empty page and a call cap.
+- `kernels push` and GPU commits can print a refusal and exit 0 (for example, more GPU commits than allowed at once); use `ro external --success-regex` with the success text ("successfully pushed").
+- Pushing someone else's `kernel-metadata.json` with its `id_no` fails with 403; write your own metadata.
+- A `.zip` uploaded to a dataset is unpacked by the platform; code that expects the archive will not find it.
+- Downloading all kernel outputs can fetch gigabytes; download only the files you need by name.
+- Status strings vary in case and spelling (`cancel_acknowledged`, `CANCEL_ACKNOWLEDGED`); normalise before comparing, and treat a cancelled run as finished. An accepted commit you cancel before it runs is reconciled as `accepted-cancelled` ([external-actions.md](../external-actions.md)).
+- Before marking an external model or dataset prohibited, search the competition forum for the host's answer and compare a mirror's hash with the official release; an empty licence field alone is not a prohibition.
+
 This adapter adds no project files. Its ledger is the shared `## External actions` section, and its scoring instrument is in `## Instruments`.

@@ -276,7 +276,7 @@ def test_a_killed_rollback_is_resumed_by_the_next_run(tmp_path, monkeypatch: pyt
     data = json.loads(record.read_text(encoding="utf-8"))
     assert data["phase"] == "rollback"
     if point != "rollback":
-        assert data["files"][int(point[-1]) - 1]["status"] == "restoring"
+        assert data["files"][int(point[-1]) - 1]["status"] in ("restoring", "copying")  # copying: killed inside its own copy
     recovered = run_init(target)
     assert recovered.returncode == 0, recovered.stderr
     assert snapshot(target) == before
@@ -324,7 +324,7 @@ def test_a_failed_restoration_can_be_retried(tmp_path, monkeypatch: pytest.Monke
             init.recover_transaction(target)
     data = json.loads((target / rs.TRANSACTION).read_text(encoding="utf-8"))
     assert data["phase"] == "rollback"
-    assert next(entry for entry in data["files"] if entry["name"] == name)["status"] == "restoring"
+    assert next(entry for entry in data["files"] if entry["name"] == name)["status"] == "copying"  # the copy itself failed
     assert init.recover_transaction(target) == "rolled back"
     assert snapshot(target) == before and not (target / rs.TRANSACTION).exists()
 

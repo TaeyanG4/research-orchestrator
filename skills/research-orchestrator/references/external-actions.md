@@ -46,6 +46,8 @@ Validation and a durable attempt journal prevent duplicate execution even when t
 
 - Prepare the E1 record with the artifact path as candidate and `Status: prepared`. Optional `Scope` (or `Contract`) equals the receipt scope; otherwise the X ID is the scope.
 - Run `ro external --artifact artifact.txt --action X-A-001 -- <command>`; omitting the artifact infers it from Candidate. Fresh explicit arguments execute, never commands from the ledger.
+- Right after writing the entry, run `ro external --check --action X-A-001`: it applies every execution rule (Candidate `<artifact>, hash <sha256>` with nothing after the hash, Expected written before now, receipt, retry history) and runs nothing, so a format error surfaces when written instead of when the command is due. The checker applies the same Candidate rule to prepared entries.
+- Some services print a refusal and still exit 0. `--success-regex '<text>'` names the output that proves acceptance; exit 0 without it records `unknown`, which needs reconciliation like any uncertain outcome.
 - Validation recomputes the hash and requires the latest policy-eligible PASS, matching destination, contract and prior expectation. Failed or unavailable validation refuses execution. Per-action locks prevent duplicates without delaying unrelated actions.
 - Before spawning, the wrapper journals the attempt and marks `in-flight`. Success becomes `done`, failure `error`, and interruption or `--deadline` expiry `unknown` (default 300 seconds). Results can remain pending until observed; editing back to `prepared` cannot bypass the journal.
 - Under the external lock, the wrapper checks journal identities by hash and destination across all action IDs. Restore omitted predecessors and retain every matching attempt in the reconciled retry chain; a withdrawn entry or a new ID cannot conceal a prior attempt. A live predecessor still blocks execution.
@@ -65,6 +67,7 @@ Bounded, redacted diagnostics preserve useful reconciliation evidence without re
 An uncertain remote outcome can already represent success, so retrying without reconciliation can execute the action twice.
 
 - Before retrying, record `Reconciled: not-accepted (observed YYYY-MM-DD HH:MM); <service evidence>` on the predecessor after its expectation/result; seconds are accepted for rapid retries.
+- When the service accepted the action but the owner cancelled its run before it started (for example a notebook commit stuck in a queue and stopped by the owner), record `Reconciled: accepted-cancelled (observed YYYY-MM-DD HH:MM); <service cancel state and time>` instead. The evidence must show the service's cancelled state; a run that started or produced output is not `accepted-cancelled`.
 - Create a new X-id with `Retry of` and a later expectation. Confirmed acceptance means observe the existing action instead of retrying it.
 - Forward the chain's stable `RO_IDEMPOTENCY_KEY` when the service supports idempotency.
 - Reconcile crashes after possible acceptance, timeouts and failed responses before retrying; local failure alone does not establish non-acceptance.

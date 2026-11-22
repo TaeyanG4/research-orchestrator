@@ -22,6 +22,8 @@ from ro_state import Project, project_root
 
 
 HOOK_EVENTS = ("SessionStart", "PreToolUse", "PostToolUse", "Stop", "pre-push")
+EVENT_FLAGS = ("action", "result", "artifacts", "discovery-updates", "review-verdict", "resource",
+               "other-executor", "new-plan-items", "decision", "review-artifact")
 
 
 def add_hook_parser(commands) -> None:
@@ -83,12 +85,18 @@ def parser(hooks_only: bool = False) -> argparse.ArgumentParser:
     launch.add_argument("--max-silence", default="20m")
     launch.add_argument("--confirm", default="15s")
     launch.add_argument("--require-receipt")
+    launch.add_argument("--require-seal", action="append", default=[], metavar="FILE",
+                        help="refuse unless FILE (e.g. a preregistered decision rule) still matches its `ro seal`")
     launch.add_argument("command", nargs=argparse.REMAINDER)
-    for name in ("monitor", "kill"):
-        sub = commands.add_parser(name)
-        sub.add_argument("job")
+    monitor = commands.add_parser("monitor", help="watch one or more jobs until each reaches an outcome")
+    monitor.add_argument("job", nargs="+")
+    kill = commands.add_parser("kill")
+    kill.add_argument("job")
     jobs = commands.add_parser("jobs")
     jobs.add_argument("--prune", action="store_true")
+    jobs.add_argument("--running", action="store_true", help="only jobs that hold ownership or lack an outcome")
+    jobs.add_argument("--reconcile", metavar="JOB", help="close a job whose processes are gone but unprovable")
+    jobs.add_argument("--evidence", default="", help="with --reconcile: what shows the processes are gone")
     receipts = commands.add_parser("receipt").add_subparsers(dest="receipt_command", required=True)
     for name in ("add", "check"):
         sub = receipts.add_parser(name)
@@ -103,7 +111,28 @@ def parser(hooks_only: bool = False) -> argparse.ArgumentParser:
     external.add_argument("--deadline", type=float, default=300,
                           help="maximum seconds for the outward command (default: 300)")
     external.add_argument("--action")
+    external.add_argument("--check", action="store_true",
+                          help="validate the prepared --action now with the executor's rules; run nothing")
+    external.add_argument("--success-regex", help="text that must appear in the output for exit 0 to count as done")
     external.add_argument("command", nargs=argparse.REMAINDER)
+    event = commands.add_parser("event", help="append a dated event: clock time, slot Host/User, checker-validated")
+    event.add_argument("key", help="H-A-01/s2 (stage), H-A-01 (the item finished) or none")
+    event.add_argument("--from", dest="source", help="a file of `- Field: value` lines instead of field options")
+    for flag in EVENT_FLAGS:
+        event.add_argument("--" + flag)
+    set_field = commands.add_parser("set-field", help="replace one single-line field of one record, keeping other bytes")
+    set_field.add_argument("record", help="H-, D- or X- ID, or `slot` for your own handoff section")
+    set_field.add_argument("field")
+    set_field.add_argument("value")
+    close_item = commands.add_parser("close-item", help="finish an item in one checked, journaled transaction")
+    close_item.add_argument("item", nargs="?", default="")
+    close_item.add_argument("--from", dest="source",
+                            help="draft: `## D-…` discoveries, `## Event` fields, optional `## Follow-ups` items")
+    close_item.add_argument("--dry-run", action="store_true")
+    close_item.add_argument("--recover", action="store_true", help="complete or roll back an interrupted transaction")
+    seal = commands.add_parser("seal", help="record a file's SHA256 and the clock time in <file>.seal.json")
+    seal.add_argument("file")
+    seal.add_argument("--check", action="store_true", help="compare the file with its seal")
     observation = commands.add_parser("observe")
     observation.add_argument("key")
     observation.add_argument("value")
@@ -116,6 +145,8 @@ def parser(hooks_only: bool = False) -> argparse.ArgumentParser:
     brief.add_argument("--no-questions", action="store_true")
     brief.add_argument("--user", default="")
     brief.add_argument("--host", default="")
+    brief.add_argument("--delegate", metavar="ITEM",
+                       help="print the brief header for an agent you delegate ITEM to (rules, report shape)")
     commands.add_parser("close")
     add_hook_parser(commands)
     # Command fallback for every PreToolUse check on hosts without hooks.
@@ -256,7 +287,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.input = [value for group in args.input for value in group]
                 output = ro_jobs.launch(project, args)
             elif name == "jobs":
-                output = ro_jobs.jobs(project, args.prune)
+                output = (ro_jobs.reconcile(project, args.reconcile, args.evidence) if args.reconcile
+                          else ro_jobs.jobs(project, args.prune, args.running))
             else:
                 output = getattr(ro_jobs, name)(project, args.job)
         elif name in ("receipt", "external"):
@@ -267,8 +299,23 @@ def main(argv: list[str] | None = None) -> int:
                 output = ro_evidence.receipt_add(project, args.artifact, args.reviewer, args.verdict, args.scope, args.dest or "")
             else:
                 output = ro_evidence.receipt_check(project, args.artifact, args.scope, args.dest)
+        elif name in ("event", "set-field", "seal", "close-item"):
+            import ro_write
+            if name == "close-item":
+                output = ro_write.close_item(project, args.item, args.source, args.dry_run, args.recover)
+            elif name == "event":
+                given = {flag.replace("-", " ").capitalize(): getattr(args, flag.replace("-", "_"))
+                         for flag in EVENT_FLAGS}
+                output = ro_write.event(project, args.key, given, args.source)
+            elif name == "set-field":
+                output = ro_write.set_field(project, args.record, args.field, args.value)
+            else:
+                output = ro_write.seal(project, args.file, args.check)
         elif name == "observe":
             output = records.observe(project, args.key, args.value, args.source, args.ttl)
+        elif name == "brief" and args.delegate:
+            import ro_write
+            output = ro_write.delegate(project, args.delegate)
         elif name == "brief":
             from ro_sessions import startup
             selection = startup(project, user=args.user, host=args.host, intent=args.intent,

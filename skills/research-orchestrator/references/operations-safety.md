@@ -31,7 +31,7 @@ Run `ro next-id D` to reserve a discovery ID so simultaneous sessions do not reu
 
 `ro archive` and `ro tools` are described in [records.md](records.md#archiving-history) and [tools.md](tools.md). Keep claims and material conditions in Finding so searches find them.
 
-PostToolUse warns about new headings or dates beyond now plus five minutes and duplicate IDs introduced by edits, including shell edits. The checker remains available on every host.
+PostToolUse warns about dates past now plus five minutes and duplicate IDs that edits introduce; the checker runs on every host.
 
 - Process exit alone does not establish a monitored result. `ro close` releases item and compute claims except those protected by running jobs or jobs without a recorded monitor outcome. It runs the checker and reports remaining claims and discoveries without follow-ups.
 - The slot becomes `Current host: released` and `Current user: none` only when every registered job has ended with a monitor outcome; otherwise ownership remains and the monitor command is printed.
@@ -44,7 +44,7 @@ Use `ro launch --input <path> --bind <output> -- <command>` to distinguish share
 
 Use `--input <path>` for shared read-only inputs; inferred script paths are shared too. Multiple jobs may read them concurrently. Keep `--bind <path>` and dedicated run directories for exclusive outputs. Any overlapping output conflicts with both readers and writers, and hook mutation protection covers both kinds of binding.
 
-Use the host's background facility or job commands below to keep ownership visible. Leave bound paths unchanged while jobs use them so results refer to recorded inputs. The project root stays writable for coordination. [hooks.md](hooks.md) owns shell parsing and path-check limits.
+Leave bound paths unchanged while jobs use them so results refer to recorded inputs; the project root stays writable. [hooks.md](hooks.md) owns shell parsing and path-check limits.
 
 ## Lookup: Launch, monitor and stop
 
@@ -53,7 +53,7 @@ Run `ro launch --item H-A-01 --expect 2h --run-dir runs/current -- <command>` to
 For launches designated by `Important stages:`, follow [staged-items.md](staged-items.md): independent receipts bind the exact stage scope before launch and after decision-changing results. Routine launches retain the optional receipt path below.
 
 - Stable bindings make launches traceable. Use `ro launch --item H-A-01 --expect 2h --run-dir runs/current --bind input.txt --error "fatal" --heartbeat heartbeat.txt --max-silence 20m --confirm 15s -- <command>` to detach owned work; conflicting running-job bindings refuse the launch.
-- A dedicated run directory and script paths are bound automatically. Without `--run-dir`, or with a directory at or above the project root, only scripts and explicit bindings are protected; the command prints that limitation. Explicit bindings of the root or its ancestors are refused.
+- A dedicated run directory and script paths are bound automatically. Without `--run-dir`, or with a directory at or above the project root, only scripts and explicit bindings are protected; the command prints that limitation. Explicit bindings of the root or its ancestors are refused. A relative script or `--heartbeat` resolves against `--run-dir`; a missing script or heartbeat folder refuses the launch.
 - The job stores PID, process start time and a redacted command; briefs never print the command. `--require-receipt artifact.txt` requires a current PASS under the configured `Receipt policy`.
 - Take a real host/user slot in `Active handoff` and own the live item: its classic section or unified claim names your slot. The lock checks both before reserving an ID; archives confer no ownership.
 - Confirmation starts after the child-start handshake. A handoff "launched" event requires the full interval, a still-live child identity and no matched error pattern. Even `--confirm 0` requires the handshake and live child; a three-second process cannot pass the default fifteen-second interval.
@@ -63,10 +63,10 @@ A launcher may exit while its workers continue. The supervisor and bindings rema
 - Surviving workers can still use bound paths. A supervisor crash leaves `attention` while the recorded child or owned tree is alive or its termination is unverified. Bindings, launch conflicts, item claims and slot ownership remain protected after the incident is monitored.
 - Use `ro kill` on the identity-verified tree, then monitor its terminal outcome. If ownership cannot be established, reconcile surviving work before releasing records; a reused PID alone is not a safe kill target.
 
-- Launch confirmation only proves that work started. Start the exact monitor command immediately, using the host's background facility for a long wait. Retain ownership until the outcome is recorded, including when a job exits during launch confirmation.
+- Launch confirmation only proves that work started. Start the exact monitor command immediately, using the host's background facility for a long wait; `ro monitor J1 J2` watches several jobs in one wait. Retain ownership until the outcome is recorded, including when a job exits during launch confirmation.
 - The monitor backs off while unchanged and writes changed state. It reports completion, a matched error pattern, configured heartbeat silence, or twice the expected duration. Resolve or stop a living job after an error or stall, then monitor again.
 - The outcome is saved in `.ro/jobs.json`; append the printed Job line to `handoff.md` and inspect result artifacts before claiming success.
-- `ro jobs` refreshes process identities and monitor state; `--prune` removes only ended entries with recorded outcomes. PID reuse means the original job is gone.
+- `ro jobs` refreshes identities and monitor state; `--running` keeps jobs that hold ownership or lack an outcome; `--prune` removes ended entries with outcomes. `--reconcile <job> --evidence <text>` closes a job whose supervisor and child are gone but whose tree is unprovable (a host restart).
 
 Restarting a monitor rechecks current conditions after a repair; prior incidents remain in the registry with their observation and recovery times. Already consumed log matches do not retrigger, while new matches still end the monitor.
 
@@ -76,9 +76,7 @@ Restarting a monitor rechecks current conditions after a repair; prior incidents
 
 ## Lookup: Receipts and external actions
 
-Run `ro external --help` to inspect the execution interface; prepare its ledger and receipt before an outward action.
-
-Read [external-actions.md](external-actions.md) before preparing a receipt or executing an outward action; it owns the ledger and command workflow.
+Read [external-actions.md](external-actions.md) before an outward action; it owns the ledger, `ro external --check` and the command workflow.
 
 ## Lookup: Facts, briefs and publication
 
@@ -87,6 +85,6 @@ Read `ro brief` for the state needed to resume without loading other sessions’
 - Dated facts prevent stale assumptions. `ro observe <key> <value> --source <source> --ttl 6h` records a volatile Shared state fact and observation time; stale facts are flagged.
 - `ro brief --max 8000` reports settings, hooks self-test, slot and claims, job/monitor state, overdue guard items, saturated families and checker counts.
 - Briefs contain facts, IDs, titles, numbers and dates within 8,000 characters; they omit other sessions' free prose and stored command lines.
-- `Brief requirements` names required lines for sub-agent types, allowing a warning before delegation when a contract line is missing.
+- Delegation: `ro brief --delegate <item>` prints the brief header that `Brief requirements` asks for; see [delegation.md](delegation.md).
 
 For publication, read [publication-safety.md](publication-safety.md). `ro hook <event>` is the JSON-stdin adapter entry point; [hooks.md](hooks.md) explains daily use; [hooks-capabilities.md](hooks-capabilities.md) owns installation and evidence.

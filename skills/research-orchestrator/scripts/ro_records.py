@@ -43,6 +43,12 @@ def _reservations(project: Project) -> dict:
         for key, value in data.items()))
 
 
+def _cited_ids(line: str) -> list[str]:
+    """IDs cited in a line, minus tokens glued to a following decimal ("X-A-313" + "0.488" reads 3130.488)."""
+    return [match.group(1) for match in ID.finditer(line)
+            if not re.match(r"\.[0-9]", line[match.end():match.end() + 2])]
+
+
 def _remember_ids(project: Project, identifiers) -> dict[str, int]:
     """Keep issued numbers after leases expire, records move, or archives disappear."""
     marks = project.read_json("id-high-water.json", {}, validate=lambda data: isinstance(data, dict) and all(
@@ -119,10 +125,15 @@ def next_id(project: Project, kind: str) -> str:
         prefix = f"{kind}-{project.slot}-"
         # References count too: removing an archived heading must never make its number reusable.
         identifiers = {key for name, text in texts.items() if name != "agents.md"
-                       for line in _unfenced(text) for key in ID.findall(line)} | set(reservations)
+                       for line in _unfenced(text) for key in _cited_ids(line)} | set(reservations)
         identifiers.update(_archived_ids(project))
+        before = _remember_ids(project, ()).get(prefix.rstrip("-"), 0)
         marks = _remember_ids(project, identifiers)
         number = 1 + marks.get(prefix.rstrip("-"), 0)
+        if before and number - 1 - before >= 100:
+            print(f"ro: warning: {prefix}* jumped from {before} to {number - 1}; check for a mistyped or "
+                  f"glued ID (an ID followed by a number without a space) before using {format_id(kind, project.slot, number)}",
+                  file=sys.stderr)
         identifier = format_id(kind, project.slot, number)
         # Commit the high-water mark and its recovery copy before returning an ID
         # or publishing its expiring reservation. An interrupted allocation may
@@ -156,7 +167,9 @@ def _discovery_entries(text: str) -> list[tuple[str, int, int, list[tuple[int, s
         if match and match.group(2).startswith("D-"):
             start, identifier, depth, archived = number, match.group(2), len(match.group(1)), ""
             index = [(number, line)]
-        elif start >= 0 and line.startswith(("- Finding:", "- Status:", "- Cross-check:")):
+        elif start >= 0 and line.startswith(("- Finding:", "- Status:", "- Cross-check:", "- Current:")):
+            # `Current:` names the later discovery that changed this one, so a reader of the index
+            # does not act on a superseded state (2026-11-14 17:03).
             index.append((number, line))
         elif start >= 0 and line.startswith("- Archived:"):
             archived = line.split(":", 1)[1].strip()
@@ -223,6 +236,13 @@ def archived_entry(project: Project, identifier: str, location: str) -> str:
 
 def discovery_index(project: Project, identifier: str = "", full: bool = False) -> str:
     """Return the startup index, or open one requested discovery in full."""
+    if identifier and re.fullmatch(H_PATTERN, identifier):
+        # One plan item without reading a large plan.md whole (H-A-60 A11).
+        plan = _text(project, "plan.md")
+        found = [(start, end) for key, start, end, _fields in _items(plan) if key == identifier]
+        if len(found) != 1:
+            raise ValueError(f"{identifier} must identify exactly one plan item")
+        return "\n".join(plan.splitlines()[found[0][0]:found[0][1]]).rstrip()
     text = _text(project, "discoveries.md")
     entries = _discovery_entries(text)
     if identifier:
@@ -230,9 +250,14 @@ def discovery_index(project: Project, identifier: str = "", full: bool = False) 
         if len(selected) != 1:
             raise ValueError(f"{identifier} must identify exactly one discovery")
         _, start, end, _index, archived = selected[0]
-        if archived:
-            return archived_entry(project, identifier, archived) + f"\n\n(archived in {archived})"
-        return "\n".join(text.splitlines()[start:end]).rstrip()
+        body = (archived_entry(project, identifier, archived) if archived
+                else "\n".join(text.splitlines()[start:end]).rstrip()).splitlines()
+        # Corrections and the current pointer come first: a number re-quoted from the body after its
+        # correction was the 2026-11-07 mistake.
+        first = [line for line in body[1:] if line.startswith(("- Correction:", "- Current:"))]
+        rest = [line for line in body[1:] if not line.startswith(("- Correction:", "- Current:"))]
+        result = "\n".join(body[:1] + first + rest)
+        return result + (f"\n\n(archived in {archived})" if archived else "")
     return index_text(text, full, entries)
 
 
@@ -490,6 +515,53 @@ def _fact_id(value: str) -> str:
     return value if ID.fullmatch(value) else "unknown"
 
 
+JOB_ID = re.compile(r"\bJ-[A-Z]{1,2}-[0-9]+\b")
+
+
+def _state_facts(project: Project, slots: dict, running: list[dict]) -> list[str]:
+    """IDs and counts a restarting session trusts first (H-A-60 A2, A5, A7, A14); never copied prose."""
+    facts = []
+    running_ids = {str(job.get("id")) for job in running}
+    registered = {str(job.get("id")) for job in registered_jobs(project)}
+    own = slots.get(project.slot, {})
+    shared = _unfenced(_active_text(_text(project, "handoff.md"), SHARED_SECTION))
+    notes = [own.get(name, "") for name in ("Current thread", "Next action", "Resumable state")]
+    notes += [line for line in shared if line.startswith("- Current project state:")]
+    cited = list(dict.fromkeys(JOB_ID.findall(" ".join(notes))))
+    finished = [job_id for job_id in cited if job_id in registered and job_id not in running_ids]
+    if finished:
+        facts.append(f"State notes cite finished jobs: {', '.join(finished[:8])}; read `ro jobs` and update the notes")
+    compute = " ".join(line for line in shared if line.startswith("- Active compute:"))
+    idle = sorted(set(re.findall(rf"\b{H_PATTERN}\b", compute))
+                  - {str(job.get("item", "")).split("/", 1)[0] for job in running})
+    if idle:
+        facts.append(f"Active compute names items without a running job: {', '.join(idle[:8])}")
+    states: dict[str, list[str]] = {}
+    for key, _start, _end, index, archived in _discovery_entries(_text(project, "discoveries.md")):
+        if archived:
+            continue
+        state = next((line.split(":", 1)[1].split()[0] for _n, line in index
+                      if line.startswith("- Cross-check:") and line.split(":", 1)[1].split()), "")
+        states.setdefault(state.rstrip(";,."), []).append(key)
+    for state in ("CHALLENGED", "HOLD"):
+        if states.get(state):
+            facts.append(f"Open reviews {state}: {len(states[state])}; IDs {', '.join(states[state][:8])}; "
+                         "`ro index <ID>` shows what to fix")
+    if states.get("PENDING"):
+        facts.append(f"Reviews PENDING: {len(states['PENDING'])}")
+    try:
+        from ro_evidence import _actions
+        waiting = [action["id"] for action in _actions(_text(project, "handoff.md"))
+                   if action["fields"].get("Status") in ("done", "complete")
+                   and action["fields"].get("Final", "").strip().lower() == "pending"]
+    except ValueError:
+        waiting = []
+    if waiting:
+        facts.append(f"Awaiting final results: {len(waiting)}; IDs {', '.join(waiting[:8])} "
+                     "(`done` means the command ran, not that its result is known)")
+    return facts
+
+
 def _checker(project: Project):
     from check_project import Checker
     checker = Checker(project.root)
@@ -622,7 +694,9 @@ def brief(project: Project, max_chars: int = 8000, *, compact: bool = False) -> 
     # Only closed-vocabulary settings and the validated language code enter an injected brief.
     settings = [f"{key}={values[key]}" for key in ("profile", "workflow", "verification", "language",
                                                 "enforcement", "autonomy")]
-    lines = ["Research Orchestrator: " + "; ".join(settings), *runtime_guidance(values, project)]
+    # The version shows a stale installed copy after the source changed (2026-11-14 21:49: two hand-edited copies).
+    from ro_settings import SKILL_VERSION
+    lines = ["Research Orchestrator: " + "; ".join(settings) + f"; skill {SKILL_VERSION}", *runtime_guidance(values, project)]
     decision = getattr(project, "slot_decision", "")
     if not decision and project.slot_registered:
         decision = project.read_json(project.session_file, {}).get("decision", "")
@@ -661,6 +735,7 @@ def brief(project: Project, max_chars: int = 8000, *, compact: bool = False) -> 
         state = "live" if monitor.get("active") and same_process(monitor_pid, monitor_start) else "missing"
         job_id = re.sub(r"[^A-Za-z0-9_-]", "", str(job.get("id", "unknown")))[:64]
         lines.append(f"Job {job_id}: {_fact_id(str(job.get('item', '')))}; monitor {state}")
+    lines.extend(_state_facts(project, slots, jobs))
     # Observations remain in Shared state; freshness is a date/number fact, never a copied value.
     now = dt.datetime.now()
     for line in _unfenced(_active_text(_text(project, "handoff.md"), SHARED_SECTION)):
@@ -684,7 +759,8 @@ def brief(project: Project, max_chars: int = 8000, *, compact: bool = False) -> 
             ids = list(dict.fromkeys(_fact_id(record) for record in unverified))[:8]
             lines.append(f"event.stage.review unverified within the brief's hash budget: {len(unverified)}; "
                          f"IDs {', '.join(ids)}; verify with check_project.py or ro receipt check")
-        archive = {"discoveries.md": "ro archive discoveries", "handoff.md": "ro archive events"}
+        archive = {"discoveries.md": "ro archive discoveries",
+                   "handoff.md": "ro archive events (its --dry-run says what cannot move)"}
         if large := [name for name in guards.get("history.size", []) if name in archive]:
             lines.append("history.size: " + "; ".join(f"{name} past its startup-read limit, run {archive[name]}"
                                                       for name in large))

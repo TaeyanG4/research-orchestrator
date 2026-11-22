@@ -784,6 +784,8 @@ def check_presets(errors: list[str]) -> None:
         expected = PRESET_FILE_KEYS.copy()
         if name.startswith("competition-"):
             expected.insert(expected.index("verification") + 1, "receipt_policy")
+        if name != "quick":  # 8.0.0: presets that delegate work require the generated brief header.
+            expected.insert(expected.index("fallback") + 1, "brief_requirements")
         if list(data) != expected:
             errors.append(f"presets/{name}.json keys {list(data)} != {expected}")
     listed = run_init(ROOT, "--list-presets", name=None)

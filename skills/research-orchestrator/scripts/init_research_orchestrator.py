@@ -328,18 +328,33 @@ def apply_transaction(target: Path, data: MigrationJournal) -> None:
     record = target / rs.TRANSACTION
     if not forward:
         crash_point("rollback")
+    temp_suffix, backup_suffix = data.get("temp_suffix", ".migrate-tmp"), data.get("backup_suffix", ".pre-migrate")
     for step, entry in enumerate(data["files"], start=1):
         path = target / entry["name"]
+        prior = entry.get("status")
         entry["status"] = "installing" if forward else "restoring"
         save_transaction(record, data)
         crash_point(f"before-{action}-{step}")
-        if file_digest(path) != entry[expected]:
-            source = path.with_name(path.name + (".migrate-tmp" if forward else ".pre-migrate"))
+        current = file_digest(path)
+        # Only a restore interrupted during its own copy (status `copying`) leaves partial bytes of this
+        # transaction, and a legacy journal never recorded the target hash; any other unknown file is
+        # someone else's write, and every rerun must keep refusing it.
+        foreign = (current != entry[expected] and current not in (entry.get("before"), entry.get("after"))
+                   and bool(entry.get("after")) and prior != "copying")
+        if foreign:
+            raise OSError(f"{path.name} changed after the transaction began; journal kept. Save your version under "
+                          f"another name, copy {path.name}{backup_suffix} back over {path.name}, run "
+                          "`ro close-item --recover` (or init --reconfigure for a migration), rerun the interrupted "
+                          "command if it rolled back, then reapply your change")
+        if current != entry[expected]:
+            source = path.with_name(path.name + (temp_suffix if forward else backup_suffix))
             if file_digest(source) != entry[expected]:
                 raise OSError(f"cannot {action} {path.name}: {source.name} is missing or does not match the journal")
             if forward:
                 os.replace(source, path)
             else:
+                entry["status"] = "copying"
+                save_transaction(record, data)
                 copy_durably(source, path)  # the backup stays intact even if this copy is interrupted
         crash_point(f"{action}-{step}")
         if file_digest(path) != entry[expected]:
@@ -350,7 +365,7 @@ def apply_transaction(target: Path, data: MigrationJournal) -> None:
     if any(file_digest(target / entry["name"]) != entry[expected] for entry in data["files"]):
         raise OSError(f"migration {data['phase']} is incomplete; journal kept for recovery")
     for entry in data["files"]:
-        (target / (entry["name"] + ".migrate-tmp")).unlink(missing_ok=True)
+        (target / (entry["name"] + temp_suffix)).unlink(missing_ok=True)
     if "template_after" in data:
         from ro_state import atomic_text
         atomic_text(target / ".ro" / "template-render.json",
@@ -364,20 +379,22 @@ def rollback_transaction(target: Path, data: MigrationJournal) -> None:
     apply_transaction(target, data)
 
 
-def write_atomically(target: Path, files: dict[Path, str], meta: dict[str, str]) -> None:
+def write_atomically(target: Path, files: dict[Path, str], meta: dict[str, str], *,
+                     temp_suffix: str = ".migrate-tmp", backup_suffix: str = ".pre-migrate") -> None:
     """Replace several files as one transaction.
 
-    1. every new file is written to <file>.migrate-tmp and every original is copied to <file>.pre-migrate;
+    1. every new file is written to <file><temp_suffix> and every original is copied to <file><backup_suffix>;
     2. a journal records the forward phase, hashes and each file's status before any replacement;
     3. every step journals its intent before changing a file; 4. all target hashes are checked before cleanup.
     A failure first journals the rollback phase, then restores backups with the same restartable protocol.
+    `ro close-item` passes its own suffixes so a migration's *.pre-migrate backups stay untouched.
     """
     record = target / rs.TRANSACTION
     entries: list[dict[str, str]] = []
     for path, content in files.items():
-        temp = path.with_name(path.name + ".migrate-tmp")
+        temp = path.with_name(path.name + temp_suffix)
         write_durably(temp, content)
-        backup = path.with_name(path.name + ".pre-migrate")
+        backup = path.with_name(path.name + backup_suffix)
         copy_durably(path, backup)
         before, after = file_digest(backup), file_digest(temp)
         if before is None or after is None:
@@ -387,6 +404,8 @@ def write_atomically(target: Path, files: dict[Path, str], meta: dict[str, str])
     data: MigrationJournal = {"version": 2, "started": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
                               "from": meta["from"], "to": meta["to"], "phase": "forward", "files": entries}
     data.update({key: meta[key] for key in ("template_before", "template_after") if key in meta})
+    if (temp_suffix, backup_suffix) != (".migrate-tmp", ".pre-migrate"):
+        data.update(temp_suffix=temp_suffix, backup_suffix=backup_suffix)
     save_transaction(record, data)
     crash_point("record")
     try:
@@ -442,8 +461,12 @@ def recover_transaction(target: Path) -> str | None:
         except OSError:
             rollback_transaction(target, data)
             outcome = "rolled back"
-    print(f"[RECOVER] the interrupted migration (Workflow {data.get('from', '?')} → {data.get('to', '?')}, started "
-          f"{data.get('started', '?')}) was {outcome}; backups stay as *.pre-migrate. Run check_project.py next.")
+    what = (f"close-item of {data.get('to', '?')}" if data.get("from") == "close-item"
+            else f"migration of Workflow {data.get('from', '?')} → {data.get('to', '?')}")
+    kept = ("" if data.get("from") == "close-item"  # close-item removes its own backups after recovery
+            else f"; backups stay as *{data.get('backup_suffix', '.pre-migrate')}")
+    print(f"[RECOVER] the interrupted {what}, started {data.get('started', '?')}, was {outcome}{kept}. "
+          "Run check_project.py next.")
     return outcome
 
 
@@ -1011,6 +1034,11 @@ def reconfigure(target: Path, args: argparse.Namespace) -> int:
             save_template_metadata(target, settings)
         print(f"[REWRITE] {agents_md}" + (" (## Project rules kept verbatim)" if region else ""))
         print(f"Settings: {rs.describe(settings)}")
+        if settings.get("brief_requirements", "none") == "none" and settings.get("preset") != "quick":
+            # Existing projects keep `none`; say once that new projects now require the delegation header.
+            print("Info: Brief requirements is none; new projects default to 'general-purpose: ro-delegate: v1', so "
+                  "delegated briefs carry `ro brief --delegate <item>` (set it with --brief-requirements)",
+                  file=sys.stderr)
         print("Log the change as a handoff event with heading 'none', then run check_project.py.")
         code = 0
     if code == 0:

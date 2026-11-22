@@ -20,13 +20,15 @@ Finding = namedtuple("Finding", "check message uncertain identity", defaults=(Fa
 class Call:
     """One normalized host tool call."""
 
-    __slots__ = ("tool", "dialect", "command", "paths", "background", "agent_type", "prompt")
+    __slots__ = ("tool", "dialect", "command", "paths", "background", "agent_type", "prompt", "added", "removed")
 
     def __init__(self, tool: str = "", dialect: str = "bash", command: str = "", paths: list[str] | None = None,
-                 background: bool = False, agent_type: str = "", prompt: str = ""):
+                 background: bool = False, agent_type: str = "", prompt: str = "", added: str = "", removed: str = ""):
         self.tool, self.dialect, self.command = tool, dialect, command
         self.paths = paths if paths is not None else []
         self.background, self.agent_type, self.prompt = background, agent_type, prompt
+        # Edit text only: the inserted and replaced strings, for record-format hints.
+        self.added, self.removed = added, removed
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Call) and all(getattr(self, k) == getattr(other, k) for k in self.__slots__)
@@ -68,9 +70,16 @@ def adapt(payload: dict) -> Call:
         tool = "Edit"
         patch = str(raw.get("patch", raw.get("input", "")))
         paths += re.findall(r"^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$", patch, re.M)
+    added = str(raw.get("new_string", "")) if name == "Edit" else ""
+    removed = str(raw.get("old_string", "")) if name == "Edit" else ""
+    if name == "apply_patch":  # Codex: added and removed lines of the patch body.
+        body = str(raw.get("patch", raw.get("input", ""))).splitlines()
+        added = "\n".join(line[1:] for line in body if line.startswith("+") and not line.startswith("+++"))
+        removed = "\n".join(line[1:] for line in body if line.startswith("-") and not line.startswith("---"))
     return Call(tool, dialect, command, paths,
                 bool(raw.get("run_in_background") or raw.get("background") or payload.get("background")),
-                str(raw.get("subagent_type", raw.get("agent_type", ""))), str(raw.get("prompt", "")))
+                str(raw.get("subagent_type", raw.get("agent_type", ""))), str(raw.get("prompt", "")),
+                added, removed)
 
 
 def normal_path(value: str, root: Path | str, os_family: str | None = None) -> str | None:
@@ -424,6 +433,7 @@ CD_VERBS = {"cd", "pushd", "popd", "set-location", "sl", "push-location", "pop-l
 
 
 REDIRECTIONS = {">", ">>", "&>", "&>>", ">&", "<", "<&", "<>", "<<", "<<-", "<<<"}
+NULL_TARGETS = {"/dev/null", "/dev/stdout", "/dev/stderr", "nul", "$null", "nul:"}
 
 
 def redirections(group: list[Token], parsed: ShellParse | None = None) -> tuple[list[Token], list[str], list[str]]:
@@ -441,7 +451,9 @@ def redirections(group: list[Token], parsed: ShellParse | None = None) -> tuple[
             clean.pop()  # An adjacent descriptor prefix, not a command operand.
         if index + 1 < len(group):
             target = group[index + 1].value
-            if part.value in (">", ">>", "&>", "&>>", "<>"):
+            if target.lower() in NULL_TARGETS:
+                pass  # Null and standard-stream devices are never project paths.
+            elif part.value in (">", ">>", "&>", "&>>", "<>"):
                 writes.append(target)
             elif part.value == ">&" and not re.fullmatch(r"(?:\d+-?|-)", target):
                 # Bash >&word redirects both streams; >&2 duplicates a descriptor.
@@ -771,6 +783,22 @@ def command_parts(call: Call, values: dict[str, str]) -> ShellParse:
     return parsed
 
 
+DELETE_VERBS = {"rm", "rmdir", "remove-item", "ri", "del", "erase", "rd"}
+
+
+def broad_delete(name: str, args: list[Token], shell: str = "bash") -> bool:
+    """A recursive or wildcard delete; exact single paths are ordinary work."""
+    if name not in DELETE_VERBS:
+        return False
+    flags = [t.value for t in args if not t.quoted and t.value.startswith("-")]
+    if name in ("rm", "rmdir") and shell == "bash":  # In PowerShell, rm is Remove-Item (-Force has an r).
+        recursive = any(f == "--recursive" or (not f.startswith("--") and any(c in f[1:] for c in "rR")) for f in flags)
+    else:
+        recursive = any(f.lower() in ("-recurse", "-r") for f in flags)
+    wildcard = any(("*" in t.value or "?" in t.value) for t in args if not t.value.startswith("-"))
+    return recursive or wildcard
+
+
 def opaque(group: list[Token], os_family: str) -> bool:
     name, args, _ = verb(group, os_family)
     return (name in ("bash", "zsh", "sh", "powershell", "pwsh", "cmd") or
@@ -823,18 +851,29 @@ def shell_checks(call: Call, root: Path | str, jobs: list[dict], values: dict[st
         conditional_cwd = False
         previous_separator = ""
         waited_at = foreground_wait(parsed, shell)
+        statement_start = (";", "|", "|&", "{", "(", "&&", "||", "&")
         for index, part in enumerate(parts):
             if not part.quoted and part.value == "&" and not call.background:
                 previous = parts[index - 1].value if index else ";"
                 following = parts[index + 1].value if index + 1 < len(parts) else ";"
-                background = shell == "bash" or (previous not in (";", "|", "{", "(", "&&", "||", "&")
-                                                  and following in (";", "}"))
+                # A statement-leading & is a Bash syntax error, so it is PowerShell's call operator
+                # sent without a shell field (Codex), not a background operator. An escaped `\;`
+                # (find -exec) is an argument, not a statement boundary.
+                leading = index == 0 or (not parts[index - 1].quoted and previous in statement_start)
+                background = ((shell == "bash" and not leading)
+                              or (shell == "powershell" and previous not in statement_start
+                                  and following in (";", "}")))
                 waited = waited_at is not None and index < waited_at and part.depth == 0
                 if background and not waited:
                     found.append(Finding("shell.background", "Use ro launch and a host background monitor for detached work (`ro launch --help`)."))
         for _, body, quoted in bodies:
             if not quoted and "`" in body:
                 found.append(Finding("shell.heredoc", "Quote the heredoc delimiter before writing executable text."))
+        if shell == "bash" and os_family == "windows" and "\\\\" in call.command:
+            # Observed 2026-10-29..11-22: the Windows host's Bash tool turns \\ into \ before bash runs,
+            # inside single quotes and quoted heredocs alike; hooks still see the original text.
+            found.append(Finding("shell.backslash", "The Windows Bash tool turns \\\\ into \\ before bash runs, even inside quotes; "
+                                                    "write text with backslashes through the file tool and run the file."))
         for group_index, group in enumerate(groups):
             preceding = previous_separator
             if conditional_cwd and previous_separator != "&&":
@@ -852,6 +891,9 @@ def shell_checks(call: Call, root: Path | str, jobs: list[dict], values: dict[st
                 found.append(Finding("shell.background", "Use ro launch and a host background monitor for detached work (`ro launch --help`)."))
             if name == "start-job" or any(t.value in ("nohup", "setsid") for t in clean[:2]) or (name == "start-process" and not any(t.value.lower() == "-wait" for t in args)):
                 found.append(Finding("shell.detach", "Use ro launch to retain process identity and a monitor (`ro launch --help`)."))
+            if broad_delete(name, args, shell):
+                found.append(Finding("fs.delete", "Recursive or wildcard delete: name the exact files this task created, "
+                                                  "or move them aside; deleting shared results needs the user's approval."))
             top_level = next((t.depth == 0 for t in clean if t.value not in ("(", ")")), False)
             if (name in CD_VERBS and top_level and group_index == len(groups) - 1 and not call.background
                     and following in ("", ";") and preceding not in ("|", "|&", "&")):
@@ -954,11 +996,39 @@ def pre_checks(call: Call, root: Path, jobs: list[dict], values: dict[str, str],
     if call.tool == "AskUserQuestion" and values.get("autonomy") == "away":
         return [Finding("ask.away", "Ask in chat and continue only with work that needs no consent.")]
     if call.tool == "Agent":
+        # An omitted agent type is the host's default writing agent.
+        agent_type = call.agent_type or "general-purpose"
+        lines = {line.strip() for line in call.prompt.splitlines()}
         for requirement in values.get("brief_requirements", "none").split(";"):
             kind, sep, line = requirement.strip().partition(":")
-            if sep and call.agent_type == kind.strip() and line.strip() not in call.prompt.splitlines():
-                return [Finding("brief.requirements", "Agent brief is missing its configured required line.")]
+            if sep and agent_type == kind.strip() and line.strip() not in lines:
+                return [Finding("brief.requirements", "Agent brief is missing its configured required line; "
+                                                      "`ro brief --delegate <item>` prints a brief header that contains it.")]
     return []
+
+
+EVENT_HEADING = re.compile(r"(?m)^### \d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})? — ")
+LEDGER_HEADING = re.compile(r"(?m)^### X-[A-Za-z0-9]+-\d+\b")
+
+
+def record_hints(call: Call) -> list[Finding]:
+    """Point hand edits of handoff.md at the commands that write or check the same records."""
+    if call.tool != "Edit" or not any(path.replace("\\", "/").rsplit("/", 1)[-1] == "handoff.md" for path in call.paths):
+        return []
+    from ro_markdown import unfenced
+
+    def headings(pattern: re.Pattern, text: str) -> set[str]:
+        # Whole heading lines outside code fences: replacing one event with a new one counts as new.
+        return {line for line in unfenced(text) if pattern.match(line)}
+
+    found = []
+    if headings(EVENT_HEADING, call.added) - headings(EVENT_HEADING, call.removed):
+        found.append(Finding("records.direct", "Write events with `ro event`: it takes the clock time and Host/User "
+                                               "from your slot and checks the fields (`ro event --help`)."))
+    if headings(LEDGER_HEADING, call.added) - headings(LEDGER_HEADING, call.removed):
+        found.append(Finding("records.direct", "Check this ledger entry now with `ro external --check <X-ID>`, "
+                                               "not at execution time."))
+    return found
 
 
 def outcome(finding: Finding, values: dict[str, str], failure: bool = False) -> str:

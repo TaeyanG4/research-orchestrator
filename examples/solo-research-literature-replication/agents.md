@@ -1,5 +1,5 @@
 # Velin rest interval study — Agent Rules
-<!-- ro-template: v3.5 -->
+<!-- ro-template: v3.6 -->
 
 Summary: preset solo-research · workflow unified · verification independent-review · active modules: staged items, evidence guards (G1, G5, G6, GD, E1)
 
@@ -16,6 +16,7 @@ Summary: preset solo-research · workflow unified · verification independent-re
 - Enforcement: block
 - Block: shell.background, shell.heredoc, jobs.mutate-bound, publish.scan
 - Publish scan: secrets
+- Brief requirements: general-purpose: ro-delegate: v1
 - Platforms: single — Lumen
 
 <details>
@@ -26,7 +27,6 @@ Summary: preset solo-research · workflow unified · verification independent-re
 - Read bound: off
 - External actions: none
 - Receipt policy: independent
-- Brief requirements: none
 - Autonomy: present
 - Stale slot after: 2h
 - Queue freeze: off
@@ -59,11 +59,12 @@ These rules keep the four files consistent in every session, with or without the
 
 - **Start:** read this file, the discovery index (`ro index`), Shared state and your own slot in `handoff.md`, then your plan items, and run `python <skill-root>/scripts/check_project.py .`. Resuming from the files rather than from memory keeps sessions consistent.
 - **Before adding work:** run `ro dupcheck <terms>`; a claim already settled needs a real `Improvement`, so no one repeats it. Reserve IDs with `ro next-id` so parallel sessions never collide. Claim an item with `ro claim <ID>` before starting it.
-- **When an item finishes:** record its discovery (one per experiment, including negative and inconclusive results), append the event, record follow-ups or `none — <reason>`, then delete the item from `plan.md`. Doing the four together leaves one consistent outcome.
+- **When an item finishes:** record its discovery (one per experiment, including negative and inconclusive results), append the event, record follow-ups or `none — <reason>`, then delete the item from `plan.md`. `ro close-item <ID> --from <draft>` does the four in one checked transaction, so an interrupted script cannot leave half of them.
 - **Store each fact once:** results in discoveries; who, when and artifacts in events; project-wide values in Shared state; half-done work in your slot's `Resumable state`. Copies drift apart.
 - **Before writing a script:** run `ro tools <terms>`; extend a listed tool and bump its `Version` instead of copying it, and register each new reusable script (`ro tools --init` creates `docs/tools.md`). Separate copies drift and make results incomparable.
-- **Long or outward work:** start long or detached jobs with `ro launch` and follow them to an outcome; run outward actions through `ro external` with a prepared ledger entry. Unowned processes and unrecorded actions cannot be checked or recovered.
-- **Records:** take times from the real clock; keep headings, field names, IDs and status words in English so the checker and commands can read them; edit only your own slot's sections.
+- **Long or outward work:** start long or detached jobs with `ro launch` and follow them to an outcome; run outward actions through `ro external` with a prepared ledger entry, checked when written with `ro external --check`. Unowned processes and unrecorded actions cannot be checked or recovered.
+- **Delegating:** start every delegated agent's brief with `ro brief --delegate <ID>`; delegated agents never read this file, so the header carries the rules and the report shape.
+- **Records:** write events with `ro event`, single fields with `ro set-field` and time-stamped evidence such as preregistrations with `ro seal <file>`: they take times from the real clock and check the format, and typed times were wrong again and again. Keep headings, field names, IDs and status words in English so the checker and commands can read them; edit only your own slot's sections.
 - **Checker findings:** fix your own and list other slots' under `Open consistency issues` instead of editing their records. When it reports `history.size`, run `ro archive discoveries` or `ro archive events`.
 - **Close:** run `ro close`, which keeps claims for running jobs and releases the rest.
 

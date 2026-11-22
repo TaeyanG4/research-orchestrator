@@ -62,6 +62,7 @@ Adapter details the daily guide leaves out:
 - Publish advisory: the staged pre-check reads the command's checkout under the project's policy. A push that picks its checkout inside the command (`git -C`, `--git-dir`, `--work-tree`, `GIT_DIR`/`GIT_WORK_TREE`, `env -C`, or an earlier directory change) gets an advisory, without scanning the hook directory's staged changes, that defers to that checkout's pre-push gate.
 - Binding checks compare each path's lexical and resolved spellings (junctions, symbolic links, Windows short names, macOS `/private/var`).
 - The cmd wrapper's settings shortcut recognises space-indented settings lines only; a tab-indented line falls through to Python, which reads it.
+- Witnesses: files younger than two seconds get none (coarse timestamps hide same-size edits); cmd also waits past the cache minute; Python checks `(mtime_ns, size)` and warning digests first.
 
 ## Capability matrix
 

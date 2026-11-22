@@ -49,7 +49,7 @@ Use this relative order for readability; the checker treats ordering differences
 
 Add `Ready by: YYYY-MM-DD` when an item has a useful readiness date. It is optional in every profile; the checker validates the date format without treating it as a completion deadline.
 
-`Sources` names motivating discoveries or `none`. `Evidence` explains why the item deserves attention now, citing actual observations rather than only an ID. `Improvement` explains what it strengthens, changes, or resolves over a source or prior attempt; use `none` only when inapplicable. `Next test` (or `Next step` for work) is the smallest step that could change a decision: a test, comparison, build, or draft. These distinctions prevent a renamed repeat from appearing to be new work.
+`Sources` names motivating discoveries or `none`. `Evidence` explains why the item deserves attention now, citing actual observations rather than only an ID. `Improvement` explains what it strengthens, changes, or resolves over a source or prior attempt; use `none` only when inapplicable. `Next test` (or `Next step` for work) is the smallest step that could change a decision: a test, comparison, build, or draft. These distinctions prevent a renamed repeat from appearing to be new work. Replace `Next test` when the instruction changes and keep its history in events: stacked old and new instructions left no one sure which held, and the checker warns past 2 KiB (`plan.next.size`). `ro index <H-ID>` prints one item without reading the whole plan, and `ro set-field <H-ID> "Next test" "<text>"` replaces the line.
 
 ## Before adding an item
 

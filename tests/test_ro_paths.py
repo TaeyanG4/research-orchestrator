@@ -92,6 +92,7 @@ def test_block_accepts_every_specified_check_id():
         "shell.background", "shell.detach", "shell.heredoc", "shell.cd", "jobs.mutate-bound",
         "jobs.read-bound", "jobs.unmonitored", "records.timestamp", "records.id", "publish.scan",
         "external.gate", "ask.away", "brief.requirements",
+        "shell.backslash", "fs.delete", "records.direct",  # 8.0.0, from the 2026-11 mistake log
     }
     for check in settings.CHECK_IDS:
         values = settings.resolve({"block": check}, None, {})

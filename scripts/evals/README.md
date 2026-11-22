@@ -22,7 +22,7 @@ suite reject stale counts or rows. Assertions and expected outcomes live in each
 Post-snapshot additions and changed assertions are unexecuted. This inventory describes routing, not measured performance. Routing checks only load case schemas and render this inventory; they do not execute scenarios or graders.
 
 <!-- generated case inventory -->
-177 case folders; 962 assertions (532 scripted, 430 judged).
+178 case folders; 966 assertions (532 scripted, 434 judged).
 Counts and rows come from the case folders and explicit grader routing; direct artifact predicates are scripted, while judgments review qualitative or multi-step trace evidence.
 
 | Case | Scripted | Judged | Input files |
@@ -61,6 +61,7 @@ Counts and rows come from the case folders and explicit grader routing; direct a
 | decision-changing-draft | 0 | 3 | 1 |
 | decision-class-integrity | 0 | 6 | 1 |
 | default-cli-shim | 4 | 0 | 1 |
+| delegation-brief-header | 0 | 4 | 3 |
 | direct-install-reviewer | 2 | 4 | 2 |
 | direction-review-grace | 4 | 0 | 1 |
 | directory-change-binding-certainty | 4 | 0 | 3 |

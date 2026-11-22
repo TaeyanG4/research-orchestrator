@@ -1,5 +1,46 @@
 # Changelog
 
+## 8.0.0
+
+This release comes from a mistake log kept through one six-week competition (259 entries, about half from delegated agents), classified by root cause and reviewed by independent readers. Its lesson: prose rules did not stop repeats, while checked rules held inside their scope. So records are now written by commands that take the clock time and validate with the checker's own rules; each check's real scope is documented; and delegated agents get a generated brief header. Projects on template v3.5 keep working; `--reconfigure` moves them to v3.6. New warnings can make `--strict` runs fail, hence the major version.
+
+### Added
+
+- `ro event <key>` appends an event with the clock time and the slot's Host/User, from field options or `--from <file>`; the checker's own rules refuse a malformed event before it is written (`Decision: changed` without a discovery, a bare item ID while the item is queued, multi-line fields).
+- `ro set-field <ID|slot> <Field> <value>` replaces one existing single-line field and keeps every other byte; fields owned by another command (`Claimed`, ledger `Status`, attribution and review fields) are refused.
+- `ro seal <file>` records a file's raw SHA256 and the clock time in `<file>.seal.json`; sealing the same bytes returns the first seal, changed bytes are refused, and `--check` compares the file with its seal.
+- `ro close-item <ID> --from <draft>` finishes an item (drafted `## D-…` discoveries, the `## Event`, optional `## Follow-ups` items, removal from `plan.md`) in one checked, journaled transaction with its own `*.close-tmp`/`*.close-backup` files; `--dry-run` previews it and `--recover` completes or rolls back an interrupted one. While a journal is pending, `ro` refuses to write the four records and `ro external` refuses before journaling an attempt; recovery stops, on every rerun, instead of overwriting a file that holds neither its old nor its new bytes, and its message gives the way out. A completed or rolled-back recovery removes the transaction's own backups. A refused close names the next step.
+- `ro launch --require-seal <file>` refuses a run whose sealed file (for example a preregistered decision rule) changed; a relative path resolves against `--run-dir`, like the script and heartbeat.
+- `--reconfigure` of a project whose `Brief requirements` is `none` mentions the new preset default.
+- `ro brief --delegate <item|none>` prints the header for a delegated agent's brief: write scope, no deletes, resource limits to fill in, clock times, `ro launch` for long runs, the real scope of blocking checks, and a seven-part report shape. Presets other than `quick` set `Brief requirements: general-purpose: ro-delegate: v1`; an omitted agent type counts as `general-purpose`. New reference [delegation.md](skills/research-orchestrator/references/delegation.md).
+- `ro external --check --action <X-ID>` applies every execution rule to a prepared entry without running anything; `--success-regex` turns an exit 0 without the expected output into `unknown`.
+- `ro monitor` accepts several jobs; `ro jobs --running` lists jobs that hold ownership or lack an outcome; `ro jobs --reconcile <job> --evidence <text>` closes a job whose processes vanished after a host restart, which before meant editing `.ro/jobs.json` by hand.
+- Hook checks `shell.backslash` (Windows Bash turns `\\` into `\` before bash runs), `fs.delete` (recursive or wildcard deletes) and `records.direct` (an Edit or Codex patch that adds a new event or ledger heading outside code fences points to `ro event` and `ro external --check`; full-file Writes and shell edits are not covered); all three warn unless listed in `Block`.
+- `ro brief` names job IDs that slot notes cite after they finished, Active compute items without a running job, open CHALLENGED/HOLD reviews, ledger entries awaiting a final result, and the skill version.
+- `ro index <H-ID>` prints one plan item; `ro index <D-ID>` prints `Correction:` and `Current:` lines first, and the startup index shows `Current:`. The checker accepts both fields and warns about a `Next test` past 2 KiB (`plan.next.size`).
+- `Reconciled: accepted-cancelled (observed …)` lets a retry follow an action the service accepted but the owner cancelled before it ran.
+- Guidance: a decision-rule checklist in research guards, a mistake-log template and rule hygiene in project rules, a skill retrospective in the post-mortem, script habits in the tool registry, and observed Kaggle behaviour (request pacing, exit 0 refusals, zip unpacking, status spellings).
+- `tests/test_incident_regressions.py` and `tests/test_record_commands.py` reproduce the logged incidents.
+- Eval case `delegation-brief-header` measures the header against a release without it: the brief carries the generated header, the delegated report follows its sections, the stage outcome is written with `ro event`, and the sub-agent stays in its folder. One paired run (8.0.0 against the pinned 5.1.0 baseline) scored 4/4 against 2/4; the behavioural grader passed in both, so it shows adoption, not an effect size ([docs/evals/evidence/delegation-brief-header-2026-11-22.md](docs/evals/evidence/delegation-brief-header-2026-11-22.md)).
+
+### Changed
+
+- Template v3.6: the Working rules point at `ro close-item`, `ro event`, `ro set-field`, `ro seal`, `ro external --check` and `ro brief --delegate`. v3.5 is frozen with its released bytes.
+- Writes keep a file's line endings: text read with universal newlines no longer converts a CRLF record to LF, and text read with its newlines is written exactly.
+- The checker applies the executor's Candidate rule (`<artifact>, hash <64 hex>` and nothing after) to prepared ledger entries.
+- `ro launch` refuses a missing script after a known interpreter, or a `--heartbeat` whose folder is missing, and names where a project-relative path points; the job's child gets `RO_SLOT`.
+- Identical job warnings merge into one line naming every job; `/dev/null`, `NUL` and `$null` redirects are not project writes.
+- `references/hooks.md` states what each check covers; a project rule wider than a row is the project's.
+- The `history.size` warning and `ro archive events` say when the External actions ledger and live items' events keep `handoff.md` above its limit; `agents.rules.stale` names the current template and `--reconfigure`.
+- Record commands report a finding as new only when its check and record are new, so a size that grew is not repeated after every write.
+
+### Fixed
+
+- A statement-leading `&` (PowerShell's call operator sent without a shell field) is no longer denied as a Bash background job; an escaped `\;` before `&` still is.
+- `ro archive events` treats only item headings as live; an ID cited in another item's text kept finished events and caused `event.item.lost`.
+- `ro next-id` ignores an ID glued to a following decimal (`X-A-313` written next to `0.488`) and warns when a number jumps by 100 or more.
+- A malformed event of an unrelated item (two `Job` lines) no longer refuses every launch; the item's own malformed event names its heading.
+
 ## 7.0.0
 
 This release reads only the v3 layout. Projects from releases before 6.0 (no `<!-- ro-template: ... -->` marker in `agents.md`) are refused with the upgrade route: run `init_research_orchestrator.py . --reconfigure` with release 6.0.x first.

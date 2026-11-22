@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: delegation-brief-header
+expected_outcome: |
+  The agent starts the delegated agent's brief with the output of `ro brief --delegate H-A-01/s1`, so the brief carries the `ro-delegate: v1` marker, the write scope, the no-delete and clock-time rules and the report sections, and it fills in resource limits and the task.
+  The delegated agent's report follows those sections and marks inferred explanations, and the delegating session records the stage outcome with `ro event` instead of hand-writing an event heading.
+context:
+  scaffold_script: place-files.sh
