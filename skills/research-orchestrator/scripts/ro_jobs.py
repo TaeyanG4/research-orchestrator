@@ -24,7 +24,7 @@ import time
 import uuid
 
 from ro_state import Project, atomic_text, process_start, redact, same_process
-from ro_settings import safe_regex
+from ro_settings import TRANSACTION, safe_regex
 from ro_checks import inside, normal_path
 from ro_ids import H_PATTERN
 from ro_proc import no_window_flags
@@ -33,7 +33,7 @@ from ro_proc import no_window_flags
 POLL_SECONDS = 0.1
 MAX_POLL_SECONDS = 2.0  # Monitors back off while nothing changes; any change resets the interval.
 LOG_SCAN_BYTES = 262144
-SCRIPT_SUFFIXES = {".py", ".pyw", ".sh", ".bash", ".ps1", ".cmd", ".bat", ".pl", ".rb", ".js"}
+SCRIPT_SUFFIXES = {".py", ".pyw", ".sh", ".bash", ".ps1", ".cmd", ".bat", ".pl", ".rb", ".js", ".r", ".jl"}
 
 
 def duration(value: str | int | float, *, zero: bool = False) -> float:
@@ -51,8 +51,27 @@ def _live_supervisor(job: dict) -> bool:
     return bool(job.get("pid") and job.get("start") and same_process(int(job["pid"]), job["start"]))
 
 
+ENDED = ("finished", "killed", "launch-failed", "exited-before-confirm")
+
+
+def foreign_job(job: dict) -> bool:
+    """A job registered on another machine: local process checks say nothing about it."""
+    machine = (job.get("compute") or {}).get("machine")
+    return bool(machine and machine != platform.node().casefold())
+
+
+def tree_ended_on_record(job: dict) -> bool:
+    """The recorded proof that a job's process tree is gone, whatever its result status says."""
+    return bool(job.get("tree_empty") or (job.get("ended") and job.get("status") == "finished"
+                                          and "exit_code" in job))
+
+
 def running_job(job: dict) -> bool:
     """Retain ownership after supervisor loss until the owned tree is proven empty."""
+    if foreign_job(job):
+        # Only its own machine can prove the tree ended: a launch failure may leave a live child, and a
+        # finished job may carry an `error` result (astra review 2026-11-22, rounds 2-3).
+        return not tree_ended_on_record(job)
     if _live_supervisor(job) or _live_child(job):
         return True
     return _tree_alive(job) is not False
@@ -84,13 +103,23 @@ def monitor_outcome(job: dict) -> bool:
                 and monitor["ended"] >= job.get("ended", 0))
 
 
-def monitor_command(project: Project, job_id: str) -> str:
-    command = [sys.executable, str(Path(__file__).resolve().with_name("ro.py")),
-               "--project", str(project.root), "--slot", project.slot, "--session", project.session,
-               "monitor", job_id]
+def shell_quote(project: Project, part: str) -> str:
+    """One argument quoted for the project's configured shell."""
     if project.settings()["environment"].endswith("/powershell"):
-        return "& " + " ".join("'" + part.replace("'", "''") + "'" for part in command)
-    return shlex.join(command)
+        return "'" + part.replace("'", "''") + "'"
+    return shlex.quote(part)
+
+
+def shell_command(project: Project, command: list[str]) -> str:
+    """One argv for the project's configured shell (PowerShell needs the call operator)."""
+    joined = " ".join(shell_quote(project, part) for part in command)
+    return "& " + joined if project.settings()["environment"].endswith("/powershell") else joined
+
+
+def monitor_command(project: Project, job_id: str) -> str:
+    return shell_command(project, [sys.executable, str(Path(__file__).resolve().with_name("ro.py")),
+                                   "--project", str(project.root), "--slot", project.slot,
+                                   "--session", project.session, "monitor", job_id])
 
 
 def monitor_next(project: Project, job_id: str) -> str:
@@ -259,8 +288,7 @@ def _group_members(group: int) -> list[int]:
 
 def _tree_alive(entry: dict) -> bool | None:
     """None is uncertainty, never permission to release bindings or signal a PID."""
-    if entry.get("tree_empty") or (entry.get("ended") and entry.get("status") == "finished"
-                                  and "exit_code" in entry):
+    if tree_ended_on_record(entry):
         return False  # A verified terminal result cannot be revived by later process-group reuse.
     if not entry.get("tree_owned") and not entry.get("child_started"):
         return False  # Legacy records without a tree reservation only identify their supervisor.
@@ -318,9 +346,14 @@ def _refresh(entry: dict) -> None:
         if not (owner.get("pid") and owner.get("start") and same_process(owner["pid"], owner["start"])):
             entry.update(status="launch-failed", outcome="launcher exited before runner registration", ended=time.time())
     elif entry.get("pid") and not _live_supervisor(entry) and running_job(entry):
-        entry.update(status="attention", orphaned=True,
-                     outcome="supervisor exited; owned work remains live or unverified; use ro kill or reconcile ownership")
-        entry.pop("ended", None)
+        if entry.get("ended") and entry.get("status") in ENDED:
+            # A recorded result (a launch failure, say) keeps its cause and time whichever command
+            # refreshes first; the lost supervisor over an unverified tree is marked apart.
+            entry["orphaned"] = True
+        else:
+            entry.update(status="attention", orphaned=True,
+                         outcome="supervisor exited; owned work remains live or unverified; use ro kill or reconcile ownership")
+            entry.pop("ended", None)
     elif entry.get("pid") and not running_job(entry) and entry.get("status") not in (
             "finished", "killed", "launch-failed", "exited-before-confirm") and not entry.get("ended"):
         entry.update(status="finished", outcome="process exited or identity changed", ended=time.time())
@@ -334,6 +367,31 @@ def _update(project: Project, job_id: str, **changes) -> dict:
         entry.update(changes)
         project.write_json("jobs.json", entries)
         return entry.copy()
+
+
+def _looks_ahead(pattern: str) -> bool:
+    """A pattern with an unescaped `$` or a `\\b`, `\\B` or `\\Z` outside a class: its match depends on what
+    follows. A literal `\\$` or a `$` inside `[...]` does not (astra round 9)."""
+    escaped, in_class, position, members = False, False, 0, 0
+    for char in pattern:
+        if in_class:
+            position += 1
+        if escaped:
+            if char in "bBZ" and not in_class:
+                return True
+            escaped, members = False, members + 1
+        elif char == "\\":
+            escaped = True
+        elif in_class:
+            if char == "^" and position == 1:
+                continue  # one negation, right after `[`; a second `^` is a member (`[^^]`, astra round 11)
+            in_class = not (char == "]" and members > 0)  # a `]` first in a class is a member (`[]$]`)
+            members += 1
+        elif char == "[":
+            in_class, position, members = True, 0, 0
+        elif char == "$":
+            return True
+    return False
 
 
 def _error_match(entry: dict, *, complete: bool = False) -> bool:
@@ -353,13 +411,46 @@ def _error_match(entry: dict, *, complete: bool = False) -> bool:
                 data = source.read(LOG_SCAN_BYTES)
                 # Carry a bounded overlap so matches crossing polling chunks remain visible.
                 tail = str(entry.get("scan_tail", ""))
-                text = tail + decoder.decode(data)
+                legacy = bool(tail) and "scan_chars" not in entry  # scan state from an earlier release
+                decoded = decoder.decode(data)
+                text = tail + decoded
+                before = int(entry.get("scan_chars", len(tail)))  # characters scanned before this read
+                base = before - len(tail)  # where `text` starts in the whole log
                 offset += len(data)
                 entry["scan_offset"] = offset
+                entry["scan_chars"] = before + len(decoded)
                 entry["scan_tail"] = text[-4096:]
                 entry["scan_utf8_pending"] = decoder.getstate()[0].hex()
-                if any(match.end() > len(tail) for pattern in patterns for match in pattern.finditer(text)):
-                    return True
+                # The current end of a live log is not its end. A pattern whose ending looks at what follows
+                # (`$`, `\b`, `\B`, `\Z`) waits for more text or the finished job's last scan, so `fatal$`
+                # never matches `fatalNO` split by a poll, and re-examines the tail's last two characters so
+                # a match the next read completes (`fatal\B`) is found; other matches report at once, as an
+                # error line at the end of a stalled log must. The search starts just before the new text
+                # (matches are at most 511 characters), so earlier matches in old text cannot shift it, and
+                # `^` matches only at the log's real start; a match counts when it ends after the last
+                # reported one, so a repeated scan reports nothing twice (astra rounds 8-12).
+                final = complete and len(data) < LOG_SCAN_BYTES
+                if legacy:
+                    # A scan state from an earlier release has no positions, and which of its tail's matches
+                    # that code reported cannot be rebuilt: it also missed some (`fatal\B` completed inside the
+                    # tail). For an error monitor a miss is worse than a repeat, so the tail's last two
+                    # characters are examined again (a look-ahead match there may be reported a second time,
+                    # once) and the starting point is saved at once (astra rounds 11-13).
+                    reported = base + len(tail) - 2
+                    entry["scan_reported"] = reported
+                else:
+                    reported = int(entry.get("scan_reported", -1))
+                for pattern in patterns:
+                    waits = _looks_ahead(pattern.pattern)
+                    hold = 0 if final or not waits else 2
+                    new_from = len(tail) - (2 if waits else 0)
+                    # Once the log outgrows the tail, new_from - 511 already lies past position 0, so `^`
+                    # can only match at the log's real start (Fable re-review T1).
+                    start = max(0, new_from - 511)
+                    for match in pattern.finditer(text, start):
+                        if new_from < match.end() <= len(text) - hold and base + match.end() > reported:
+                            entry["scan_reported"] = base + match.end()
+                            return True
                 if not complete or len(data) < LOG_SCAN_BYTES:
                     return False
     except OSError:
@@ -448,8 +539,9 @@ def _record_launch(project: Project, entry: dict) -> None:
              f"- Artifacts: {entry['log']}\n- Discovery updates: none — job start, no finding yet\n"
              "- Review verdict: none\n- Resource: none\n- Other executor: none\n"
              "- New plan items: none — existing item remains active\n\n")
-    marker = "## Archived history"
-    offset = text.find(marker)
+    from ro_markdown import archived_heading
+    marker = archived_heading(text)  # the real heading, not a fenced example (astra round 8)
+    offset = marker.start() if marker else -1
     text = text[:offset].rstrip() + "\n\n" + event + text[offset:] if offset >= 0 else text.rstrip() + "\n\n" + event
     atomic_text(path, text)
 
@@ -550,7 +642,8 @@ def launch(project: Project, args: argparse.Namespace) -> str:
     # Relative --heartbeat and script paths resolve against --run-dir; a wrong base reported a false
     # heartbeat silence or killed the job at once (2026-11-05 17:20, 2026-11-10 15:42, 2026-11-18 04:27).
     if heartbeat_path and not Path(heartbeat_path).parent.is_dir():
-        raise ValueError(f"--heartbeat resolves to {heartbeat_path} (relative to --run-dir); its folder does not exist")
+        raise ValueError(f"--heartbeat resolves to {heartbeat_path} (relative to --run-dir); its folder does not exist. "
+                         "If the path is right and the job creates that folder itself, create it before launching")
     _check_script(project.root, run_dir, command, os_family)
     for sealed in getattr(args, "require_seal", None) or []:
         # A preregistered rule edited after sealing must not gate the run it was written for. Like the
@@ -588,6 +681,9 @@ def launch(project: Project, args: argparse.Namespace) -> str:
     if launcher_start is None:
         raise ValueError("cannot establish launcher process identity")
     with project.lock():
+        if (project.root / TRANSACTION).is_file():
+            # A pending close may finish this item on recovery while the new job runs (astra review round 3).
+            raise ValueError("an interrupted record transaction is pending; run `ro close-item --recover` first")
         launch_review(project, item, receipt)  # The plan or receipt may have changed while acquiring the lock.
         _launch_identity(project)  # Refuse before reserving an ID or starting any process.
         _launch_ownership(project, item)
@@ -636,7 +732,9 @@ def launch(project: Project, args: argparse.Namespace) -> str:
             except (BrokenPipeError, OSError):
                 pass
     except OSError as exc:
-        _update(project, job_id, status="launch-failed", outcome="runner could not start", ended=time.time())
+        # No runner process exists, so no tree does: record that, or remote sessions protect it forever.
+        _update(project, job_id, status="launch-failed", outcome="runner could not start", ended=time.time(),
+                tree_empty=True)
         raise ValueError(f"job runner could not start: {redact(str(exc))}\n" + monitor_next(project, job_id)) from None
     startup_deadline = time.monotonic() + 10
     confirmation_deadline = None
@@ -649,6 +747,10 @@ def launch(project: Project, args: argparse.Namespace) -> str:
             child_alive = _live_child(current)
             if current.get("child_started") and confirmation_deadline is None:
                 confirmation_deadline = time.monotonic() + confirm
+            if current.get("orphaned"):  # The supervisor died: never confirm the launch as healthy.
+                project.write_json("jobs.json", entries)
+                return (notice + handoff_line(current, current.get("outcome") or "supervisor exited")
+                        + "\n" + monitor_next(project, job_id))
             reason = _condition(current) if current.get("child_started") else None
             if reason:
                 _incident(current, reason)
@@ -704,7 +806,10 @@ def monitor(project: Project, job_ids: str | list[str]) -> str:
     with project.lock():
         entries = _all(project)
         for job_id in job_ids:
-            if live_monitor(_get(entries, job_id)):
+            entry = _get(entries, job_id)
+            if foreign_job(entry):
+                raise ValueError(f"{job_id} runs on {entry['compute']['machine']}; monitor it there")
+            if live_monitor(entry):
                 raise ValueError(f"{job_id} already has a live monitor")
         for job_id in job_ids:
             _get(entries, job_id)["monitor"] = {"pid": os.getpid(), "start": identity, "active": True,
@@ -723,8 +828,22 @@ def monitor(project: Project, job_ids: str | list[str]) -> str:
                     _refresh(entry)
                     if entry.get("orphaned"):
                         reason = entry["outcome"]
+                        if entry.get("ended") and _error_match(entry, complete=True):
+                            # A later log finding is kept beside the recorded failure, never in its place,
+                            # so the result does not depend on which command refreshed first (astra round 6).
+                            entry.setdefault("incidents", []).append({"reason": "error pattern matched",
+                                                                      "observed": time.time()})
+                            reason += "; error pattern matched"
                     elif not running_job(entry) and entry.get("status") != "starting":
-                        if _error_match(entry, complete=True):
+                        failed = entry.get("ended") and entry.get("status") in ("launch-failed", "killed")
+                        hit = _error_match(entry, complete=True)  # once: it advances the log scan state
+                        if hit and failed:
+                            # A recorded failure keeps its cause; the log finding is added beside it
+                            # (astra round 7: a monitor after reconcile replaced `launch-failed`).
+                            entry.setdefault("incidents", []).append({"reason": "error pattern matched",
+                                                                      "observed": time.time()})
+                            reason = f"{entry.get('outcome') or entry['status']}; error pattern matched"
+                        elif hit:
                             reason = "error pattern matched"
                             _incident(entry, reason)
                         else:
@@ -754,8 +873,10 @@ def monitor(project: Project, job_ids: str | list[str]) -> str:
         with project.lock():
             entries = _all(project)
             changed = False
-            for job_id in job_ids:
-                owner = _get(entries, job_id).get("monitor") or {}
+            for entry in entries:
+                if entry.get("id") not in job_ids:
+                    continue  # A job pruned after its reported outcome is simply gone.
+                owner = entry.get("monitor") or {}
                 if owner.get("pid") == os.getpid() and owner.get("start") == identity and owner.get("active"):
                     owner.update(active=False, ended=time.time())
                     changed = True
@@ -769,6 +890,8 @@ def kill(project: Project, job_id: str) -> str:
         entry = _get(entries, job_id)
         if entry.get("slot") and entry["slot"] != project.slot:
             raise ValueError(f"{job_id} belongs to slot {entry['slot']}; stop it from that slot (--slot {entry['slot']})")
+        if foreign_job(entry):
+            raise ValueError(f"{job_id} runs on {entry['compute']['machine']}; stop it there")
         if not running_job(entry):
             _refresh(entry)
             project.write_json("jobs.json", entries)
@@ -864,15 +987,36 @@ def reconcile(project: Project, job_id: str, evidence: str) -> str:
         entry = _get(entries, job_id)
         if entry.get("slot") and entry["slot"] != project.slot:
             raise ValueError(f"{job_id} belongs to slot {entry['slot']}")
+        if foreign_job(entry):
+            raise ValueError(f"{job_id} ran on {entry['compute']['machine']}; local process checks say nothing "
+                             "about it, so reconcile it there")
+        # An end recorded before this call is evidence already; one _refresh infers now is reconciled and saved.
+        # _refresh may turn a recorded launch failure into `attention`, so keep the record as it was.
+        recorded_end = bool(entry.get("ended") and entry.get("status") in ENDED)
+        original = dict(entry)
         _refresh(entry)
-        if _live_supervisor(entry) or _live_child(entry) or _tree_alive(entry) is True:
+        launcher = entry.get("launcher") or {}
+        if (_live_supervisor(entry) or _live_child(entry) or _tree_alive(entry) is True
+                or (entry.get("status") == "starting" and launcher.get("pid") and launcher.get("start")
+                    and same_process(launcher["pid"], launcher["start"]))):
             raise ValueError(f"{job_id} still has a live process; monitor it or use `ro kill {job_id}`")
-        if monitor_outcome(entry) and not running_job(entry):
+        if monitor_outcome(entry) and tree_ended_on_record(entry):  # Nothing left to reconcile.
             return handoff_line(entry, entry["monitor"]["reason"])
         reason = f"reconciled by the owner: {evidence}"
         now = time.time()
-        entry.update(status="killed", outcome=reason, ended=now, tree_empty=True)
-        entry["monitor"] = {**(entry.get("monitor") or {}), "active": False, "reason": reason, "ended": now}
+        if recorded_end:  # Keep the recorded status, outcome, end and exit code; the owner's evidence closes the tree.
+            entry.clear()
+            entry.update(original, tree_empty=True)
+            reason = f"{entry.get('outcome') or entry['status']}; {reason}"
+        else:  # An end inferred just now keeps its status; a job still marked live is closed as killed.
+            if entry.get("status") not in ENDED:
+                entry.update(status="killed", ended=now)
+            entry.update(outcome=reason, tree_empty=True)
+        entry.pop("orphaned", None)  # The tree is closed now; no supervisor is missing any more.
+        entry["monitor"] = {**(entry.get("monitor") or {}), "active": False, "reason": reason,
+                            "ended": max(now, entry.get("ended") or 0)}
+        # The owner's evidence outlives later monitors, which replace the monitor record (astra round 5).
+        entry.setdefault("reconciled", []).append({"evidence": evidence, "at": now, "slot": project.slot})
         project.write_json("jobs.json", entries)
     return handoff_line(entry, reason)
 

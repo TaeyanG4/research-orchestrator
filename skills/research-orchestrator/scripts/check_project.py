@@ -39,7 +39,7 @@ try:  # hard imports: a broken installation is a structural error, never skipped
     from ro_records import (HANDOFF_SECTIONS, PLAN_SECTIONS, SCRIPT_SUFFIXES, SHARED_SECTION, TOOLS, _active_text,
                             tool_directories, tool_entries)
     import ro_settings as rs
-    from ro_evidence import PREPARED_CANDIDATE, external_retry_checks
+    from ro_evidence import PREPARED_CANDIDATE, expected_written, external_retry_checks
     import init_research_orchestrator as init
 except ImportError as exc:  # pragma: no cover - exercised only by a broken install
     print(f"CONSISTENCY: cannot import the skill's local modules ({exc}); the installation is broken")
@@ -1389,11 +1389,22 @@ class Checker:
 
     @staticmethod
     def record_day(block: Block) -> dt.date | None:
-        text = block.fields.get("Date", block.heading_date)
+        external = getattr(block, "section", "") == "external actions"
+        text = "" if external else block.fields.get("Date", block.heading_date)
         if not text:
-            # External actions have no Date field; their result/expectation timestamps date them.
-            text = (Checker.observed_stamp(block.fields.get("Result", "")) or
-                    Checker.observed_stamp(block.fields.get("Expected", ""), "written") or "")
+            # External actions are dated by their own stamps, the later one, so neither an added `Date`, a
+            # Result observed before its Expected nor a second, older written stamp moves them before the
+            # guards' start (astra review rounds 3-4).
+            # Each field is dated by the stamp that ends it; two `written` stamps are ambiguous and leave
+            # the entry undated, so the current checks apply (astra review round 5).
+            expected = block.fields.get("Expected", "")
+            written = expected_written(expected)
+            if written is None and expected.count("(written ") > 1:
+                return None
+            stamps = [Checker.last_stamp(block.fields.get("Result", "")),
+                      written.strftime("%Y-%m-%d %H:%M") if written else
+                      Checker.observed_stamp(expected, "written") if expected.count("(written ") == 1 else None]
+            text = max((stamp for stamp in stamps if stamp), default="")
         match = re.search(r"\d{4}-\d{2}-\d{2}", text)
         try:
             return dt.date.fromisoformat(match.group()) if match else None
@@ -1861,6 +1872,12 @@ class Checker:
         stamp = match.group(1) if match else None
         return stamp if stamp and parse_stamp(stamp) else None
 
+    @staticmethod
+    def last_stamp(value: str, verb: str = "observed") -> str | None:
+        """The stamp that ends a field: an earlier stamp quoted in its text does not date it."""
+        stamps = re.findall(rf"\({verb} (\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}})\)", value)
+        return stamps[-1] if stamps and parse_stamp(stamps[-1]) else None
+
     def check_external(self, actions: list[Block]) -> None:
         retries = external_retry_checks([(a.key, a.fields) for a in self.guard_records
                                          if a.section == "external actions"])
@@ -1871,9 +1888,8 @@ class Checker:
             expected = fields.get("Expected", "")
             written = self.observed_stamp(expected, "written")
             result = fields.get("Result", "")
-            observed = self.observed_stamp(result)
-            if action.key in active_ids and (not re.fullmatch(
-                    r"\S.*\s+\(written \d{4}-\d{2}-\d{2} \d{2}:\d{2}\)", expected)
+            observed = self.last_stamp(result)  # The final observation, as record_day dates it.
+            if action.key in active_ids and (expected_written(expected) is None
                     or written is None or (result != "pending" and
                     (observed is None or written >= observed))):
                 self.guard_issue("E1", "ext.expected", action,

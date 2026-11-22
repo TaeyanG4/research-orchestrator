@@ -2,13 +2,13 @@
 
 Read this before handing work to another agent: a sub-agent, another host's model, or a worker command-line tool.
 
-A delegated agent never loads this skill, the project's `agents.md` or the delegating session's memory; it sees only its brief. In one competition's mistake log (2026-11), about half of 194 entries came from delegated work: deleting other tasks' files, memory blow-ups, shell background runs, typed times, scripts edited mid-run, and inferred explanations copied into records as facts. Rules retyped into each brief kept drifting, so the header is generated.
+A delegated agent never loads this skill, the project's `agents.md` or the delegating session's memory; it sees only its brief. In one competition's mistake log (2026-11), 91 of 194 entries named a delegated agent in their title: deleting other tasks' files, memory blow-ups, shell background runs, typed times, scripts edited mid-run, and inferred explanations copied into records as facts. Rules retyped into each brief kept drifting, so the header is generated.
 
 ## Brief header
 
 - Start every delegated brief with the output of `ro brief --delegate <item>` (an item, `<item>/sN`, or `none` for a task outside the plan). The header states the rules and the report sections; do not retype them. Read-only reviews get one too: a review agent once wrote to the real project after a failed `mkdir`.
 - Fill in the resource limits (CPU workers, RAM, GPU), any folder other than the default run folder, and the task. A brief that states no limits tells the agent to ask.
-- `Brief requirements: general-purpose: ro-delegate: v1` is the preset default for new projects. The hook then warns when an Agent brief lacks the marker line; an omitted agent type counts as `general-purpose`, and read-only agent types are not covered. An explicit `none` keeps the check off.
+- `Brief requirements: general-purpose: ro-delegate: v1` is the default of every built-in preset except `quick`. The hook then warns when an Agent brief lacks the marker line; an omitted agent type counts as `general-purpose`, and read-only agent types are not covered. An explicit `none` keeps the check off.
 - The check proves the marker is present, not that the agent followed the rules. Hooks do reach Claude Code sub-agent tool calls (observed 2026-11-22), so blocking checks still apply inside them. Codex has no agent-tool mapping (see [hooks-capabilities.md](hooks-capabilities.md)); there the header is the only carrier.
 
 ## Moving a report into records

@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import time
 
 from ro_state import Project, duration, same_process
@@ -25,7 +26,7 @@ CLAIM = re.compile(r"^([A-Z]{1,2}) since (\d{4}-\d{2}-\d{2} \d{2}:\d{2})$")
 COMPUTE_CLAIM = re.compile(r"^((?:CPU|GPU|Other)(?:@[\w.-]+)?) — ([A-Z]{1,2}) "
                            rf"\(({H_PATTERN}), since \d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}}\)$")
 HEAD = re.compile(rf"^(#{{2,3}}) ({id_pattern()})(?: — (.*))?$")
-CHECK = re.compile(r"\b(?:shell|jobs|records|publish|external|ask|brief)\.[a-z][a-z.-]+\b")
+CHECK = re.compile(r"\b(?:shell|fs|jobs|records|publish|external|ask|brief)\.[a-z][a-z.-]+\b")
 
 
 def _text(project: Project, name: str) -> str:
@@ -61,6 +62,14 @@ def _remember_ids(project: Project, identifiers) -> dict[str, int]:
         prefix, number = identifier.rsplit("-", 1)
         updated[prefix] = max(updated.get(prefix, 0), int(number))
     if updated != marks:
+        # A jump of 100 or more is usually a mistyped or glued ID. Whichever caller raises the mark first
+        # (a record hook often does), keep the jump until `ro next-id` reports it (astra round 6).
+        jumps = {prefix: [marks[prefix], number] for prefix, number in updated.items()
+                 if marks.get(prefix) and number - marks[prefix] >= 100}
+        if jumps:
+            pending = project.read_json("id-jumps.json", {})
+            pending = pending if isinstance(pending, dict) else {}
+            project.write_json("id-jumps.json", {**jumps, **pending})
         project.write_json("id-high-water.json", updated, recoverable=True)
     return updated
 
@@ -90,7 +99,8 @@ def _archived_ids(project: Project) -> set[str]:
         cache = project.read_json("archive-ids.json", {})
     except ValueError:
         cache = {}
-    files = cache.get("files", {}) if isinstance(cache, dict) and cache.get("version") == 2 else {}
+    # Version 3: archives are read with _cited_ids, which skips IDs glued to a decimal (astra round 6).
+    files = cache.get("files", {}) if isinstance(cache, dict) and cache.get("version") == 3 else {}
     if not isinstance(files, dict):
         files = {}
     current = {}
@@ -106,10 +116,10 @@ def _archived_ids(project: Project) -> set[str]:
                 isinstance(entry.get("ids"), list) and
                 all(isinstance(value, str) and ID.fullmatch(value) for value in entry["ids"])):
             entry = {"stat": stamp, "ids": sorted({identifier for line in _unfenced(
-                path.read_text(encoding="utf-8")) for identifier in ID.findall(line)})}
+                path.read_text(encoding="utf-8")) for identifier in _cited_ids(line)})}
         current[key] = entry
         identifiers.update(entry["ids"])
-    updated = {"version": 2, "files": current}
+    updated = {"version": 3, "files": current}
     if updated != cache:
         project.write_json("archive-ids.json", updated)
     return identifiers
@@ -119,21 +129,22 @@ def next_id(project: Project, kind: str) -> str:
     if kind not in ("D", "H", "I", "X", "N"):
         raise ValueError("ID kind must be D, H, I, X or N")
     with project.lock():
+        prefix = f"{kind}-{project.slot}-"
         texts = {name: _text(project, name) for name in FILES}
         reconcile_ids(project, texts)
         reservations = _reservations(project)
-        prefix = f"{kind}-{project.slot}-"
         # References count too: removing an archived heading must never make its number reusable.
         identifiers = {key for name, text in texts.items() if name != "agents.md"
                        for line in _unfenced(text) for key in _cited_ids(line)} | set(reservations)
         identifiers.update(_archived_ids(project))
-        before = _remember_ids(project, ()).get(prefix.rstrip("-"), 0)
         marks = _remember_ids(project, identifiers)
         number = 1 + marks.get(prefix.rstrip("-"), 0)
-        if before and number - 1 - before >= 100:
-            print(f"ro: warning: {prefix}* jumped from {before} to {number - 1}; check for a mistyped or "
+        pending = project.read_json("id-jumps.json", {})
+        if isinstance(pending, dict) and isinstance(jump := pending.pop(prefix.rstrip("-"), None), list):
+            print(f"ro: warning: {prefix}* jumped from {jump[0]} to {jump[1]}; check for a mistyped or "
                   f"glued ID (an ID followed by a number without a space) before using {format_id(kind, project.slot, number)}",
                   file=sys.stderr)
+            project.write_json("id-jumps.json", pending)
         identifier = format_id(kind, project.slot, number)
         # Commit the high-water mark and its recovery copy before returning an ID
         # or publishing its expiring reservation. An interrupted allocation may
@@ -254,9 +265,12 @@ def discovery_index(project: Project, identifier: str = "", full: bool = False) 
                 else "\n".join(text.splitlines()[start:end]).rstrip()).splitlines()
         # Corrections and the current pointer come first: a number re-quoted from the body after its
         # correction was the 2026-11-07 mistake.
-        first = [line for line in body[1:] if line.startswith(("- Correction:", "- Current:"))]
-        rest = [line for line in body[1:] if not line.startswith(("- Correction:", "- Current:"))]
-        result = "\n".join(body[:1] + first + rest)
+        # Only real fields move; a fenced example of the field stays inside its code block.
+        masked = _unfenced("\n".join(body))
+        moved = {index for index in range(1, len(body))
+                 if index < len(masked) and masked[index].startswith(("- Correction:", "- Current:"))}
+        result = "\n".join(body[:1] + [body[i] for i in sorted(moved)]
+                           + [line for index, line in enumerate(body) if index and index not in moved])
         return result + (f"\n\n(archived in {archived})" if archived else "")
     return index_text(text, full, entries)
 
@@ -521,6 +535,7 @@ JOB_ID = re.compile(r"\bJ-[A-Z]{1,2}-[0-9]+\b")
 def _state_facts(project: Project, slots: dict, running: list[dict]) -> list[str]:
     """IDs and counts a restarting session trusts first (H-A-60 A2, A5, A7, A14); never copied prose."""
     facts = []
+    facts += pending_transaction(project)
     running_ids = {str(job.get("id")) for job in running}
     registered = {str(job.get("id")) for job in registered_jobs(project)}
     own = slots.get(project.slot, {})
@@ -683,12 +698,20 @@ def runtime_guidance(values: dict[str, str], project: Project | None = None) -> 
     return lines
 
 
+def pending_transaction(project: Project) -> list[str]:
+    """Seen first at restart, even before a slot is chosen: record writes and launches wait for it."""
+    from ro_settings import TRANSACTION
+    return (["Interrupted record transaction: run `ro close-item --recover` before other writes"]
+            if (project.root / TRANSACTION).is_file() else [])
+
+
 def brief(project: Project, max_chars: int = 8000, *, compact: bool = False) -> str:
     """Inject derived facts and a trusted runtime prefix, never copied project prose."""
     from ro_sessions import startup
     selection = startup(project)
     if selection:
-        return "\n".join([selection, *runtime_guidance(project.settings(), project)])[:max(0, min(int(max_chars), 8000))]
+        return "\n".join([*pending_transaction(project), selection,
+                          *runtime_guidance(project.settings(), project)])[:max(0, min(int(max_chars), 8000))]
     limit = max(0, min(int(max_chars), 8000))
     values = project.settings()
     # Only closed-vocabulary settings and the validated language code enter an injected brief.

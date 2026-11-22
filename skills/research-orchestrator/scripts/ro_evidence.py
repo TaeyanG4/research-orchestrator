@@ -393,6 +393,33 @@ def _candidate(fields: dict) -> tuple[str, str]:
     return match[1].strip(), match[2].lower()
 
 
+# Any `(observed 2…)`-like group counts as a stamp, so a malformed one (`2026-11-3`, month 13) is seen and
+# refused instead of being skipped in favour of an earlier valid stamp (astra rounds 7-8).
+STAMP = r"\({verb} (\d[^)]*)\)"
+STAMP_FORMAT = re.compile(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?")
+
+
+def _parse_stamp(raw: str) -> dt.datetime:
+    raw = raw.strip()
+    if not STAMP_FORMAT.fullmatch(raw):
+        raise ValueError(f"malformed stamp {raw!r}")
+    return dt.datetime.fromisoformat(raw)
+
+
+def _stamps(value: str, verb: str) -> list[dt.datetime]:
+    """Every stamp of a field; a malformed one raises, so no other stamp stands in for it."""
+    return [_parse_stamp(raw) for raw in re.findall(STAMP.format(verb=verb), value)]
+
+
+def _last_stamp(value: str, verb: str) -> dt.datetime | None:
+    """The stamp that ends a field; None when it is missing or malformed, never an earlier one."""
+    stamps = re.findall(STAMP.format(verb=verb), value)
+    try:
+        return _parse_stamp(stamps[-1]) if stamps else None
+    except ValueError:
+        return None
+
+
 def external_retry_checks(records: list[tuple[str, dict]]) -> dict[str, tuple[bool, bool, bool]]:
     """Return (valid retry chain, duplicate identity, superseded) using ledger times.
 
@@ -410,16 +437,11 @@ def external_retry_checks(records: list[tuple[str, dict]]) -> dict[str, tuple[bo
         if candidate and destination:
             digest = candidate[1].removeprefix("sha256:")
             identities[key] = digest.lower(), destination
-        chronology[key] = None
-        for name, verb in (("Result", "observed"), ("Expected", "written")):
-            stamp = re.search(rf"\({verb} (\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}}(?::\d{{2}})?)\)",
-                              fields.get(name, ""))
-            try:
-                chronology[key] = dt.datetime.fromisoformat(stamp[1]) if stamp else None
-            except ValueError:
-                pass
-            if chronology[key] is not None:
-                break
+        # The stamp that ends a field dates it; an earlier time quoted in its text does not (astra round 6).
+        # A Result with an invalid final stamp stays undated rather than falling back to Expected.
+        result = fields.get("Result", "")
+        chronology[key] = (_last_stamp(result, "observed") if re.search(STAMP.format(verb="observed"), result)
+                           else _last_stamp(fields.get("Expected", ""), "written"))
     for key in sorted(identities, key=lambda k: (chronology[k] or dt.datetime.max, k)):
         if fields_by_id[key].get("Status") != "withdrawn":
             originals.setdefault(identities[key], key)
@@ -599,8 +621,41 @@ class _RedactedOutput:
             return text, omitted + self.omitted
 
 
-def _run_external(command, root, deadline, idempotency_key):
-    """Drain both streams concurrently without capture_output's unbounded buffers."""
+class _StreamMatch:
+    """Search one output stream, read in pieces, for a safe_regex pattern as if over the whole text.
+
+    The bounded record kept for reconciliation drops the middle of long output (astra round 6), so the
+    pattern is matched as the stream arrives. safe_regex branches consume at most 511 characters, so a
+    carried tail covers a match across reads. A match ending in the last HOLD characters of a read waits
+    for the next one, so `$` (which also matches before a final newline) never takes a read's end for
+    the stream's end, and later reads search from position 1, so `^` and `\\b` see the real preceding
+    character (astra round 7: `accepted$` matched `acceptedNO` split after `accepted`).
+    """
+
+    LONGEST, HOLD = 511, 2
+    CARRY = LONGEST + HOLD + 1
+
+    def __init__(self, pattern: re.Pattern):
+        self.pattern, self.carry, self.offset, self.found = pattern, "", 0, False
+
+    def feed(self, text: str, final: bool = False) -> None:
+        if self.found:
+            return
+        window = self.carry + text
+        match = self.pattern.search(window, 0 if self.offset == 0 else 1)
+        if match and (final or match.end() <= len(window) - self.HOLD):
+            self.found = True
+            return
+        keep = window[-self.CARRY:]
+        self.offset += len(window) - len(keep)
+        self.carry = keep
+
+
+def _run_external(command, root, deadline, idempotency_key, success=None):
+    """Drain both streams concurrently without capture_output's unbounded buffers.
+
+    `success` is matched on each stream as it arrives (_StreamMatch), not on the bounded record.
+    """
     env = dict(os.environ, RO_IDEMPOTENCY_KEY=idempotency_key)
     tree = OwnedTree()
     try:
@@ -612,20 +667,27 @@ def _run_external(command, root, deadline, idempotency_key):
         raise
     outputs = [_RedactedOutput(), _RedactedOutput()]
     failures = []
+    matchers = [_StreamMatch(success), _StreamMatch(success)] if success is not None else []
 
-    def drain(stream, output):
+    def drain(stream, output, matcher):
         decoder = io.IncrementalNewlineDecoder(codecs.getincrementaldecoder("utf-8")("replace"), True)
+
+        def add(text, final=False):
+            output.add(text)
+            if matcher is not None:
+                matcher.feed(text, final)
+
         try:
             while chunk := stream.read(WINDOW):
-                output.add(decoder.decode(chunk))
-            output.add(decoder.decode(b"", final=True))
+                add(decoder.decode(chunk))
+            add(decoder.decode(b"", final=True), final=True)
         except (OSError, ValueError) as exc:
             failures.append(str(exc))
         finally:
             stream.close()
 
-    readers = [threading.Thread(target=drain, args=pair, daemon=True)
-               for pair in zip((process.stdout, process.stderr), outputs)]
+    readers = [threading.Thread(target=drain, args=(stream, output, matchers[index] if matchers else None), daemon=True)
+               for index, (stream, output) in enumerate(zip((process.stdout, process.stderr), outputs))]
     for reader in readers:
         reader.start()
     until = time.monotonic() + deadline
@@ -658,6 +720,7 @@ def _run_external(command, root, deadline, idempotency_key):
     result.timed_out = timed_out or bool(failures)
     result.termination_verified = termination_verified
     result.stdout_omitted, result.stderr_omitted = stdout_omitted, stderr_omitted
+    result.success_matched = any(matcher.found for matcher in matchers) if success is not None else None
     return result
 
 
@@ -696,12 +759,8 @@ def _retry_reconciled(previous, expected_at):
                          value)
     try:
         reconciled_at = dt.datetime.fromisoformat(match[1]) if match else None
-        prior_times = []
-        for field, verb in (("Expected", "written"), ("Result", "observed")):
-            stamp = re.search(rf"\({verb} (\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}:\d{{2}}(?::\d{{2}})?)\)",
-                              previous.get(field, ""))
-            if stamp:
-                prior_times.append(dt.datetime.fromisoformat(stamp[1]))
+        # Every stamp of the prior attempt, not the first one, must precede the reconciliation (astra round 6).
+        prior_times = _stamps(previous.get("Expected", ""), "written") + _stamps(previous.get("Result", ""), "observed")
         valid = bool(reconciled_at and prior_times and max(prior_times) <= reconciled_at < expected_at)
     except ValueError:
         valid = False
@@ -747,6 +806,25 @@ def _durable_retry_history(project, actions, action_id, digest, destination, exp
             raise ValueError("prior external action is still in-flight; reconcile after its runner ends")
 
 
+EXPECTED_WRITTEN = re.compile(r"(?s)(\S.*?)\s+\(written (\d{4}-\d{2}-\d{2} \d{2}:\d{2})\)")
+
+
+def expected_written(value: str) -> dt.datetime | None:
+    """The one minute-precision clock stamp that ends an Expected field; the checker uses it too.
+
+    Reading the first stamp, with optional seconds, let a second (future) stamp, trailing text or a
+    seconds stamp pass the executor while the checker refused the same entry.
+    """
+    value = value.strip()
+    match = EXPECTED_WRITTEN.fullmatch(value)
+    if not match or value.count("(written ") != 1:
+        return None
+    try:
+        return dt.datetime.fromisoformat(match[2])
+    except ValueError:
+        return None
+
+
 def _validate_prepared(project, text: str, actions: list[dict], action: dict, artifact: str,
                        digest: str) -> tuple[str, dict]:
     """Every pre-execution rule for one prepared action; `ro external --check` runs the same ones."""
@@ -763,13 +841,9 @@ def _validate_prepared(project, text: str, actions: list[dict], action: dict, ar
     destination = fields.get("Destination", "").strip()
     if not destination:
         raise ValueError("prepared action requires a destination")
-    written = re.search(r"\(written (\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})?)\)", fields.get("Expected", ""))
-    try:
-        expected_at = dt.datetime.fromisoformat(written[1]) if written else None
-    except ValueError:
-        expected_at = None
-    if expected_at is None or expected_at >= dt.datetime.now() or not fields["Expected"][:written.start()].strip():
-        raise ValueError("Expected must end with (written YYYY-MM-DD HH:MM) taken from the clock before execution")
+    expected_at = expected_written(fields.get("Expected", ""))
+    if expected_at is None or expected_at >= dt.datetime.now():
+        raise ValueError("Expected must end with one (written YYYY-MM-DD HH:MM) taken from the clock before execution")
     scope = fields.get("Scope") or fields.get("Contract") or action_id
     _valid_receipt(project, artifact, scope, destination)
     valid_retry, duplicate, superseded = external_retry_checks([(a["id"], a["fields"]) for a in actions])[action_id]
@@ -792,6 +866,7 @@ def external_check(project, args) -> str:
     """Validate a prepared action now, with the executor's rules, without journaling or running it."""
     if not args.action or not re.fullmatch(X_PATTERN, args.action):
         raise ValueError("external --check needs --action X-<slot>-NNN")
+    _success_pattern(args)
     with project.lock("external"):
         text, actions, (action, artifact, digest) = _select_external(project, args)
         destination, _prior = _validate_prepared(project, text, actions, action, artifact, digest)
@@ -799,9 +874,23 @@ def external_check(project, args) -> str:
             f"receipt and retry history are valid for {destination}")
 
 
+def _success_pattern(args) -> re.Pattern | None:
+    """Compile --success-regex before anything is journaled or run; a bad pattern found after the
+    command ran left the action in-flight without its result. An empty pattern is refused rather than
+    skipped. The pattern is matched against the output as it streams (see _run_external)."""
+    success = getattr(args, "success_regex", None)
+    if success is None:
+        return None
+    try:
+        return safe_regex(success)
+    except (ValueError, re.error) as exc:
+        raise ValueError(f"--success-regex is not usable: {exc}") from None
+
+
 def external(project, args) -> str:
     if getattr(args, "check", False):
         return external_check(project, args)
+    success = _success_pattern(args)
     command = list(args.command)
     if command and command[0] == "--":
         command.pop(0)
@@ -842,7 +931,8 @@ def external(project, args) -> str:
             project.write_json(journal_name, attempt)
             _action_status(project, action_id, "in-flight")
         try:
-            result = _run_external(command, project.root, deadline, key)
+            result = (_run_external(command, project.root, deadline, key, success) if success is not None
+                      else _run_external(command, project.root, deadline, key))
         except OSError as exc:
             attempt["status"] = "error"
             try:
@@ -861,8 +951,9 @@ def external(project, args) -> str:
             raise
         status = "unknown" if getattr(result, "timed_out", False) else "done" if result.returncode == 0 else "error"
         reason = "deadline or stream read failed; reconcile remote state" if status == "unknown" else ""
-        success = getattr(args, "success_regex", None)
-        if status == "done" and success and not safe_regex(success).search(f"{result.stdout}\n{result.stderr}"):
+        streamed = getattr(result, "success_matched", None)  # None: a runner that did not stream-match
+        if status == "done" and success and not (
+                streamed if streamed is not None else success.search(f"{result.stdout}\n{result.stderr}")):
             # Some CLIs print a refusal and still exit 0 (2026-10-30 X-A-060/062): unknown until reconciled.
             status, reason = "unknown", "exit 0 without the --success-regex text; reconcile remote state"
         attempt.update(status=status, returncode=result.returncode,

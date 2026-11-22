@@ -194,6 +194,24 @@ def settings_file(root) -> str | None:
     return os.path.join(directory, "agents.md")
 
 
+def _edits_handoff(payload: dict) -> bool:
+    """An Edit or Codex patch naming handoff.md, which `records.direct` reads from the payload itself."""
+    name = payload.get("tool_name", payload.get("tool", ""))
+    raw = payload.get("tool_input", payload.get("input", {}))
+
+    def handoff(path) -> bool:  # Same rule as ro_checks.handoff_path, without importing the checks here.
+        base = str(path).replace("\\", "/").rstrip().rsplit("/", 1)[-1]
+        return (base.casefold() if os.name == "nt" else base) == "handoff.md"
+
+    if name == "Edit" and isinstance(raw, dict):
+        return handoff(raw.get("file_path") or raw.get("path") or "")
+    if name == "apply_patch":
+        patch = raw if isinstance(raw, str) else str(raw.get("patch", raw.get("input", ""))) if isinstance(raw, dict) else ""
+        return any(line.startswith("*** ") and ": " in line and handoff(line.split(": ", 1)[1])
+                   for line in patch.splitlines())
+    return False
+
+
 def quiet(event: str, payload: dict, root) -> bool:
     """True only when the child would certainly answer {} without side effects, so none starts.
 
@@ -210,7 +228,8 @@ def quiet(event: str, payload: dict, root) -> bool:
         path = settings_file(root)
         if path is None:
             return True
-        if event == "PostToolUse" and unchanged_records(path):
+        if event == "PostToolUse" and unchanged_records(path) and not _edits_handoff(payload):
+            # records.direct reads the edit itself: another call refreshing the snapshot first must not hide it.
             return True
         if os.path.getsize(path) > MAX_INPUT:
             return False

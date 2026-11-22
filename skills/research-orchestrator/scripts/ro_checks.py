@@ -20,15 +20,19 @@ Finding = namedtuple("Finding", "check message uncertain identity", defaults=(Fa
 class Call:
     """One normalized host tool call."""
 
-    __slots__ = ("tool", "dialect", "command", "paths", "background", "agent_type", "prompt", "added", "removed")
+    __slots__ = ("tool", "dialect", "command", "paths", "background", "agent_type", "prompt", "added", "removed",
+                 "edits")
 
     def __init__(self, tool: str = "", dialect: str = "bash", command: str = "", paths: list[str] | None = None,
-                 background: bool = False, agent_type: str = "", prompt: str = "", added: str = "", removed: str = ""):
+                 background: bool = False, agent_type: str = "", prompt: str = "", added: str = "", removed: str = "",
+                 edits: list[tuple[str, str, str]] | None = None):
         self.tool, self.dialect, self.command = tool, dialect, command
         self.paths = paths if paths is not None else []
         self.background, self.agent_type, self.prompt = background, agent_type, prompt
-        # Edit text only: the inserted and replaced strings, for record-format hints.
+        # Edit text only: the inserted and replaced strings, for record-format hints. A Codex patch
+        # carries one (path, added, removed) entry per file instead.
         self.added, self.removed = added, removed
+        self.edits = edits if edits is not None else []
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Call) and all(getattr(self, k) == getattr(other, k) for k in self.__slots__)
@@ -72,14 +76,21 @@ def adapt(payload: dict) -> Call:
         paths += re.findall(r"^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$", patch, re.M)
     added = str(raw.get("new_string", "")) if name == "Edit" else ""
     removed = str(raw.get("old_string", "")) if name == "Edit" else ""
-    if name == "apply_patch":  # Codex: added and removed lines of the patch body.
-        body = str(raw.get("patch", raw.get("input", ""))).splitlines()
-        added = "\n".join(line[1:] for line in body if line.startswith("+") and not line.startswith("+++"))
-        removed = "\n".join(line[1:] for line in body if line.startswith("-") and not line.startswith("---"))
+    edits: dict[str, tuple[list[str], list[str]]] = {}
+    if name == "apply_patch":  # Codex: added and removed lines per file, so files are never mixed.
+        current = None
+        for line in str(raw.get("patch", raw.get("input", ""))).splitlines():
+            header = re.match(r"^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$", line)
+            if header:  # A heading moved from another file into handoff.md is still new there.
+                current = edits.setdefault(header[1].strip(), ([], []))
+            elif current is not None and line.startswith("+") and not line.startswith("+++"):
+                current[0].append(line[1:])
+            elif current is not None and line.startswith("-") and not line.startswith("---"):
+                current[1].append(line[1:])
     return Call(tool, dialect, command, paths,
                 bool(raw.get("run_in_background") or raw.get("background") or payload.get("background")),
                 str(raw.get("subagent_type", raw.get("agent_type", ""))), str(raw.get("prompt", "")),
-                added, removed)
+                added, removed, [(path, "\n".join(plus), "\n".join(minus)) for path, (plus, minus) in edits.items()])
 
 
 def normal_path(value: str, root: Path | str, os_family: str | None = None) -> str | None:
@@ -134,13 +145,14 @@ Token = namedtuple("Token", "value depth quoted start end", defaults=(False, -1,
 class ShellParse:
     """Lexical evidence and command-wide uncertainty shared by every shell check."""
 
-    __slots__ = ("parts", "bodies", "uncertain")
+    __slots__ = ("parts", "bodies", "uncertain", "text")
 
     def __init__(self, parts: list[Token] | None = None, bodies: list[tuple[str, str, bool]] | None = None,
                  uncertain: bool = False):
         self.parts = parts if parts is not None else []
         self.bodies = bodies if bodies is not None else []
         self.uncertain = uncertain
+        self.text = ""  # The string token offsets index (heredoc bodies removed).
 
 
 def heredocs(command: str, parsed: ShellParse) -> str:
@@ -433,10 +445,27 @@ CD_VERBS = {"cd", "pushd", "popd", "set-location", "sl", "push-location", "pop-l
 
 
 REDIRECTIONS = {">", ">>", "&>", "&>>", ">&", "<", "<&", "<>", "<<", "<<-", "<<<"}
-NULL_TARGETS = {"/dev/null", "/dev/stdout", "/dev/stderr", "nul", "$null", "nul:"}
+# Device names follow the shell, not just the OS (astra review rounds 1-5):
+# - Bash, Git Bash on Windows included, knows only the exact lowercase /dev/* names; there `> NUL`
+#   writes a real file named NUL (the stray `nul` files Windows users find) and `/DEV/NULL` is a path.
+# - Native Windows PowerShell knows only NUL (any case), so `/dev/null` is a path under the drive root.
+# - `$null` is the null device only as an unquoted PowerShell variable: in Bash it expands a variable
+#   that may name a file, and '$null' is a file name.
+NULL_TARGETS = {"/dev/null", "/dev/stdout", "/dev/stderr"}
+WINDOWS_NULL_TARGETS = {"nul", "nul:"}
 
 
-def redirections(group: list[Token], parsed: ShellParse | None = None) -> tuple[list[Token], list[str], list[str]]:
+def null_target(token: Token, os_family: str | None, shell: str | None = None) -> bool:
+    value = token.value
+    if value.lower() == "$null":
+        return shell == "powershell" and not token.quoted
+    if os_family == "windows" and shell != "bash":
+        return value.lower() in WINDOWS_NULL_TARGETS
+    return value in NULL_TARGETS
+
+
+def redirections(group: list[Token], parsed: ShellParse | None = None, os_family: str | None = None,
+                 shell: str | None = None) -> tuple[list[Token], list[str], list[str]]:
     """Remove redirect syntax before operand parsing; classify its own paths separately."""
     clean, writes, reads = [], [], []
     index = 0
@@ -451,7 +480,7 @@ def redirections(group: list[Token], parsed: ShellParse | None = None) -> tuple[
             clean.pop()  # An adjacent descriptor prefix, not a command operand.
         if index + 1 < len(group):
             target = group[index + 1].value
-            if target.lower() in NULL_TARGETS:
+            if null_target(group[index + 1], os_family, shell):
                 pass  # Null and standard-stream devices are never project paths.
             elif part.value in (">", ">>", "&>", "&>>", "<>"):
                 writes.append(target)
@@ -684,6 +713,26 @@ def mutation_paths(name: str, args: list[Token], root: Path | str, os_family: st
             index += 1
             continue
         if options and value.startswith("-"):
+            if powershell and ":" in value[1:]:
+                # `-Name:value` is one word in PowerShell (`-Path:a*.txt`, `-Recurse:$true`); an unknown
+                # option made the whole call uncertain and turned a configured block into a warning
+                # (astra round 8).
+                parameter, _, argument = option.partition(":")
+                if parameter in ("-path", "-literalpath", "-filepath"):
+                    explicit.append(value.split(":", 1)[1])
+                elif parameter in ("-destination",):
+                    destination.append(value.split(":", 1)[1])
+                elif parameter == "-whatif":  # `-WhatIf:$false` is a real run, not an unknown option (astra round 9)
+                    switch = ps_switch(":", argument)
+                    dry_run = dry_run or switch is True
+                    uncertain |= switch is None  # `-WhatIf:$x` cannot prove the call runs
+                elif parameter == "-recurse":
+                    recursive = recursive or ps_switch(":", argument) is not False
+                elif parameter not in ("-force", "-confirm", "-passthru", "-filter", "-include", "-exclude",
+                                       "-erroraction", "-verbose"):
+                    uncertain = True
+                index += 1
+                continue
             if option in ("-path", "-literalpath", "-filepath"):
                 if index + 1 < len(values):
                     explicit.append(values[index + 1])
@@ -765,6 +814,7 @@ def command_parts(call: Call, values: dict[str, str]) -> ShellParse:
         words = re.findall(r'''"[^"\n]*"|'[^'\n]*'|[^\s;|&<>]+''', call.command.split("\n", 1)[0])
         return ShellParse([Token(word.strip("\"'"), 0, True) for word in words], uncertain=True)
     tokens(command, shell, parsed)
+    parsed.text = command
     parts = parsed.parts
     # Definitions cannot establish certainty; only outer tokens remain visible.
     if (any(verb(group, os_family)[0] in ("function", "alias", "set-alias", "new-alias") for group in statements(parts))
@@ -786,17 +836,100 @@ def command_parts(call: Call, values: dict[str, str]) -> ShellParse:
 DELETE_VERBS = {"rm", "rmdir", "remove-item", "ri", "del", "erase", "rd"}
 
 
-def broad_delete(name: str, args: list[Token], shell: str = "bash") -> bool:
-    """A recursive or wildcard delete; exact single paths are ordinary work."""
+def _unquoted_glob(raw: str) -> bool:
+    """A Bash word with `*`, `?` or a `[...]` class outside quotes, so the shell expands it."""
+    quote, escaped, bracket = None, False, False
+    for char in raw:
+        if escaped:
+            escaped = False
+        elif char == "\\" and quote != "'":
+            escaped = True
+        elif quote:
+            quote = None if char == quote else quote
+        elif char in "'\"":
+            quote = char
+        elif char in "*?" or (char == "]" and bracket):
+            return True
+        elif char == "[":
+            bracket = True
+    return False
+
+
+def ps_switch(colon: str, argument: str) -> bool | None:
+    """A PowerShell switch's value: True or False when certain, None for a variable or an expression.
+
+    `-WhatIf:00` is false like `$false` (astra round 10); `$null` binds as present in native PowerShell
+    (`-Recurse:$null` recursed, astra round 11), so it is not taken as false. Only a certain true may
+    skip a check, and only a certain false may drop one.
+    """
+    if not colon:
+        return True
+    value = argument.strip().lower()
+    if value == "$true" or re.fullmatch(r"0*[1-9]\d*", value):
+        return True
+    if value == "$false" or re.fullmatch(r"0+", value):
+        return False
+    return None
+
+
+PS_LITERAL = ("-literalpath", "-lp", "-pspath")
+PS_NOT_TARGET = ("-exclude",)  # names what Remove-Item keeps
+
+
+def broad_delete(name: str, args: list[Token], shell: str = "bash", text: str = "") -> bool:
+    """A recursive or wildcard delete by the rm/Remove-Item family; exact single paths are ordinary work.
+
+    Other deleters (`find -delete`, `git clean`, a script's rmtree) are outside this check, as
+    references/hooks.md says. Each shell's own syntax decides (astra review rounds 6-7):
+    - Bash removes quotes before rm sees a word, so `'-r'` is still an option and `'--'` still ends
+      options; after `--` every word is a path. Only `*`, `?` or `[...]` outside quotes expand
+      (`'a*b'` is a name, `'my dir'/*.txt` a pattern).
+    - PowerShell parameters are unquoted words, also as `-Name:value` (`-Path:a*`, `-Recurse:$true`).
+      -Path and positional paths expand `*`, `?` and `[...]` even when quoted; -LiteralPath does not.
+    """
     if name not in DELETE_VERBS:
         return False
-    flags = [t.value for t in args if not t.quoted and t.value.startswith("-")]
     if name in ("rm", "rmdir") and shell == "bash":  # In PowerShell, rm is Remove-Item (-Force has an r).
-        recursive = any(f == "--recursive" or (not f.startswith("--") and any(c in f[1:] for c in "rR")) for f in flags)
-    else:
-        recursive = any(f.lower() in ("-recurse", "-r") for f in flags)
-    wildcard = any(("*" in t.value or "?" in t.value) for t in args if not t.value.startswith("-"))
-    return recursive or wildcard
+        end = next((i for i, t in enumerate(args) if t.value == "--"), len(args))
+        options = [t.value for t in args[:end] if t.value.startswith("-") and t.value != "-"]
+        recursive = any(o == "--recursive" or (not o.startswith("--") and any(c in o[1:] for c in "rR"))
+                        for o in options)
+        paths = [t for t in args[:end] if not t.value.startswith("-") or t.value == "-"] + args[end + 1:]
+
+        def bash_pattern(token: Token) -> bool:
+            if text and 0 <= token.start < token.end <= len(text):
+                return _unquoted_glob(text[token.start:token.end])
+            return not token.quoted and bool(re.search(r"[*?]|\[.*\]", token.value))
+
+        return recursive or any(bash_pattern(token) for token in paths)
+    # A backtick escapes a wildcard character in PowerShell (`data`[1`].csv` is one file), and -Exclude
+    # names what to keep, so its pattern widens nothing (astra round 8).
+    wild = lambda value: bool(re.search(r"[*?]|\[.*\]", re.sub(r"`.", "", value)))
+
+    def parameter_word(token: Token) -> bool:
+        # A parameter starts with an unquoted `-`; its value may be quoted (`-LiteralPath:'a*b'`).
+        if text and 0 <= token.start < token.end <= len(text):
+            raw = text[token.start:token.end]
+            return raw.startswith("-") and len(raw) > 1
+        return not token.quoted and token.value.startswith("-") and len(token.value) > 1
+
+    recursive, literal_next, pattern, dry_run = False, False, False, False
+    for token in args:
+        if parameter_word(token):
+            parameter, colon, value = token.value.partition(":")
+            parameter = parameter.lower()
+            switch = ps_switch(colon, value)
+            if parameter == "-whatif":
+                dry_run |= switch is True  # only a certain dry run deletes nothing
+            elif parameter == "-r" or parameter.startswith("-rec"):
+                recursive |= switch is not False  # an unknown value may recurse
+            elif colon and value and parameter not in PS_LITERAL + PS_NOT_TARGET and wild(value):
+                pattern = True
+            literal_next = not colon and parameter in PS_LITERAL + PS_NOT_TARGET
+            continue
+        pattern |= not literal_next and wild(token.value)
+        literal_next = False
+    return (recursive or pattern) and not dry_run
 
 
 def opaque(group: list[Token], os_family: str) -> bool:
@@ -881,7 +1014,7 @@ def shell_checks(call: Call, root: Path | str, jobs: list[dict], values: dict[st
             end = parts.index(group[-1]) + 1
             following = parts[end].value if end < len(parts) else ""
             previous_separator = following
-            clean, redirects, reads = redirections(group)
+            clean, redirects, reads = redirections(group, os_family=os_family, shell=shell)
             found.extend(path_checks(redirects, "jobs.mutate-bound", root, jobs, os_family, parsed=parsed,
                                      project_root=project_root, cwd_uncertain=cwd_uncertain))
             if opaque(clean, os_family):
@@ -891,7 +1024,7 @@ def shell_checks(call: Call, root: Path | str, jobs: list[dict], values: dict[st
                 found.append(Finding("shell.background", "Use ro launch and a host background monitor for detached work (`ro launch --help`)."))
             if name == "start-job" or any(t.value in ("nohup", "setsid") for t in clean[:2]) or (name == "start-process" and not any(t.value.lower() == "-wait" for t in args)):
                 found.append(Finding("shell.detach", "Use ro launch to retain process identity and a monitor (`ro launch --help`)."))
-            if broad_delete(name, args, shell):
+            if broad_delete(name, args, shell, parsed.text):
                 found.append(Finding("fs.delete", "Recursive or wildcard delete: name the exact files this task created, "
                                                   "or move them aside; deleting shared results needs the user's approval."))
             top_level = next((t.depth == 0 for t in clean if t.value not in ("(", ")")), False)
@@ -1002,8 +1135,10 @@ def pre_checks(call: Call, root: Path, jobs: list[dict], values: dict[str, str],
         for requirement in values.get("brief_requirements", "none").split(";"):
             kind, sep, line = requirement.strip().partition(":")
             if sep and agent_type == kind.strip() and line.strip() not in lines:
-                return [Finding("brief.requirements", "Agent brief is missing its configured required line; "
-                                                      "`ro brief --delegate <item>` prints a brief header that contains it.")]
+                source = ("`ro brief --delegate <item>` prints it with the header" if kind.strip() == "general-purpose"
+                          else "add it on a line of its own")
+                return [Finding("brief.requirements", f"A {agent_type} agent brief needs the line `{line.strip()}` "
+                                                      f"(Brief requirements); {source}.")]
     return []
 
 
@@ -1011,9 +1146,10 @@ EVENT_HEADING = re.compile(r"(?m)^### \d{4}-\d{2}-\d{2} \d{2}:\d{2}(?::\d{2})? â
 LEDGER_HEADING = re.compile(r"(?m)^### X-[A-Za-z0-9]+-\d+\b")
 
 
-def record_hints(call: Call) -> list[Finding]:
+def record_hints(call: Call, root: Path | str | None = None, cwd: str | None = None,
+                 os_family: str | None = None) -> list[Finding]:
     """Point hand edits of handoff.md at the commands that write or check the same records."""
-    if call.tool != "Edit" or not any(path.replace("\\", "/").rsplit("/", 1)[-1] == "handoff.md" for path in call.paths):
+    if call.tool != "Edit":
         return []
     from ro_markdown import unfenced
 
@@ -1021,14 +1157,40 @@ def record_hints(call: Call) -> list[Finding]:
         # Whole heading lines outside code fences: replacing one event with a new one counts as new.
         return {line for line in unfenced(text) if pattern.match(line)}
 
+    events = ledger = False
+    if root is not None:
+        base = literal_path(cwd or str(root), root)
+        record = literal_path(str(Path(root) / "handoff.md"), root)
+    for path, added, removed in call.edits or [(path, call.added, call.removed) for path in call.paths]:
+        # The project's own handoff.md, not an archive copy of the same name; without a root, the name.
+        same = literal_path(path, base) == record if root is not None else handoff_path(path)
+        if not same:
+            continue  # Each file is judged on its own lines; a heading moved into handoff.md is new there.
+        events |= bool(headings(EVENT_HEADING, added) - headings(EVENT_HEADING, removed))
+        ledger |= bool(headings(LEDGER_HEADING, added) - headings(LEDGER_HEADING, removed))
     found = []
-    if headings(EVENT_HEADING, call.added) - headings(EVENT_HEADING, call.removed):
+    if events:
         found.append(Finding("records.direct", "Write events with `ro event`: it takes the clock time and Host/User "
                                                "from your slot and checks the fields (`ro event --help`)."))
-    if headings(LEDGER_HEADING, call.added) - headings(LEDGER_HEADING, call.removed):
-        found.append(Finding("records.direct", "Check this ledger entry now with `ro external --check <X-ID>`, "
+    if ledger:
+        found.append(Finding("records.direct", "Check this ledger entry now with `ro external --check --action <X-ID>`, "
                                                "not at execution time."))
     return found
+
+
+def literal_path(value: str, base: Path | str) -> str:
+    """A host-supplied file path (Edit, patch, cwd) taken literally: `[`, `*` or `$` are characters
+    here, not shell syntax, so `archive[2026]` stays a folder (astra review round 5). The host wrote
+    the path, so the host's own path rules apply, whatever `Environment` declares for shells."""
+    value = str(value)
+    path = os.path.normpath(value if os.path.isabs(value) else os.path.join(str(base), value))
+    return os.path.normcase(path)
+
+
+def handoff_path(path: str) -> bool:
+    """A path naming handoff.md; Windows file names ignore case."""
+    name = str(path).replace("\\", "/").rsplit("/", 1)[-1]
+    return (name.casefold() if os.name == "nt" else name) == "handoff.md"
 
 
 def outcome(finding: Finding, values: dict[str, str], failure: bool = False) -> str:

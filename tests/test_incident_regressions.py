@@ -6,6 +6,7 @@ Each test names the incident it reproduces so a later change can tell which fail
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -68,6 +69,48 @@ def test_broad_delete_warns(command, dialect):
     assert "fs.delete" in found(command, dialect=dialect)
 
 
+@pytest.mark.parametrize("command,dialect,expected", [
+    ("rm 'reports here'/*.txt", "bash", True), ("rm 'literal*name'", "bash", False), ("rm \"a*b\"", "bash", False),
+    ("rm a\\*b", "bash", False), ("Remove-Item -Path 'report-*.txt'", "powershell", True),
+    ("Remove-Item 'report-*.txt'", "powershell", True), ("Remove-Item -LiteralPath 'report-*.txt'", "powershell", False),
+])
+def test_wildcards_follow_each_shells_quoting(command, dialect, expected):
+    """astra round 6: a quoted path part hid a real pattern; PowerShell -Path expands quoted patterns."""
+    assert ("fs.delete" in found(command, dialect=dialect)) is expected
+
+
+@pytest.mark.parametrize("command,dialect,expected", [
+    ("rm '-r' old", "bash", True), ("rm '--' -*.txt", "bash", True), ("rm -- -r", "bash", False),
+    ("rm file[12].txt", "bash", True), ("rm 'file[12].txt'", "bash", False),
+    ("Remove-Item -Path:report-*.txt", "powershell", True), ("Remove-Item old -Recurse:$true", "powershell", True),
+    ("Remove-Item old -Recurse:$false", "powershell", False), ("Remove-Item -LiteralPath:'a*b'", "powershell", False),
+    ("Remove-Item 'data[1].csv'", "powershell", True), ("Remove-Item -Force a.txt", "powershell", False),
+])
+def test_delete_check_reads_each_shells_syntax(command, dialect, expected):
+    """astra round 7: quoted Bash options, PowerShell -Name:value arguments and [..] patterns were missed."""
+    assert ("fs.delete" in found(command, dialect=dialect)) is expected
+
+
+@pytest.mark.parametrize("command,expected", [
+    ("Remove-Item -Path:report-*.txt", "block"), ("Remove-Item old -Recurse:$true", "block"),
+    ("Remove-Item -Path 'report-*.txt'", "block"), ("Remove-Item a.txt -Exclude '*.bak'", None),
+    ("Remove-Item 'data`[1`].csv'", None), ("Remove-Item -Path:a.txt", None),
+    ("Remove-Item -Path:report-*.txt -WhatIf:$false", "block"),  # astra round 9: a real run, still blocked
+    ("Remove-Item -Path:report-*.txt -WhatIf", None),            # a dry run deletes nothing
+    ("Remove-Item -Path:report-*.txt -WhatIf:00", "block"),      # astra round 10: 00 is false too
+    ("Remove-Item -Path:report-*.txt -WhatIf:1", None),
+    ("Remove-Item -Path:report-*.txt -WhatIf:$x", "warn"),       # unknown: never skipped, but uncertain
+    ("Remove-Item old -Recurse:$null", "block"),                 # astra round 11: $null binds as present
+    ("Remove-Item old -Recurse:$false", None),
+])
+def test_powershell_colon_arguments_keep_a_configured_block(command, expected):
+    """astra round 8: `-Name:value` made the parse uncertain, which turned the block into a warning."""
+    settings = values("windows/powershell", enforcement="block", block="fs.delete")
+    findings = [f for f in checks.pre_checks(checks.Call("shell", "powershell", command), Path.cwd(), [], settings)
+                if f.check == "fs.delete"]
+    assert (checks.outcome(findings[0], settings) if findings else None) == expected
+
+
 @pytest.mark.parametrize("command,dialect", [("rm runs/old/result.json", "bash"), ("rm -f a.txt b.txt", "bash"),
                                              ("Remove-Item runs/old/result.json", "powershell")])
 def test_exact_delete_is_ordinary(command, dialect):
@@ -77,9 +120,125 @@ def test_exact_delete_is_ordinary(command, dialect):
 # H-A-60 C1: reads with `2>/dev/null` near running jobs produced 7-14 identical warnings per call.
 def test_null_device_redirect_is_not_a_project_write(tmp_path):
     jobs = [{"id": "J-A-0001", "status": "running", "run_dir": str(tmp_path)}]
-    call = checks.Call("shell", "bash", "ls run 2>/dev/null > NUL")
-    findings = checks.pre_checks(call, tmp_path / "work", jobs, values("linux/bash"))
-    assert not any(finding.check == "jobs.mutate-bound" for finding in findings)
+    for dialect, command in (("bash", "ls run 2>/dev/null"), ("powershell", "ls run 2> NUL")):
+        findings = checks.pre_checks(checks.Call("shell", dialect, command), tmp_path / "work", jobs,
+                                     values(f"windows/{dialect}"))
+        assert not any(finding.check == "jobs.mutate-bound" for finding in findings), command
+
+
+def test_nul_is_an_ordinary_file_in_bash():
+    """astra review 2026-11-22: on Linux `> NUL` writes a file named NUL, e.g. into a job's folder.
+    Round 5: Git Bash on Windows does the same (the stray `nul` files), and `/DEV/NULL` is a path there."""
+    bash = lambda command, family: checks.redirections(checks.tokens(command, "bash").parts, os_family=family,
+                                                       shell="bash")[1]
+    for family in ("linux", "windows"):
+        assert bash("ls > NUL 2>/dev/null", family) == ["NUL"] and bash("ls > nul:", family) == ["nul:"]
+        assert bash("ls > /DEV/NULL", family) == ["/DEV/NULL"] and bash("ls > /dev/null", family) == []
+    # Round 2: a quoted '$null' names a file.
+    writes = lambda command, family: checks.redirections(checks.tokens(command, "bash").parts, os_family=family)[1]
+    assert writes("ls > '$null'", "linux") == ["$null"]
+    # Round 3: unquoted `$null` is the null device only in PowerShell; in Bash it expands a variable.
+    redirect = lambda command, shell: checks.redirections(checks.tokens(command, shell).parts, os_family="linux",
+                                                          shell=shell)[1]
+    assert redirect("ls > $null", "powershell") == [] and redirect("ls > $null", "bash") == ["$null"]
+    # Round 4: native Windows PowerShell knows only NUL; /dev/null there is a path under the drive root.
+    on_windows = lambda command, shell: checks.redirections(checks.tokens(command, shell).parts, os_family="windows",
+                                                            shell=shell)[1]
+    assert on_windows("ls > /dev/null", "powershell") == ["/dev/null"] and on_windows("ls > NUL", "powershell") == []
+    assert on_windows("ls > nul:", "powershell") == [] and redirect("ls > /dev/null", "powershell") == []
+
+
+def test_patch_hint_is_judged_per_file():
+    """astra review round 2: added and removed lines of different files were mixed."""
+    moved_in = ("*** Begin Patch\n*** Update File: notes.md\n@@\n-### 2026-11-10 05:26 — A — none\n"
+                "*** Update File: handoff.md\n@@\n+### 2026-11-10 05:26 — A — none\n*** End Patch\n")
+    moved_out = ("*** Begin Patch\n*** Update File: handoff.md\n@@\n-### 2026-11-10 05:26 — A — none\n"
+                 "*** Update File: notes.md\n@@\n+### 2026-11-10 05:26 — A — none\n*** End Patch\n")
+    hints = lambda patch: [f.check for f in checks.record_hints(checks.adapt({"tool_name": "apply_patch",
+                                                                             "tool_input": {"patch": patch}}))]
+    assert hints(moved_in) == ["records.direct"] and hints(moved_out) == []
+    # Round 3: two handoff.md files are two files; Windows names ignore case.
+    two_paths = ("*** Begin Patch\n*** Update File: docs/handoff.md\n@@\n-### 2026-11-10 05:26 — A — none\n"
+                 "*** Update File: handoff.md\n@@\n+### 2026-11-10 05:26 — A — none\n*** End Patch\n")
+    assert hints(two_paths) == ["records.direct"]
+    upper = moved_in.replace("Update File: handoff.md", "Update File: HANDOFF.md")
+    assert hints(upper) == (["records.direct"] if os.name == "nt" else [])
+
+
+def test_only_the_projects_own_handoff_gets_the_hint(tmp_path):
+    """astra review round 4: editing archive/handoff.md pointed at `ro event` although no record changed."""
+    family = "windows" if os.name == "nt" else "linux"
+    heading = "### 2026-11-10 05:26 — A — none\n"
+    hint = lambda path, cwd: [f.check for f in checks.record_hints(checks.Call("Edit", paths=[path], added=heading),
+                                                                    tmp_path, str(cwd), family)]
+    (tmp_path / "archive").mkdir()
+    assert hint(str(tmp_path / "archive" / "handoff.md"), tmp_path) == []
+    assert hint("handoff.md", tmp_path / "archive") == []
+    assert hint("handoff.md", tmp_path) == ["records.direct"]
+    assert hint("../handoff.md", tmp_path / "archive") == ["records.direct"]
+    assert hint(str(tmp_path / "handoff.md"), tmp_path / "archive") == ["records.direct"]
+    # Round 5: host paths are literal; `[2026]` is part of a folder name, not a glob.
+    (tmp_path / "archive[2026]").mkdir()
+    assert hint("handoff.md", tmp_path / "archive[2026]") == []
+    assert hint("../handoff.md", tmp_path / "archive[2026]") == ["records.direct"]
+
+
+def test_relative_tool_workdir_starts_from_the_host_cwd(tmp_path):
+    """astra round 6: a relative workdir was joined to the project root, so the real handoff was missed."""
+    project = project_at(tmp_path)
+    (tmp_path / "handoff.md").write_text("# H\n", encoding="utf-8")
+    (tmp_path / "other" / "sub").mkdir(parents=True)
+    patch = ("*** Begin Patch\n*** Update File: ../../handoff.md\n@@\n+### 2026-11-10 05:26 — A — none\n"
+             "*** End Patch\n")
+    payload = {"tool_name": "apply_patch", "tool_input": {"patch": patch, "workdir": "sub"},
+               "cwd": str(tmp_path / "other")}
+    context = hooks.hook(project, "PostToolUse", payload).get("hookSpecificOutput", {}).get("additionalContext", "")
+    assert "ro event" in context
+
+
+def test_guard_start_date_ignores_a_second_written_stamp():
+    """astra review round 3: an older second stamp dated an entry before the guards' start."""
+    from types import SimpleNamespace
+    import check_project
+    block = lambda expected: SimpleNamespace(fields={"Expected": expected, "Result": "pending"}, heading_date="")
+    day = check_project.Checker.record_day
+    assert str(day(block("ok (written 2026-11-03 10:00)"))) == "2026-11-03"
+    assert day(block("ok (written 2026-10-15 10:00) (written 2026-11-03 10:00)")) is None  # undated stays checked
+    assert str(day(block("ok (written 2026-11-03 10:00) note"))) == "2026-11-03"  # one stamp: dated as before
+    # Round 4: an external action is dated by its later stamp; an added Date or a reversed pair cannot exempt it.
+    action = SimpleNamespace(section="external actions", heading_date="",
+                             fields={"Date": "2026-10-01", "Expected": "ok (written 2026-11-03 10:00)",
+                                     "Result": "accepted (observed 2026-10-15 09:00)"})
+    assert str(day(action)) == "2026-11-03"
+    # Round 5: the stamp that ends Result dates it; two written stamps leave the entry undated (checked).
+    quoted = SimpleNamespace(section="external actions", heading_date="",
+                             fields={"Expected": "ok (written 2026-10-15 08:00)",
+                                     "Result": "first (observed 2026-10-15 09:00); final (observed 2026-11-03 10:00)"})
+    assert str(day(quoted)) == "2026-11-03"
+    doubled = SimpleNamespace(section="external actions", heading_date="",
+                              fields={"Expected": "ok (written 2026-10-14 08:00) (written 2026-10-15 08:00)",
+                                      "Result": "accepted (observed 2026-10-15 09:00)"})
+    assert day(doubled) is None
+
+
+def test_brief_header_carries_custom_required_lines(tmp_path):
+    """astra review round 3: a custom required line was missing from the header, and the hook's hint
+    claimed the header contained it."""
+    import re
+    import ro_write
+    from conftest import unified_project
+    project = Project(unified_project(tmp_path), slot="A", session="incident-test")
+    project.register_slot()
+    agents = project.root / "agents.md"
+    agents.write_text(re.sub(r"(?m)^- Brief requirements: .*$",
+                             "- Brief requirements: general-purpose: ro-delegate: v1; general-purpose: Budget: 2 CPU workers",
+                             agents.read_text(encoding="utf-8")), encoding="utf-8")
+    header = ro_write.delegate(project, "none")
+    settings = project.settings()
+    assert "Budget: 2 CPU workers" in header.splitlines()[:3]
+    assert checks.pre_checks(checks.Call("Agent", prompt=header), project.root, [], settings) == []
+    missing = checks.pre_checks(checks.Call("Agent", prompt="ro-delegate: v1\nDo it."), project.root, [], settings)
+    assert "`Budget: 2 CPU workers`" in missing[0].message
 
 
 def project_at(root: Path) -> Project:
@@ -239,3 +398,31 @@ def test_replacing_one_event_heading_with_another_still_gets_the_hint(tmp_path):
     fenced = checks.Call("Edit", paths=[str(tmp_path / "handoff.md")],
                          added="```markdown\n### YYYY-MM-DD HH:MM — A — H-A-01\n```\n".replace("YYYY-MM-DD HH:MM", "2026-11-10 05:26"))
     assert checks.record_hints(fenced) == []
+
+
+# ---- astra review 2026-11-22 ----
+
+def test_handoff_edit_reaches_python_even_when_another_hook_refreshed_the_snapshot(tmp_path, monkeypatch):
+    """The fast path returned {} for the edit because another call had already recorded its stamps."""
+    import ro_hook_runner as runner
+    project_at(tmp_path)
+    monkeypatch.setattr(runner, "unchanged_records", lambda path: True)
+    edit = edit_payload(str(tmp_path / "handoff.md"), "# H\n", "# H\n\n### 2026-11-10 05:26 — A — none\n")
+    patch = {"tool_name": "apply_patch", "tool_input": "*** Begin Patch\n*** Update File: handoff.md\n@@\n+x\n*** End Patch\n"}
+    other = edit_payload(str(tmp_path / "notes.md"), "a", "b")
+    assert not runner.quiet("PostToolUse", edit, tmp_path) and not runner.quiet("PostToolUse", patch, tmp_path)
+    assert runner.quiet("PostToolUse", other, tmp_path)
+
+
+def test_r_and_julia_scripts_are_checked_before_launch(tmp_path):
+    import ro_jobs
+    run = tmp_path / "run"
+    run.mkdir()
+    for command in (["Rscript", "missing.R"], ["julia", "missing.jl"]):
+        with pytest.raises(ValueError, match="does not exist"):
+            ro_jobs._check_script(tmp_path, run, command, "linux")
+
+
+def test_brief_counts_delete_warnings():
+    import ro_records
+    assert ro_records.CHECK.findall("fs.delete: Recursive or wildcard delete") == ["fs.delete"]

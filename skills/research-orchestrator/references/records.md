@@ -1,6 +1,6 @@
 # Discovery and handoff records
 
-Use these shapes when recording an outcome. The core defines which file owns each fact and the item completion sequence; this reference defines its durable representation.
+The core defines which file owns each fact and the completion sequence; these are the record shapes.
 
 With `Profile: work` or `research` and `Plan collector: off`, resume from the plan and handoff; the initial template omits unused summaries, and their absence is INFO. Competition or an enabled collector requires `Current best`, `Active compute` and `Plan collection` to track results, capacity and collection state.
 
@@ -23,11 +23,11 @@ Use `D-<Agent>-<NNN>`, such as `D-A-001`, numbered sequentially by the creating 
 - Reviews:
 ```
 
-Prefer this field order for readability. `Source`, `Host`, `User`, and first-recorded `Date` retain the original attribution; use `unknown` only when migrating older notes. An optional `Session:` after `Date` records the source session identity. Review syntax, required identities, eligible reviewers, states, and revisions have their single home in [verification.md](verification.md).
+`Source`, `Host`, `User`, and first-recorded `Date` retain the original attribution; use `unknown` only when migrating older notes. An optional `Session:` after `Date` records the source session identity. Review syntax, required identities, eligible reviewers, states, and revisions have their single home in [verification.md](verification.md).
 
 State in the finding what was measured, on which set and against which baseline; a conclusion wider than that set is a hypothesis. A later correction goes in `Correction: (YYYY-MM-DD HH:MM, <D-ID>) <text>`, and when a later discovery changes this one's state, add `Current: <D-ID>`; `ro index <ID>` prints both first and the startup index shows `Current`.
 
-Write findings in the configured language, preserving the claim and conditions so the startup index supports duplicate checks. For applicable non-operational decisions add `Outcome: supported | rejected | inconclusive`; [decision-guards.md](decision-guards.md) defines rejection evidence. Open matching entries' evidence on demand. Merge duplicate discoveries.
+Write findings in the configured language, preserving the claim and conditions so the startup index supports duplicate checks. For applicable non-operational decisions add `Outcome: supported | rejected | inconclusive`; [decision-guards.md](decision-guards.md) defines rejection evidence. Merge duplicate discoveries.
 
 ## Archiving history
 
@@ -89,10 +89,17 @@ Record each decision-changing stage in its own immutable dated event alongside t
 
 Session events keep this compact shape and their completed IDs when switching to a research or competition preset. Leave history intact; bring unfinished queue items into the new profile's shape for future work.
 
-When the handoff log becomes hard to scan, run `ro archive events` (see [Archiving history](#archiving-history)) or move older events to `docs/<focused-name>.md` and leave a summary and link. Keep current resume state, shared values, and changed-stage events for items with dependent launches in place; the launcher reads those review obligations from `handoff.md`.
+Besides `ro archive events` ([Archiving history](#archiving-history)), older events may move by hand to `docs/<focused-name>.md` with a summary and link; keep resume state, shared values and changed-stage events of items with dependent launches, which the launcher reads from `handoff.md`.
 
 ## Shared-file edits
 
-Before changing `plan.md`, `discoveries.md`, or `handoff.md`, re-read its latest contents and patch only the relevant section or append the entry. Replacing a whole file from a stale copy can erase another session's work. Prefer the commands: `ro set-field <ID|slot> <Field> <value>` replaces one line and keeps every other byte, and `ro close-item <ID> --from <draft>` (`## D-…` discoveries, `## Event` fields, optional `## Follow-ups` items) finishes an item in one journaled transaction that `ro close-item --recover` completes or rolls back; until then `ro` refuses to write the records, and recovery stops rather than overwrite a file someone changed (only a restore killed inside its own copy is redone unchecked): save that file elsewhere, copy its `.close-backup` back, recover, rerun the close if it rolled back, then reapply the change. A script that edits several records must validate everything before its first write and keep each file's line endings. Apply the project's [git-sync.md](git-sync.md) mode.
+Before changing `plan.md`, `discoveries.md`, or `handoff.md`, re-read its latest contents and patch only the relevant section or append the entry; a whole file replaced from a stale copy erases another session's work. Prefer the commands:
 
-Keep linked changes together before doing unrelated work: item completion follows the core lifecycle; ownership changes follow the workflow's event rule; slot creation updates all its entries as [sessions.md](sessions.md) describes; compute claims and collection rounds follow their references. Queue an item before any handoff line names it, so the checker never sees a forward reference to missing work.
+- `ro set-field <ID|slot|shared> <Field> <value>` replaces one line and keeps every other byte (`shared` is Shared state, e.g. `Current best`); `--add` appends a missing field such as `Correction`.
+- `ro close-item <ID> --from <draft>` (`## D-…` discoveries, `## Event` fields, optional `## Follow-ups` items) finishes an item in one journaled transaction.
+- They and `ro event` write `{now}` as the clock time and `{today}` as the date: a draft needs no typed time.
+- After an interruption, `ro close-item --recover` completes or rolls back the transaction; until then `ro` refuses to write records or launch jobs. Recovery stops rather than overwrite a file someone changed (a restore killed mid-copy is redone): save that file elsewhere, copy its `.close-backup` back, recover, rerun a rolled-back close, then reapply the change.
+
+A script that edits several records must validate everything before its first write and keep each file's line endings. Apply the project's [git-sync.md](git-sync.md) mode.
+
+Finish linked changes before unrelated work: completion follows the core lifecycle, ownership changes the workflow's event rule, slot creation [sessions.md](sessions.md), and compute claims and collection rounds their references. Queue an item before any handoff line names it, so the checker never sees a forward reference to missing work.

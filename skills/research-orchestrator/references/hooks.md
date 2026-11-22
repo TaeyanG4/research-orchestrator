@@ -22,7 +22,7 @@ A check covers only its row; a wider project rule is the project's, and passing 
 | `shell.heredoc` | Backticks in a heredoc with an unquoted delimiter → quote it. |
 | `shell.backslash` | `\\` in a Windows Bash call, which that tool turns into `\` even in quotes → use the file tool. |
 | `shell.cd` | A bare trailing `cd` → give the next command a working directory. |
-| `fs.delete` | Recursive or wildcard deletes → name exact files; ask before deleting shared ones. |
+| `fs.delete` | Recursive or wildcard `rm`/`Remove-Item`-family deletes → name exact files. |
 | `jobs.mutate-bound` | Writes to running-job scripts, inputs, outputs → leave them. |
 | `jobs.read-bound` | Opt-in read advice; logs, status, heartbeats stay open. |
 | `records.timestamp`, `records.id` | New future dates or duplicate IDs → fix; `ro event`/`ro seal` take clock time. |

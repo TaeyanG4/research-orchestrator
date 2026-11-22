@@ -423,9 +423,12 @@ def test_external_two_processes_execute_prepared_action_once(tmp_path):
             "[sys.executable,'-c',\"from pathlib import Path; import time; "
             "p=Path('executions.txt'); p.write_text(p.read_text()+'x' if p.exists() else 'x'); time.sleep(.4)\"]);"
             "print('ready',flush=True);sys.stdin.readline();\n"
-            "try: print(external(p,a))\nexcept ValueError: raise SystemExit(3)\n")
+            # Keep the refusal text: a once-seen [3, 3] under full-suite load left no cause (astra round 5).
+            "try: print(external(p,a))\nexcept ValueError as e: print(e, file=sys.stderr); raise SystemExit(3)\n")
     results = concurrent_results([[sys.executable, "-c", code, str(SCRIPTS), str(tmp_path)]] * 2)
-    assert sorted(code for code, _, _ in results) == [0, 3], results
+    attempts = sorted(p.name for p in (tmp_path / ".ro" / "external-attempts").glob("*")) \
+        if (tmp_path / ".ro" / "external-attempts").is_dir() else []
+    assert sorted(code for code, _, _ in results) == [0, 3], (results, attempts)
     assert (tmp_path / "executions.txt").read_text(encoding="utf-8") == "x"
 
 

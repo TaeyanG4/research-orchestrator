@@ -974,10 +974,297 @@ def test_one_monitor_watches_several_jobs_and_jobs_running_filters(project, caps
     assert jobs.jobs(project, running=True) == "No running or unreported jobs."
 
 
+def test_reconcile_refuses_live_or_foreign_jobs_and_keeps_recorded_ends(project) -> None:
+    """astra review 2026-11-22: reconcile released a live launcher's reservation and another machine's
+    job, and overwrote a clean exit with `killed`."""
+    base = {"item": "H-A-01", "slot": "A", "started": time.time() - 60, "expect": 30,
+            "run_dir": str(project.root), "bound": [], "inputs": []}
+    starting = {**base, "id": "J-A-0001", "status": "starting",
+                "launcher": {"pid": os.getpid(), "start": process_start(os.getpid())}}
+    foreign = {**base, "id": "J-A-0002", "status": "running", "pid": 999999999, "start": "gone",
+               "compute": {"machine": "another-host", "resource": "CPU", "parallel": False}}
+    finished = {**base, "id": "J-A-0003", "status": "finished", "exit_code": 0, "ended": time.time(),
+                "outcome": "exit 0", "pid": 999999999, "start": "gone"}
+    project.write_json("jobs.json", [starting, foreign, finished])
+    with pytest.raises(ValueError, match="live process"):
+        jobs.reconcile(project, "J-A-0001", "nothing seen")
+    with pytest.raises(ValueError, match="reconcile it there"):
+        jobs.reconcile(project, "J-A-0002", "nothing seen")
+    assert "outcome: exit 0; reconciled by the owner: nothing seen" in jobs.reconcile(project, "J-A-0003", "nothing seen")
+    saved = {entry["id"]: entry for entry in project.read_json("jobs.json", [])}
+    assert saved["J-A-0001"]["status"] == "starting" and saved["J-A-0002"]["status"] == "running"
+    assert saved["J-A-0003"]["status"] == "finished" and saved["J-A-0003"]["exit_code"] == 0
+    assert saved["J-A-0003"]["outcome"] == "exit 0" and jobs.monitor_outcome(saved["J-A-0003"])
+    # A job of another machine stays protected and cannot be monitored or killed from here.
+    assert jobs.protected_job(saved["J-A-0002"]) and jobs.running_job(saved["J-A-0002"])
+    for action in (jobs.monitor, jobs.kill):
+        with pytest.raises(ValueError, match="another-host"):
+            action(project, "J-A-0002")
+    jobs.jobs(project, prune=True)
+    remaining = project.read_json("jobs.json", [])
+    assert "J-A-0002" in {entry["id"] for entry in remaining}
+    # The fixture's cleanup kills running jobs; the synthetic remote one is not ours to kill.
+    project.write_json("jobs.json", [entry for entry in remaining if entry["id"] != "J-A-0002"])
+
+
+def test_launch_waits_for_a_pending_record_transaction(project) -> None:
+    """astra review round 3: a job launched after an interrupted close kept running while the recovered
+    close removed its item from the queue."""
+    project.write_json("migration.json", {"from": "close-item", "to": "H-A-01"})
+    with pytest.raises(ValueError, match="close-item --recover"):
+        jobs.launch(project, options([sys.executable, "-c", "pass"]))
+    assert project.read_json("jobs.json", []) == []
+    (project.state / "migration.json").unlink()
+
+
+def test_remote_ownership_ends_only_with_tree_evidence() -> None:
+    """astra review round 3: a remote launch failure with a live child lost protection, and a remote job
+    that finished with an `error` result kept it."""
+    remote = {"compute": {"machine": "another-host"}, "ended": time.time()}
+    assert jobs.running_job({**remote, "id": "J-A-1", "status": "launch-failed", "tree_empty": False})
+    assert jobs.protected_job({**remote, "id": "J-A-1", "status": "launch-failed", "tree_empty": False})
+    assert not jobs.running_job({**remote, "id": "J-A-2", "status": "error", "tree_empty": True})
+    assert not jobs.running_job({**remote, "id": "J-A-3", "status": "finished", "exit_code": 1})
+
+
+def test_reconcile_keeps_a_recorded_launch_failure(project) -> None:
+    """astra review round 3: refresh turned `launch-failed` into `attention`, erasing its cause; the
+    first reconcile kept protection and only a second one released it."""
+    entry = {"id": "J-A-0005", "item": "H-A-01", "slot": "A", "status": "launch-failed",
+             "outcome": "runner could not start the child", "ended": time.time() - 30, "pid": 999999999,
+             "start": "gone", "tree_owned": True, "child_started": True, "windows_job": "ro-missing-job-object",
+             "tree_empty": False, "started": time.time() - 60, "expect": 30, "run_dir": str(project.root),
+             "bound": [], "inputs": []}
+    project.write_json("jobs.json", [entry])
+    line = jobs.reconcile(project, "J-A-0005", "no child process; log ends at start-up")
+    assert "runner could not start the child; reconciled by the owner" in line
+    saved = stored(project)
+    assert saved["status"] == "launch-failed" and saved["outcome"] == "runner could not start the child"
+    assert saved["ended"] == entry["ended"] and saved["tree_empty"] and not jobs.protected_job(saved)
+    assert jobs.monitor_outcome(saved)
+
+
+def test_a_listing_before_reconcile_keeps_the_recorded_failure(project) -> None:
+    """astra review round 4: `ro jobs --running` refreshed a launch failure into `attention` first."""
+    entry = {"id": "J-A-0006", "item": "H-A-01", "slot": "A", "status": "launch-failed",
+             "outcome": "runner could not start the child", "ended": time.time() - 30, "pid": 999999999,
+             "start": "gone", "tree_owned": True, "child_started": True, "windows_job": "ro-missing-job-object",
+             "tree_empty": False, "started": time.time() - 60, "expect": 30, "run_dir": str(project.root),
+             "bound": [], "inputs": []}
+    project.write_json("jobs.json", [entry])
+    jobs.jobs(project, running=True)
+    listed = stored(project)
+    assert listed["status"] == "launch-failed" and listed["outcome"] == "runner could not start the child"
+    assert listed["ended"] == entry["ended"]
+    jobs.reconcile(project, "J-A-0006", "no child process; log ends at start-up")
+    saved = stored(project)
+    assert saved["status"] == "launch-failed" and saved["outcome"] == "runner could not start the child"
+    assert saved["tree_empty"] and not jobs.protected_job(saved)
+
+
+def test_reconcile_evidence_survives_a_later_monitor(project) -> None:
+    """astra review round 5: the owner's evidence lived only in the monitor record, which the next
+    monitor replaced."""
+    entry = {"id": "J-A-0008", "item": "H-A-01", "slot": "A", "status": "launch-failed",
+             "outcome": "runner could not start the child", "ended": time.time() - 30, "pid": 999999999,
+             "start": "gone", "tree_owned": True, "child_started": True, "windows_job": "ro-missing-job-object",
+             "tree_empty": False, "started": time.time() - 60, "expect": 30, "run_dir": str(project.root),
+             "bound": [], "inputs": []}
+    project.write_json("jobs.json", [entry])
+    jobs.reconcile(project, "J-A-0008", "log ends at start-up; no child in the task list")
+    assert "orphaned" not in stored(project)  # Fable P1: a closed tree has no missing supervisor
+    jobs.monitor(project, "J-A-0008")
+    saved = stored(project)
+    assert saved["reconciled"][0]["evidence"] == "log ends at start-up; no child in the task list"
+    assert saved["status"] == "launch-failed" and not jobs.protected_job(saved)
+
+
+def test_launch_event_goes_before_the_real_archived_history(project) -> None:
+    """astra round 8: the launch event used text.find and could land in a fenced example."""
+    handoff = project.root / "handoff.md"
+    text = handoff.read_text(encoding="utf-8")
+    example = "Example:\n\n```markdown\n## Archived history\n```\n\n"
+    text = (text.replace("## Archived history", example + "## Archived history", 1) if "## Archived history" in text
+            else text + "\n" + example + "## Archived history\n")
+    handoff.write_text(text, encoding="utf-8", newline="\n")
+    jobs._record_launch(project, {"id": "J-A-0010", "slot": "A", "item": "H-A-01", "log": "runs/x/log.txt"})
+    text = handoff.read_text(encoding="utf-8")
+    action = text.index("launched job J-A-0010")
+    assert text.index("```\n", text.index("Example:")) < action < text.rindex("## Archived history")
+
+
+def test_error_pattern_waits_for_the_log_to_end(project) -> None:
+    """astra round 8: `fatal$` matched `fatalNO` when a poll ended right after `fatal`."""
+    log = project.root / "live.log"
+    entry = {"log": str(log), "errors": ["fatal$"]}
+    log.write_text("work\nfatal", encoding="utf-8")
+    assert not jobs._error_match(entry)          # a live log's current end is not its end
+    with log.open("a", encoding="utf-8") as handle:
+        handle.write("NO more\n")
+    assert not jobs._error_match(entry, complete=True)
+    ended = {"log": str(project.root / "ended.log"), "errors": ["fatal$"]}
+    Path(ended["log"]).write_text("work\nfatal", encoding="utf-8")
+    assert jobs._error_match(ended, complete=True)  # a finished job's last scan sees the real end
+
+
+def test_finished_log_scan_reports_each_occurrence_once(project) -> None:
+    """astra round 9: a second scan of a finished log added the same incident again."""
+    log = project.root / "done.log"
+    log.write_text("work\nfatal", encoding="utf-8")
+    entry = {"log": str(log), "errors": ["fatal$"]}
+    assert not jobs._error_match(entry)               # held while the log may grow
+    assert jobs._error_match(entry, complete=True)    # the finished log ends with it
+    assert not jobs._error_match(entry, complete=True)  # nothing new: not reported again
+
+
+def test_a_match_completed_by_the_next_read_is_reported(project) -> None:
+    """astra round 10: `fatal\\B` split between `fatal` and `NO` was never re-examined, so it was lost."""
+    log = project.root / "split.log"
+    log.write_text("x fatal", encoding="utf-8")
+    entry = {"log": str(log), "errors": [r"fatal\B"]}
+    assert not jobs._error_match(entry)
+    with log.open("a", encoding="utf-8") as handle:
+        handle.write("NO\n")
+    assert jobs._error_match(entry)
+    assert not jobs._error_match(entry, complete=True)  # and only once
+
+
+@pytest.mark.parametrize("pattern,initial,expected", [("^aa|aaaa", "x" + "a" * 4099, True),
+                                                      ("^aa|aaa", "x" + "a" * 4096, False)])
+def test_new_occurrence_after_a_long_tail_matches_a_whole_log_search(project, pattern, initial, expected) -> None:
+    """astra round 10: a false `^` match at the tail's start shifted later matches."""
+    log = project.root / "run.log"
+    log.write_text(initial, encoding="utf-8")
+    entry = {"log": str(log), "errors": [pattern]}
+    jobs._error_match(entry)
+    with log.open("a", encoding="utf-8") as handle:
+        handle.write("a")
+    assert jobs._error_match(entry) is expected
+
+
+@pytest.mark.parametrize("pattern,waits", [("fatal$", True), (r"fatal\$", False), ("cost[$]", False),
+                                           (r"\bword", True), (r"a\d", False), (r"end\Z", True),
+                                           ("cost[]$]", False), ("cost[^]$]", False),  # astra round 10
+                                           (r"[\b]x", False),  # Fable S1: \b in a class is a backspace
+                                           ("[^^]fatal$", True), (r"[^^]fatal\B", True)])  # astra round 11
+def test_only_lookahead_patterns_wait(pattern, waits):
+    """astra round 9: a literal `\\$` was read as an anchor, delaying a real error until the job ended."""
+    assert jobs._looks_ahead(pattern) is waits
+
+
+def test_scan_state_from_an_earlier_release_is_not_reported_again(project) -> None:
+    """astra round 11: a 7.0.0-era scan state (no positions) re-reported an error it had reported."""
+    log = project.root / "old.log"
+    log.write_text("x fatal", encoding="utf-8")
+    entry = {"log": str(log), "errors": ["fatal"], "scan_offset": 7, "scan_tail": "x fatal"}
+    assert not jobs._error_match(entry, complete=True)
+    with log.open("a", encoding="utf-8") as handle:
+        handle.write(" then fatal again")
+    assert jobs._error_match(entry, complete=True)
+
+
+@pytest.mark.parametrize("initial,old_tail,appended", [
+    ("xfatal", "xfatal", "NO\n"),   # astra round 12: the next read completes the match
+    ("xfatalN", "xfatalN", ""),     # astra round 13: the old code read `N` apart and missed it
+])
+def test_old_scan_state_never_loses_a_look_ahead_match(project, initial, old_tail, appended) -> None:
+    """A scan state from an earlier release re-examines its tail's last two characters, so an error the
+    old code may have missed is reported, once."""
+    log = project.root / "old.log"
+    log.write_text(initial + appended, encoding="utf-8")
+    entry = {"log": str(log), "errors": [r"fatal\B"], "scan_offset": len(initial), "scan_tail": old_tail}
+    assert [jobs._error_match(entry, complete=True) for _ in range(3)] == [True, False, False]
+
+
+def test_old_scan_state_repeats_a_report_at_most_once(project) -> None:
+    """astra round 11-12 / Fable U1: the starting point is saved, so later scans do not report again."""
+    log = project.root / "old_end.log"
+    log.write_text("x fatal", encoding="utf-8")
+    entry = {"log": str(log), "errors": ["fatal$"], "scan_offset": 7, "scan_tail": "x fatal"}
+    reports = [jobs._error_match(entry, complete=True) for _ in range(4)]
+    assert sum(reports) <= 1 and reports[1:] == [False, False, False]
+
+
+def test_literal_dollar_reports_at_once(project) -> None:
+    log = project.root / "live.log"
+    log.write_text("price fatal$\n", encoding="utf-8")
+    assert jobs._error_match({"log": str(log), "errors": [r"fatal\$"]})
+
+
+def test_monitor_after_reconcile_keeps_the_recorded_failure(project) -> None:
+    """astra round 7: an error pattern in the log turned `launch-failed` into `error` after reconcile."""
+    log = project.root / "job.log"
+    log.write_text("starting\nTraceback (most recent call last):\n", encoding="utf-8")
+    entry = {"id": "J-A-0009", "item": "H-A-01", "slot": "A", "status": "launch-failed",
+             "outcome": "runner failed at start", "ended": time.time() - 30, "pid": 999999999, "start": "gone",
+             "tree_owned": True, "child_started": True, "windows_job": "ro-missing-job-object", "tree_empty": False,
+             "started": time.time() - 60, "expect": 30, "run_dir": str(project.root), "bound": [], "inputs": [],
+             "log": str(log), "errors": ["Traceback"]}
+    project.write_json("jobs.json", [entry])
+    jobs.reconcile(project, "J-A-0009", "no child process; log ends at start-up")
+    line = jobs.monitor(project, "J-A-0009")
+    saved = stored(project)
+    assert saved["status"] == "launch-failed" and saved["outcome"] == "runner failed at start"
+    assert "error pattern matched" in line and saved["incidents"][-1]["reason"] == "error pattern matched"
+
+
+def test_runner_that_never_started_records_an_empty_tree(project, monkeypatch) -> None:
+    """astra review round 4: with no runner process the record kept no end evidence, so another
+    machine went on protecting the job after its owner monitored and reconciled it."""
+    real_popen = subprocess.Popen
+
+    def refuse(*args, **kwargs):  # only the runner; process identity lookups still start
+        if "--runner" in list(args[0]):
+            raise OSError("no such interpreter")
+        return real_popen(*args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "Popen", refuse)
+    with pytest.raises(ValueError, match="runner could not start"):
+        jobs.launch(project, options([sys.executable, "-c", "pass"]))
+    saved = stored(project)
+    assert saved["status"] == "launch-failed" and saved["tree_empty"]
+    assert not jobs.running_job({**saved, "compute": {**saved["compute"], "machine": "another-host"}})
+
+
+def test_reconcile_saves_an_end_inferred_during_the_call(project) -> None:
+    """astra review round 2: the inferred end was returned but not saved, so the job stayed running."""
+    entry = {"id": "J-A-0004", "item": "H-A-01", "slot": "A", "status": "running", "pid": 999999999,
+             "start": "gone", "started": time.time() - 60, "expect": 30, "run_dir": str(project.root),
+             "bound": [], "inputs": []}
+    project.write_json("jobs.json", [entry])
+    assert "reconciled by the owner: log ends normally" in jobs.reconcile(project, "J-A-0004", "log ends normally")
+    saved = stored(project)
+    assert saved["status"] == "finished" and saved["tree_empty"] and jobs.monitor_outcome(saved)
+    assert not jobs.running_job(saved)
+
+
+def test_multi_monitor_survives_a_prune_of_a_reported_job(project, monkeypatch) -> None:
+    """astra review 2026-11-22: pruning the first finished job made the monitor's cleanup fail."""
+    plan = project.root / "plan.md"
+    plan.write_text(plan.read_text(encoding="utf-8").replace(
+        "- Goal: run the bounded test worker\n", "- Goal: run the bounded test worker\n- Resource: CPU\n- Parallel: YES\n"),
+        encoding="utf-8")
+    for item, seconds in (("H-A-01", .1), ("H-A-02", 1.5)):
+        jobs.launch(project, options([sys.executable, "-c", f"import time; time.sleep({seconds})"], item=item,
+                                     confirm="0s"))
+    ids = [entry["id"] for entry in project.read_json("jobs.json", [])]
+    real_sleep, pruned = time.sleep, []
+
+    def sleep_then_prune(seconds):
+        if not pruned and any(jobs.monitor_outcome(entry) for entry in project.read_json("jobs.json", [])):
+            jobs.jobs(project, prune=True)  # another session tidies the registry meanwhile
+            pruned.append(True)
+        real_sleep(seconds)
+
+    monkeypatch.setattr(jobs.time, "sleep", sleep_then_prune)
+    assert jobs.monitor(project, ids) == "all 2 jobs reached an outcome; Job lines above"
+    assert pruned and [entry["id"] for entry in project.read_json("jobs.json", [])] == [ids[1]]
+
+
 def test_reconcile_closes_a_job_whose_processes_vanished(project) -> None:
     """2026-11-01 19:10: after a host restart the job stayed attention and jobs.json was edited by hand."""
     entry = {"id": "J-A-0007", "item": "H-A-01", "slot": "A", "status": "attention", "pid": 999999999,
-             "start": "gone", "tree_owned": True, "child_started": True,
+             "start": "gone", "tree_owned": True, "child_started": True, "orphaned": True,
              "child": {"pid": 999999998, "start": "gone"}, "windows_job": "ro-missing-job-object",
              "started": time.time() - 60, "expect": 30, "run_dir": str(project.root), "bound": [], "inputs": []}
     project.write_json("jobs.json", [entry])
@@ -987,3 +1274,4 @@ def test_reconcile_closes_a_job_whose_processes_vanished(project) -> None:
     assert "reconciled by the owner" in line
     saved = stored(project)
     assert saved["tree_empty"] and not jobs.running_job(saved) and jobs.monitor_outcome(saved)
+    assert "orphaned" not in saved  # Fable P1: the closed tree has no missing supervisor any more

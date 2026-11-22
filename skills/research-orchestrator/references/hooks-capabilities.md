@@ -4,7 +4,7 @@ Read this when installing or repairing hooks; use [hooks.md](hooks.md) during wo
 
 ## Lookup: install and trust
 
-Run `python install.py --host claude-code` to install the runtime and register hooks so the host can deliver checks; use `--host codex` or `--host both` for those hosts.
+Run `python install.py --host claude-code` (or `--host codex`, `--host both`) to install the runtime and register hooks.
 
 Subscriptions before tool use:
 
@@ -15,7 +15,7 @@ Subscriptions before tool use:
 
 Copying the skill alone does not install hooks, and the Codex plugin alone does not register host hooks:
 
-- Install: `python install.py --host claude-code`, `--host codex` or `--host both`; add `--project <dir>` for team scope, `--dry-run` to inspect changes, `--uninstall` to remove one installation with backups.
+- Install options: `--project <dir>` for team scope, `--dry-run` to inspect changes, `--uninstall` to remove one installation with backups.
 - Preservation: unrelated hooks stay; changed settings and previous skill installs are backed up.
 - Repository root: nested `--project` paths are refused before writes. Lost expected registrations refuse pushes with repair guidance.
 - Shared gate: project installs register their checkout with one Git pre-push dispatcher, so linked worktrees and repositories sharing `core.hooksPath` keep separate runtimes. Partial uninstall repoints only that checkout; full uninstall removes only its registration.
@@ -40,7 +40,7 @@ The installed Git bootstrap and dispatcher try their registered interpreter, the
 
 ## Lookup: diagnostics
 
-Read `ro brief` for the adapter self-test so missing registration can be repaired before relying on hook delivery.
+Read `ro brief` for the adapter self-test before relying on hook delivery.
 
 - The runner's nine-second watchdog fits the host's ten-second limit. Resolved Python dispatches in process, with child dispatch as fallback.
 - Installed-watchdog and in-process checks keep **p95 < 150 ms**.
@@ -49,7 +49,7 @@ Read `ro brief` for the adapter self-test so missing registration can be repaire
 
 SessionStart and `ro brief` also report `publish gate not installed` for Git checkouts without their scoped registration under the active hooks path. Run the printed `python <checkout>/install.py --project <checkout root>` command, which names the checkout root, to install it; plugin per-call hooks alone do not provide the fail-closed publication gate.
 
-Set `RO_HOOK_DIAGNOSTICS=1` or create `.ro/hook-diagnostics.on` to record event, check IDs and decisions without commands or environment values. Remove the marker to disable it. Interpret these records using the evidence index; a self-test alone does not prove host delivery.
+Set `RO_HOOK_DIAGNOSTICS=1` or create `.ro/hook-diagnostics.on` to record event, check IDs and decisions without commands or environment values. Remove the marker to disable it.
 
 ## Lookup: adapter behavior
 
@@ -62,7 +62,7 @@ Adapter details the daily guide leaves out:
 - Publish advisory: the staged pre-check reads the command's checkout under the project's policy. A push that picks its checkout inside the command (`git -C`, `--git-dir`, `--work-tree`, `GIT_DIR`/`GIT_WORK_TREE`, `env -C`, or an earlier directory change) gets an advisory, without scanning the hook directory's staged changes, that defers to that checkout's pre-push gate.
 - Binding checks compare each path's lexical and resolved spellings (junctions, symbolic links, Windows short names, macOS `/private/var`).
 - The cmd wrapper's settings shortcut recognises space-indented settings lines only; a tab-indented line falls through to Python, which reads it.
-- Witnesses: files younger than two seconds get none (coarse timestamps hide same-size edits); cmd also waits past the cache minute; Python checks `(mtime_ns, size)` and warning digests first.
+- Witnesses: files younger than two seconds get none (coarse timestamps hide same-size edits); cmd also waits past the cache minute; Python checks `(mtime_ns, size)` and warning digests first. Only if another call's hook refreshes them between an edit and that edit's own hook, over two seconds later, does the wrapper skip its `records.direct`.
 
 ## Capability matrix
 

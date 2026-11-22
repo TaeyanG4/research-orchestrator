@@ -121,9 +121,12 @@ def parser(hooks_only: bool = False) -> argparse.ArgumentParser:
     for flag in EVENT_FLAGS:
         event.add_argument("--" + flag)
     set_field = commands.add_parser("set-field", help="replace one single-line field of one record, keeping other bytes")
-    set_field.add_argument("record", help="H-, D- or X- ID, or `slot` for your own handoff section")
+    set_field.add_argument("record", help="H-, D- or X- ID, `slot` for your own handoff section, or `shared` "
+                                          "for Shared state; {now}/{today} in the value take the clock")
     set_field.add_argument("field")
     set_field.add_argument("value")
+    set_field.add_argument("--add", action="store_true",
+                           help="add a field the record lacks (e.g. Correction, Reconciled) after its last field")
     close_item = commands.add_parser("close-item", help="finish an item in one checked, journaled transaction")
     close_item.add_argument("item", nargs="?", default="")
     close_item.add_argument("--from", dest="source",
@@ -308,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
                          for flag in EVENT_FLAGS}
                 output = ro_write.event(project, args.key, given, args.source)
             elif name == "set-field":
-                output = ro_write.set_field(project, args.record, args.field, args.value)
+                output = ro_write.set_field(project, args.record, args.field, args.value, args.add)
             else:
                 output = ro_write.seal(project, args.file, args.check)
         elif name == "observe":
@@ -320,7 +323,8 @@ def main(argv: list[str] | None = None) -> int:
             from ro_sessions import startup
             selection = startup(project, user=args.user, host=args.host, intent=args.intent,
                                 reclaim=args.reclaim, questions_allowed=not args.no_questions)
-            output = selection or records.brief(project, args.max_chars)
+            output = ("\n".join([*records.pending_transaction(project), selection]) if selection
+                      else records.brief(project, args.max_chars))
         elif name == "close":
             output = records.close(project)
         elif name == "check":

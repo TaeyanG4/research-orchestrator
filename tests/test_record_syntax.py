@@ -240,4 +240,4 @@ def test_old_archive_cache_is_reparsed_with_delimiter_aware_rules(tmp_path):
     p.write_json("archive-ids.json", {"version": 1, "files": {"docs/examples.md": {
         "stat": stamp, "ids": ["D-A-999", "D-A-003"]}}})
     assert records.next_id(p, "D") == "D-A-004"
-    assert p.read_json("archive-ids.json")["version"] == 2
+    assert p.read_json("archive-ids.json")["version"] == 3  # v3 (8.0.0): archives use the records' ID parser

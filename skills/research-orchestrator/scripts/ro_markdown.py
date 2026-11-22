@@ -38,3 +38,9 @@ def mask_fences(text: str) -> str:
 def unfenced(text: str) -> list[str]:
     """Blank fenced lines, preserving one result per source line."""
     return [line.rstrip("\r\n") if visible else "" for line, visible in visible_lines(text)]
+
+
+def archived_heading(text: str) -> re.Match | None:
+    """The real `## Archived history` heading line, where new events go before; a fenced example or a
+    mention inside a sentence is not it (astra rounds 6 and 8)."""
+    return re.search(r"(?m)^## Archived history\b", mask_fences(text))

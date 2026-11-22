@@ -437,7 +437,15 @@ def hook(project: Project, event: str, payload: dict, check: str | None = None, 
                               cwd=directory, cwd_uncertain=uncertain)
     elif event == "PostToolUse":
         if call.tool in ("Edit", "Write", "shell", "NotebookEdit"):
-            findings = _snapshot(project) + record_hints(call)
+            # Edit and patch paths are literal host data, so the cwd is taken literally too (not the
+            # shell-path normalisation, which treats `[` as a glob).
+            raw = payload.get("tool_input")
+            host = payload.get("cwd") if isinstance(payload.get("cwd"), str) else None
+            work = (raw.get("workdir") or raw.get("cwd")) if isinstance(raw, dict) else None
+            # A relative tool workdir starts from the host cwd, not the project root (astra round 6).
+            cwd = (os.path.join(host, work) if host and isinstance(work, str) and not os.path.isabs(work)
+                   else work if isinstance(work, str) else host)
+            findings = _snapshot(project) + record_hints(call, project.root, cwd, values["environment"].split("/")[0])
         # A host without additionalContext at PreToolUse gets the log on the next post call.
         path = project.state / "warnings.log"
         if path.exists():
