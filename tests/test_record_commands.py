@@ -236,7 +236,8 @@ def test_brief_names_finished_jobs_open_reviews_and_awaited_results(project):
     assert "State notes cite finished jobs: J-A-0001" in text
     assert "Open reviews CHALLENGED: 1; IDs D-A-001" in text
     assert "Awaiting final results: 1; IDs X-A-001" in text
-    assert "skill 8.0.0" in text.splitlines()[0]
+    import ro_settings
+    assert f"skill {ro_settings.SKILL_VERSION}" in text.splitlines()[0]
 
 
 def test_oversized_next_test_warns(project):

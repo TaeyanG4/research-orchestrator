@@ -1,5 +1,15 @@
 # Changelog
 
+## 8.0.1
+
+Closes the minor findings the two independent reviews left at the 8.0.0 release. Projects need no change.
+
+### Fixed
+
+- A job whose log 7.0.0 had scanned reports the matches ending in the last two characters of its saved tail as one report, so several old matches there repeat once together instead of once each, also when a scan of the running job held them first (the old tail's end is kept while a scan can re-examine it), unless exactly one character such as a final newline arrives between the two scans; the separate old-state starting point, which behaved like the default path, is gone. A state 8.0.0 already scanned keeps no old-tail mark and may still repeat those matches once each.
+- `references/decision-guards.md` keeps every rule with shorter rationale, leaving room under its size budget.
+- `references/presets.md` names the current template v3.6 and both frozen templates (v3.4, v3.5); `references/delegation.md` says a delegated agent is not given `agents.md` rather than that it never reads it.
+
 ## 8.0.0
 
 This release comes from a mistake log kept through one six-week competition (259 entries; of the 194 classified for this release, 91 name a delegated agent in their title), classified by root cause and reviewed by independent readers. Its lesson: prose rules did not stop repeats, while checked rules held inside their scope. So events, item closes, field changes and seals are now written by commands that take the clock time (event headings and seals always; other fields where a draft writes `{now}` or `{today}`) and validate with the checker's own rules; a hand edit remains possible and is only warned about; each check's real scope is documented; and delegated agents get a generated brief header. Projects on template v3.5 keep working; `--reconfigure` moves them to v3.6. New warnings can make `--strict` runs fail, hence the major version.

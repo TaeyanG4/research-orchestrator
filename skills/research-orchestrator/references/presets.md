@@ -61,11 +61,11 @@ Project identity, competition, phase clock and queue freeze are excluded because
 
 ## How `--reconfigure` treats `agents.md`
 
-- **Generated** — title, `<!-- ro-template: v3.5 -->`, summary, settings, reading pointers and `## Working rules` for sessions that never load the skill. Release 7.0.0 uses template v3.5 (6.0.0–6.0.2 used v3.4), a separate format version.
+- **Generated** — title, `<!-- ro-template: v3.6 -->`, summary, settings, reading pointers and `## Working rules` for sessions that never load the skill. Releases 8.0.x use template v3.6 (7.0.0 used v3.5, 6.0.x v3.4), a separate format version.
 - **Project rules** — [project-rules.md](project-rules.md) describes its three scaffolded subsections; `--reconfigure` preserves this user-owned region verbatim, including legacy layouts.
 
 `--reconfigure` checks generated rules against the version marker (a file without one predates 6.0 and is refused) and `.ro/template-render.json`. The sidecar records the render key outside the instructions; keep it when moving a project to preserve pending settings changes. Move hand edits to `## Project rules` or save them before `--force`; settings edits are accepted. The checker reports `agents.rules.edited` for changed rules and `agents.rules.stale` for unapplied settings.
 
-A release that changes the template freezes the old one in `templates/<version>/` (now only v3.4, from 6.0.0–6.0.2) so upgrades need no force; tests render it.
+A release that changes the template freezes the old one in `templates/<version>/` (v3.4 from 6.0.x, v3.5 from 7.0.0) so upgrades need no force; tests render it.
 
 Every settings transition checks the proposed records before writing, preserves effective ordering and translates compatible goal fields, so a compact queue can move into research without invented scores even when its layout stays the same. Moving from self verification to a review policy adds missing pending-review fields; measured evidence and existing reviews stay intact. Changed records receive `.pre-migrate` backups, and incompatible transitions leave the project unchanged. A `Workflow` change also needs `--migrate`: see [migration.md](migration.md). Log settings changes as handoff events with heading `none` (workflow migration writes its own).

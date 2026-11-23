@@ -411,14 +411,18 @@ def _error_match(entry: dict, *, complete: bool = False) -> bool:
                 data = source.read(LOG_SCAN_BYTES)
                 # Carry a bounded overlap so matches crossing polling chunks remain visible.
                 tail = str(entry.get("scan_tail", ""))
-                legacy = bool(tail) and "scan_chars" not in entry  # scan state from an earlier release
+                if tail and "scan_chars" not in entry:  # scan state from an earlier release: its tail ends
+                    entry["scan_legacy_end"] = len(tail)  # here, kept while a scan can re-examine it
                 decoded = decoder.decode(data)
                 text = tail + decoded
                 before = int(entry.get("scan_chars", len(tail)))  # characters scanned before this read
                 base = before - len(tail)  # where `text` starts in the whole log
+                legacy_end = int(entry.get("scan_legacy_end", -1)) - base  # within `text`; negative = none
                 offset += len(data)
                 entry["scan_offset"] = offset
                 entry["scan_chars"] = before + len(decoded)
+                if entry["scan_chars"] - 2 >= int(entry.get("scan_legacy_end", -1)):
+                    entry.pop("scan_legacy_end", None)  # later scans start past the old tail
                 entry["scan_tail"] = text[-4096:]
                 entry["scan_utf8_pending"] = decoder.getstate()[0].hex()
                 # The current end of a live log is not its end. A pattern whose ending looks at what follows
@@ -430,26 +434,32 @@ def _error_match(entry: dict, *, complete: bool = False) -> bool:
                 # `^` matches only at the log's real start; a match counts when it ends after the last
                 # reported one, so a repeated scan reports nothing twice (astra rounds 8-12).
                 final = complete and len(data) < LOG_SCAN_BYTES
-                if legacy:
-                    # A scan state from an earlier release has no positions, and which of its tail's matches
-                    # that code reported cannot be rebuilt: it also missed some (`fatal\B` completed inside the
-                    # tail). For an error monitor a miss is worse than a repeat, so the tail's last two
-                    # characters are examined again (a look-ahead match there may be reported a second time,
-                    # once) and the starting point is saved at once (astra rounds 11-13).
-                    reported = base + len(tail) - 2
-                    entry["scan_reported"] = reported
-                else:
-                    reported = int(entry.get("scan_reported", -1))
-                for pattern in patterns:
-                    waits = _looks_ahead(pattern.pattern)
-                    hold = 0 if final or not waits else 2
-                    new_from = len(tail) - (2 if waits else 0)
+                # A scan state from an earlier release has no positions, and which of its tail's matches that
+                # code reported cannot be rebuilt: it also missed some (`fatal\B` completed inside the tail).
+                # The default path already re-examines the tail's last two characters for look-ahead patterns,
+                # so an error the old code missed there is found; a match it did report there may repeat once.
+                # For an error monitor a miss is worse than a repeat (astra rounds 11-13, Fable 8.0.0 V1).
+                reported = int(entry.get("scan_reported", -1))
+                waits = [_looks_ahead(pattern.pattern) for pattern in patterns]
+                holds = [2 if wait and not final else 0 for wait in waits]
+                for pattern, wait, hold in zip(patterns, waits, holds):
+                    new_from = len(tail) - (2 if wait else 0)
                     # Once the log outgrows the tail, new_from - 511 already lies past position 0, so `^`
                     # can only match at the log's real start (Fable re-review T1).
                     start = max(0, new_from - 511)
                     for match in pattern.finditer(text, start):
                         if new_from < match.end() <= len(text) - hold and base + match.end() > reported:
-                            entry["scan_reported"] = base + match.end()
+                            end = match.end()
+                            if end <= legacy_end:
+                                # One report covers every reportable match ending in the old tail's
+                                # re-examined end: each may repeat an old report, so together they repeat
+                                # once, even when a scan of the running job held them first (8.0.0 JB20-21).
+                                # A match still held here (one new character, `!$` before a final newline)
+                                # is not covered: it may repeat on its own later, which is not a loss.
+                                end = max([end] + [found.end() for other, other_hold in zip(patterns, holds)
+                                                   for found in other.finditer(text, max(0, legacy_end - 513))
+                                                   if found.end() <= min(legacy_end, len(text) - other_hold)])
+                            entry["scan_reported"] = base + end
                             return True
                 if not complete or len(data) < LOG_SCAN_BYTES:
                     return False

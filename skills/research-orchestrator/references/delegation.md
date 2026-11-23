@@ -2,7 +2,7 @@
 
 Read this before handing work to another agent: a sub-agent, another host's model, or a worker command-line tool.
 
-A delegated agent never loads this skill, the project's `agents.md` or the delegating session's memory; it sees only its brief. In one competition's mistake log (2026-11), 91 of 194 entries named a delegated agent in their title: deleting other tasks' files, memory blow-ups, shell background runs, typed times, scripts edited mid-run, and inferred explanations copied into records as facts. Rules retyped into each brief kept drifting, so the header is generated.
+A delegated agent is not given this skill, the project's `agents.md` or the delegating session's memory, and nothing ensures it reads them; only its brief is certain to reach it. In one competition's mistake log (2026-11), 91 of 194 entries named a delegated agent in their title: deleting other tasks' files, memory blow-ups, shell background runs, typed times, scripts edited mid-run, and inferred explanations copied into records as facts. Rules retyped into each brief kept drifting, so the header is generated.
 
 ## Brief header
 

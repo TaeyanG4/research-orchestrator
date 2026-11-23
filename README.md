@@ -10,7 +10,7 @@
 
 A plugin for Claude Code, Codex, and Google Antigravity that keeps work projects, research, and competitions moving across AI sessions. It bundles a skill, host hooks, the `ro` command-line tool, and a read-only reviewer agent. Four Markdown files hold the settings, the work queue, reusable findings, and a durable handoff. A preset decides how sessions share the queue, who reviews a finding, and which evidence checks apply.
 
-**Release 8.0.0.** Changes are listed in [CHANGELOG.md](CHANGELOG.md). This release reads projects created or upgraded by release 6.0 or later; the Upgrading section below covers older ones.
+**Release 8.0.1.** Changes are listed in [CHANGELOG.md](CHANGELOG.md). This release reads projects created or upgraded by release 6.0 or later; the Upgrading section below covers older ones.
 
 ## Why use it
 

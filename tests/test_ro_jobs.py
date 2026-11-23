@@ -1176,6 +1176,64 @@ def test_old_scan_state_never_loses_a_look_ahead_match(project, initial, old_tai
     assert [jobs._error_match(entry, complete=True) for _ in range(3)] == [True, False, False]
 
 
+@pytest.mark.parametrize("errors", [[r"fatal\b|!$"], [r"fatal\b", "!$"]])
+def test_old_scan_state_repeats_several_old_matches_once_together(project, errors) -> None:
+    """astra 8.0.0 JB20: 7.0.0 reported `fatal` and `!` separately; each was then repeated in turn."""
+    log = project.root / "old_two.log"
+    log.write_text("xfatal!", encoding="utf-8")
+    entry = {"log": str(log), "errors": errors, "scan_offset": 7, "scan_tail": "xfatal!"}
+    assert [jobs._error_match(entry, complete=True) for _ in range(4)] == [True, False, False, False]
+
+
+@pytest.mark.parametrize("errors", [[r"fatal\b|!$"], [r"fatal\b", "!$"]])
+def test_old_scan_state_still_repeats_once_after_a_scan_of_the_running_job(project, errors) -> None:
+    """astra 8.0.1 JB21: a first scan while the job ran held both old matches and dropped the old state's
+    mark, so the finished job reported them one after the other. Each CLI call reloads jobs.json."""
+    log = project.root / "old_running.log"
+    log.write_text("xfatal!", encoding="utf-8")
+    entry = {"log": str(log), "errors": errors, "scan_offset": 7, "scan_tail": "xfatal!"}
+    reports = []
+    for complete in (False, True, True, True):
+        entry = json.loads(json.dumps(entry))
+        reports.append(jobs._error_match(entry, complete=complete))
+    assert reports == [False, True, False, False]
+    assert "scan_legacy_end" in entry  # nothing new was read, so the old tail's end can still be re-examined
+    with log.open("a", encoding="utf-8") as handle:
+        handle.write(" then more text")
+    assert not jobs._error_match(entry, complete=True)
+    assert "scan_legacy_end" not in entry
+
+
+def test_monitor_reports_old_scan_state_matches_once(project) -> None:
+    """astra 8.0.1 JB21, through `ro monitor`: two old matches add one incident, not one per monitor."""
+    log = project.root / "old_monitor.log"
+    log.write_text("xfatal!", encoding="utf-8")
+    entry = {"id": "J-A-0009", "item": "H-A-01", "slot": "A", "status": "launch-failed",
+             "outcome": "runner failed at start", "ended": time.time() - 30, "pid": 999999999, "start": "gone",
+             "tree_owned": True, "child_started": True, "windows_job": "ro-missing-job-object", "tree_empty": True,
+             "started": time.time() - 60, "expect": 30, "run_dir": str(project.root), "bound": [], "inputs": [],
+             "log": str(log), "errors": [r"fatal\b", "!$"], "scan_offset": 7, "scan_tail": "xfatal!"}
+    project.write_json("jobs.json", [entry])
+    counts = []
+    for _ in range(3):
+        jobs.monitor(project, "J-A-0009")
+        counts.append(len(stored(project).get("incidents", [])))
+    assert counts == [1, 1, 1]
+    assert stored(project)["outcome"] == "runner failed at start"
+
+
+def test_old_scan_state_mark_is_dropped_once_new_text_moves_past_it(project) -> None:
+    """A new error after the old tail is still reported on its own once the old tail lies behind the scan."""
+    log = project.root / "old_moving.log"
+    log.write_text("xfatal! and more", encoding="utf-8")
+    entry = {"log": str(log), "errors": [r"fatal\b"], "scan_offset": 7, "scan_tail": "xfatal!"}
+    assert [jobs._error_match(entry) for _ in range(2)] == [True, False]
+    assert "scan_legacy_end" not in entry
+    with log.open("a", encoding="utf-8") as handle:
+        handle.write(" fatal!")
+    assert [jobs._error_match(entry, complete=True) for _ in range(2)] == [True, False]
+
+
 def test_old_scan_state_repeats_a_report_at_most_once(project) -> None:
     """astra round 11-12 / Fable U1: the starting point is saved, so later scans do not report again."""
     log = project.root / "old_end.log"
