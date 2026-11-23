@@ -10,7 +10,7 @@
 
 A plugin for Claude Code, Codex, and Google Antigravity that keeps work projects, research, and competitions moving across AI sessions. It bundles a skill, host hooks, the `ro` command-line tool, and a read-only reviewer agent. Four Markdown files hold the settings, the work queue, reusable findings, and a durable handoff. A preset decides how sessions share the queue, who reviews a finding, and which evidence checks apply.
 
-**Release 8.0.2.** Changes are listed in [CHANGELOG.md](CHANGELOG.md). This release reads projects created or upgraded by release 6.0 or later; the Upgrading section below covers older ones.
+**Release 8.0.3.** Changes are listed in [CHANGELOG.md](CHANGELOG.md). This release reads projects created or upgraded by release 6.0 or later; the Upgrading section below covers older ones.
 
 ## Why use it
 
@@ -289,7 +289,7 @@ The work profile keeps one session summary instead, updated as items finish:
 5. **Follow-ups**: queue what the result implies, or record why nothing follows.
 6. **Close**: remove the finished item from `plan.md`. Finish discovery, event, follow-ups, and removal together before starting something else.
 
-`ro close-item <item> --from <draft>` performs steps 3 to 6 as one checked, journaled transaction. The draft holds the `## D-…` discoveries, the `## Event` fields, and optional `## Follow-ups` items. `--dry-run` previews the result, and `--recover` completes or rolls back an interrupted close; while one is pending, record writes, launches, and external actions are refused. A stage of a staged item is logged with `ro event <item>/sN`. The work profile's session summary (see Record formats) is edited in place instead; `ro event` refuses to append one.
+`ro close-item <item> --from <draft>` performs steps 3 to 6 as one checked, journaled transaction. The draft holds the `## D-…` discoveries, the `## Event` fields, and optional `## Follow-ups` items. `--dry-run` previews the result, and `--recover` completes or rolls back an interrupted close; while one is pending, record writes, launches, and external actions are refused. A stage of a staged item is logged with `ro event <item>/sN`. In the work profile, a finished item can instead be listed in the session summary's `Completed:` line (see Record formats); that summary is edited in place, because `ro event` refuses to append one. An item closed with `ro close-item` has its own event and stays out of that line.
 
 After closing a project, use the [post-close review](skills/research-orchestrator/references/postmortem.md) to record lessons. For host limits or 429/503 failures, apply the [fresh-session retry rule](skills/research-orchestrator/references/compute.md).
 

@@ -444,6 +444,43 @@ def check_readme_headings(errors: list[str]) -> None:
             errors.append(f"{name}: heading structure differs from README.md")
 
 
+def ro_subcommands() -> list[str]:
+    """The subcommands of the shipped `ro` parser, read from the parser itself rather than its help text."""
+    scripts = str(SKILL / "scripts")
+    sys.path.insert(0, scripts)  # ro.py imports its sibling modules
+    try:
+        spec = importlib.util.spec_from_file_location("_ro_cli_release", SKILL / "scripts" / "ro.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    finally:
+        sys.path.remove(scripts)
+    groups = [action for action in module.parser()._actions if isinstance(action, argparse._SubParsersAction)]
+    return sorted(groups[0].choices)
+
+
+def check_readme_cli_table(errors: list[str], root: Path = ROOT) -> None:
+    """Every `ro` subcommand has a row in each README's CLI table: 8.0.0 and 8.0.1 shipped four commands
+    (`event`, `set-field`, `close-item`, `seal`) that no README listed, and only the release line was checked.
+
+    Scope: a row for a variant (`jobs --reconcile`) counts for its command; sub-subcommands (`receipt check`),
+    options, and rows for commands that no longer exist are not checked."""
+    commands = ro_subcommands()
+    for name in READMES:
+        prose = markdown_prose((root / name).read_text(encoding="utf-8"))
+        section = re.search(r"(?ms)^## [^\n]*`ro` CLI[^\n]*\n(.*?)(?=^## |\Z)", prose)
+        if not section:
+            errors.append(f"{name}: no `ro` CLI section")
+            continue
+        # The first cell of each row; `\|` inside a code span is part of the cell.
+        rows = [line.strip() for line in section.group(1).splitlines()]
+        cells = [re.split(r"(?<!\\)\|", row)[1] for row in rows if re.match(r"\|\s*`", row)]
+        # `close` must not be satisfied by `close-item`: a command name ends at a space or the code span's end.
+        missing = [command for command in commands
+                   if not any(re.search(rf"`{re.escape(command)}(?=[ `])", cell) for cell in cells)]
+        if missing:
+            errors.append(f"{name}: the `ro` CLI table has no row for {', '.join(missing)}")
+
+
 def markdown_prose(text: str) -> str:
     """Ignore fenced examples when checking rendered links and heading anchors."""
     lines, fence = [], ""
@@ -945,6 +982,7 @@ def main(argv: list[str] | None = None) -> int:
     check_frontmatter(errors)
     check_readmes(errors)
     check_readme_headings(errors)
+    check_readme_cli_table(errors)
     check_local_links(errors)
     for path in DOCS:
         check_doc(path, errors)
@@ -970,6 +1008,7 @@ def main(argv: list[str] | None = None) -> int:
     print("- core, current templates, and general references remain domain-neutral; specialized evidence uses plain terms")
     print("- SKILL.md frontmatter has only name and description")
     print("- all READMEs have the language switcher, working links, valid SVGs, and the same structure")
+    print("- every README's `ro` CLI table has a row for every subcommand of the shipped parser")
     print("- PLAN, DISCOVERIES, and HANDOFF blocks use the exact field order (docs, references, templates, example)")
     print("- concrete Priority values match the formula")
     print("- real handoff events list new plan items and discovery updates or give 'none - <reason>'")

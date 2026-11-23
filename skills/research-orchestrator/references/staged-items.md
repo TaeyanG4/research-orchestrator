@@ -10,7 +10,7 @@ A long item may declare its stages after the ordinary item fields:
 ```
 
 - Stage numbers are unique; names are short.
-- For work, collect operational progress in the session summary's `Action` and `Result`; add the bare item ID to `Completed` only when the whole item finishes. Record each changed stage separately with the heading `### YYYY-MM-DD HH:MM — <slot> — H-A-01/s2`. Research and competition use that heading for all stage progress. A `/sN` event never completes or removes the item.
+- For work, collect operational progress in the session summary's `Action` and `Result`; add the bare item ID to `Completed` only when the whole item finishes, unless `ro close-item` closes it with its own event. Record each changed stage separately with the heading `### YYYY-MM-DD HH:MM — <slot> — H-A-01/s2`. Research and competition use that heading for all stage progress. A `/sN` event never completes or removes the item.
 - A stage that changes a decision produces one discovery and carries `Decision: changed` after the usual event fields, listing that discovery under `Discovery updates`. Any other stage event is operational: omit `Decision` or write `Decision: operational`.
 - The checker warns about a stage event for an item without `Stages:` (`event.stage.undeclared`) or for a stage not in its list (`event.stage.beyond`).
 

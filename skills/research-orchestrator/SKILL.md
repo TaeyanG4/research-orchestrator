@@ -59,7 +59,7 @@ Another active slot's resumable state and detailed evidence are private, so reas
 5. **Follow-ups:** decide what the result changes using the follow-up procedure in the plan-items reference, including a reason when nothing follows.
 6. **Remove:** delete the completed item from the live queue; do not keep `[done]` items. Complete discovery → event → follow-ups → removal together (`ro close-item` writes all four) before starting something else.
 
-For `work` (`quick`, `work-project`), use compact items in queue or header `Next:` order; scores are optional. Keep reusable discoveries, dated changed-stage events, and one session summary with `Completed: <IDs>`, finalized at close. See plan-items and records for formats. Duplicate checks apply. Research and competition keep per-item records; header `Ordering: queue` makes scores optional there too.
+For `work` (`quick`, `work-project`), use compact items in queue or header `Next:` order; scores are optional. Keep reusable discoveries, dated changed-stage events, and one session summary with `Completed: <IDs>` (not items `ro close-item` closed), finalized at close. See plan-items and records for formats. Duplicate checks apply. Research and competition keep per-item records; header `Ordering: queue` makes scores optional there too.
 
 When the queue empties, follow the workflow's search order. Stop when nothing worthwhile remains; never invent low-value work to fill a queue.
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## 8.0.3
+
+Two follow-ups from the 8.0.2 README review. Projects need no change.
+
+### Fixed
+
+- The work profile's completion record is stated once: `SKILL.md`, `references/records.md`, `references/staged-items.md` and the READMEs say a finished item is either listed in the session summary's `Completed:` line, which is edited in place (`ro event` refuses to append one), or closed with `ro close-item`, whose own event completes it, so the summary leaves that item out. The checker already accepted both; the generated working rules recommend `ro close-item` in every profile, while `records.md` described only the summary. The templates keep their wording until the next template version.
+
+### Added
+
+- `scripts/validate_release.py` checks that each README's `ro` CLI table has a row for every subcommand of the shipped parser; `close-item` does not stand in for `close`, while a variant row such as `jobs --reconcile` counts for its command. 8.0.0 and 8.0.1 shipped four commands without a row because only the README release line was checked.
+
 ## 8.0.2
 
 Documentation only: the READMEs still described 7.0.0 apart from their release line. Projects need no change.

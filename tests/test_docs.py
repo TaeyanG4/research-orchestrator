@@ -189,3 +189,31 @@ def test_release_checks_nested_data_references_and_broken_links(tmp_path, monkey
     assert "references/start.md: broken link lost.md" in errors
     assert "references/nested/details.md is not reachable from SKILL.md" in errors
     assert not any("data.json" in error for error in errors)
+
+
+def test_readme_cli_tables_list_every_ro_subcommand(tmp_path):
+    """8.0.0 and 8.0.1 shipped `event`, `set-field`, `close-item` and `seal` with no README row."""
+    commands = release.ro_subcommands()
+    assert {"event", "set-field", "close-item", "seal", "claim", "release", "receipt", "hook"} <= set(commands)
+    errors = []
+    release.check_readme_cli_table(errors)
+    assert errors == []
+    for name in release.READMES:
+        shutil.copy(ROOT / name, tmp_path / name)
+    korean = tmp_path / "README.ko.md"
+    text = korean.read_text(encoding="utf-8")
+    # Drop the `seal` row and the `close` row: `close-item` must not stand in for `close`.
+    text = re.sub(r"(?m)^\| `seal <file>`.*\n", "", text)
+    text = re.sub(r"(?m)^\| `close` \|.*\n", "", text)
+    korean.write_text(text, encoding="utf-8")
+    release.check_readme_cli_table(errors, tmp_path)
+    assert errors == ["README.ko.md: the `ro` CLI table has no row for close, seal"]
+    # Rows that render the same (indented, or no space after the first pipe) are read (astra 8.0.3 review).
+    japanese = tmp_path / "README.ja.md"
+    text = japanese.read_text(encoding="utf-8")
+    text = re.sub(r"(?m)^\| `seal <file>`", "|`seal <file>`", text)
+    text = re.sub(r"(?m)^\| `close` \|", "  | `close` |", text)
+    japanese.write_text(text, encoding="utf-8")
+    errors = []
+    release.check_readme_cli_table(errors, tmp_path)
+    assert errors == ["README.ko.md: the `ro` CLI table has no row for close, seal"]
