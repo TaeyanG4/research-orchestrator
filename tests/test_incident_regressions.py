@@ -271,6 +271,42 @@ def test_hand_written_ledger_entry_points_to_external_check(tmp_path):
     assert "ro external --check" in context
 
 
+def directory_alias(target: Path, alias: Path) -> bool:
+    """A second spelling of one folder: a junction on Windows, a symlink elsewhere."""
+    try:
+        if os.name == "nt":
+            import _winapi
+            _winapi.CreateJunction(str(target), str(alias))
+        else:
+            alias.symlink_to(target, target_is_directory=True)
+    except (OSError, ImportError, AttributeError):
+        return False
+    return True
+
+
+def test_hand_written_event_is_seen_through_another_spelling_of_the_project(tmp_path):
+    """CI 8.0.0-8.0.3: the project root is resolved, but the host wrote the edit path through another
+    spelling of the same folder (Windows `RUNNER~1`, macOS `/var` for `/private/var`), so the hint was
+    lost on Windows and macOS runners. A junction or symlink reproduces that on any machine."""
+    real = tmp_path / "real"
+    project = project_at(real)
+    (real / "handoff.md").write_text("# H\n", encoding="utf-8")
+    if not directory_alias(real, tmp_path / "alias"):
+        pytest.skip("this host cannot create a directory junction or symlink")
+    aliased = str(tmp_path / "alias" / "handoff.md")
+    payload = edit_payload(aliased, "# H\n", "# H\n\n### 2026-11-10 05:26 — A — H-A-01\n- Action: x\n")
+    context = hooks.hook(project, "PostToolUse", payload).get("hookSpecificOutput", {}).get("additionalContext", "")
+    assert "records.direct" in context
+    # The relative form through the aliased working folder names the same file.
+    call = checks.Call("Edit", paths=["handoff.md"], added="### 2026-11-10 05:26 — A — none\n")
+    assert [f.check for f in checks.record_hints(call, project.root, str(tmp_path / "alias"))] == ["records.direct"]
+    # Another file reached through the alias is still not the project's handoff.md.
+    (real / "archive").mkdir()
+    other = checks.Call("Edit", paths=[str(tmp_path / "alias" / "archive" / "handoff.md")],
+                        added="### 2026-11-10 05:26 — A — none\n")
+    assert checks.record_hints(other, project.root) == []
+
+
 def test_editing_an_existing_event_body_is_quiet(tmp_path):
     call = checks.Call("Edit", paths=[str(tmp_path / "handoff.md")],
                        removed="### 2026-11-10 05:26 — A — H-A-01\n- Action: x",

@@ -1163,7 +1163,7 @@ def record_hints(call: Call, root: Path | str | None = None, cwd: str | None = N
         record = literal_path(str(Path(root) / "handoff.md"), root)
     for path, added, removed in call.edits or [(path, call.added, call.removed) for path in call.paths]:
         # The project's own handoff.md, not an archive copy of the same name; without a root, the name.
-        same = literal_path(path, base) == record if root is not None else handoff_path(path)
+        same = same_host_path(literal_path(path, base), record) if root is not None else handoff_path(path)
         if not same:
             continue  # Each file is judged on its own lines; a heading moved into handoff.md is new there.
         events |= bool(headings(EVENT_HEADING, added) - headings(EVENT_HEADING, removed))
@@ -1185,6 +1185,20 @@ def literal_path(value: str, base: Path | str) -> str:
     value = str(value)
     path = os.path.normpath(value if os.path.isabs(value) else os.path.join(str(base), value))
     return os.path.normcase(path)
+
+
+def same_host_path(left: str, right: str) -> bool:
+    """Two host paths name one file: literally, or after resolving links, junctions and 8.3 short names.
+
+    The project root is resolved, but a host may write the path through another spelling of the same
+    folder (Windows `C:\\Users\\RUNNER~1`, macOS `/var` for `/private/var`); resolving follows the
+    file system and expands no pattern, so `archive[2026]` stays a folder (CI 8.0.0-8.0.3)."""
+    if left == right:
+        return True
+    try:
+        return os.path.normcase(os.path.realpath(left)) == os.path.normcase(os.path.realpath(right))
+    except (OSError, ValueError):
+        return False
 
 
 def handoff_path(path: str) -> bool:

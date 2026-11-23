@@ -1310,8 +1310,10 @@ def test_multi_monitor_survives_a_prune_of_a_reported_job(project, monkeypatch) 
 
     def sleep_then_prune(seconds):
         if not pruned and any(jobs.monitor_outcome(entry) for entry in project.read_json("jobs.json", [])):
-            jobs.jobs(project, prune=True)  # another session tidies the registry meanwhile
+            # Mark first: on POSIX the prune's own process checks wait in subprocess, which calls this
+            # patched sleep again; marking after recursed until CI's Ubuntu runner failed (8.0.0-8.0.3).
             pruned.append(True)
+            jobs.jobs(project, prune=True)  # another session tidies the registry meanwhile
         real_sleep(seconds)
 
     monkeypatch.setattr(jobs.time, "sleep", sleep_then_prune)

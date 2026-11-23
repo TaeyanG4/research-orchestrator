@@ -1,5 +1,14 @@
 # Changelog
 
+## 8.0.4
+
+Fixes the two causes of the failing GitHub Actions runs since 8.0.0 (all three runners). Projects need no change.
+
+### Fixed
+
+- `records.direct` compares the edited path with the project's `handoff.md` literally and then by resolving links, junctions and 8.3 short names. The project root is resolved, but a host can write the path through another spelling of the same folder (Windows `C:\Users\RUNNER~1`, macOS `/var` for `/private/var`), and the hint was lost there; resolving expands no pattern, so `archive[2026]` stays a folder. This failed three tests on the Windows and macOS runners, whose temporary folders use those spellings.
+- A monitor test patched `time.sleep` and pruned inside it; on Linux the prune's process checks wait through the same patched sleep, which recursed until the Ubuntu runner failed. The test marks the prune before running it.
+
 ## 8.0.3
 
 Two follow-ups from the 8.0.2 README review. Projects need no change.
