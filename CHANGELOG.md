@@ -1,5 +1,15 @@
 # Changelog
 
+## 8.0.2
+
+Documentation only: the READMEs still described 7.0.0 apart from their release line. Projects need no change.
+
+### Fixed
+
+- The four READMEs (English, Korean, Japanese, Simplified Chinese) describe 8.0: the record commands (`ro event`, `ro close-item`, `ro set-field`, `ro seal`) and what they refuse, the work profile's session summary, multi-job `ro monitor`, `ro jobs --running` and `--reconcile`, `ro launch --require-seal` and its refusals, `ro external --check` and `--success-regex`, `ro index <H-ID>`, a new section on delegated agents and the marker-line scope of its hook check, the `shell.backslash`, `fs.delete` and `records.direct` warnings (`records.direct` reports after the edit), and upgrading to template v3.6 with the new warnings that can fail `--strict`. The CLI table lists every `ro` subcommand.
+- The README launch example runs `../../scripts/bench.py` from its run folder; `scripts/bench.py` there resolved against `--run-dir`, which 8.0 refuses as a missing script.
+- `references/migration.md` names release 8.0 and the move to template v3.6.
+
 ## 8.0.1
 
 Closes the minor findings the two independent reviews left at the 8.0.0 release. Projects need no change.

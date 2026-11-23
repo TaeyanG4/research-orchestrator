@@ -10,7 +10,7 @@
 
 Claude Code, Codex, Google Antigravity에서 쓰는 플러그인으로, 업무 프로젝트·연구·대회 작업이 여러 AI 세션에 걸쳐 끊기지 않고 이어지게 합니다. 스킬, 호스트 훅, `ro` 명령줄 도구, 읽기 전용 리뷰어 에이전트를 함께 제공합니다. 네 개의 Markdown 파일이 설정, 작업 큐, 재사용할 수 있는 발견, 지속되는 인계 기록을 담습니다. 프리셋은 세션이 큐를 나누는 방식, 발견을 검토할 주체, 적용할 근거 검사를 정합니다.
 
-**릴리스 8.0.1.** 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 이 릴리스는 6.0 이후 릴리스로 만들었거나 올린 프로젝트를 읽습니다. 그보다 오래된 프로젝트는 아래 업그레이드 섹션을 참고하세요.
+**릴리스 8.0.2.** 변경 사항은 [CHANGELOG.md](CHANGELOG.md)에 있습니다. 이 릴리스는 6.0 이후 릴리스로 만들었거나 올린 프로젝트를 읽습니다. 그보다 오래된 프로젝트는 아래 업그레이드 섹션을 참고하세요.
 
 ## 왜 사용하나요
 
@@ -99,7 +99,7 @@ ro --session <host-session> --slot A close
 | `discoveries.md` | 근거와 검토 상태를 갖춘 재사용 가능한 발견 | 원 슬롯이 항목을 쓰고 고칩니다. 적격 리뷰어가 검토 줄을 더하고 `Cross-check`를 정합니다 |
 | `handoff.md` | 공유 상태, 이벤트 기록, 외부 행동, 각 슬롯의 재개 지점 | 각 슬롯은 자기 `### Agent:` 섹션만 고칩니다. 모든 세션이 이벤트를 추가하고 Shared state 값을 갱신합니다 |
 
-공유 파일을 고치기 전에 다시 읽고 해당 섹션만 고치거나 항목을 덧붙이세요. 그래야 오래된 사본이 다른 세션의 작업을 덮어쓰지 않습니다. 사실은 한 번만 적고 다른 곳에서는 그곳을 가리킵니다. [기록과 공유 파일 수정](skills/research-orchestrator/references/records.md).
+공유 파일을 고치기 전에 다시 읽고 해당 섹션만 고치거나 항목을 덧붙이세요. 그래야 오래된 사본이 다른 세션의 작업을 덮어쓰지 않습니다. 사실은 한 번만 적고 다른 곳에서는 그곳을 가리킵니다. 이벤트, 항목 닫기, 필드 하나 수정은 `ro event`, `ro close-item`, `ro set-field`로 합니다. 이 명령들은 프로젝트 잠금 아래에서 쓰고, 시각은 시계에서 가져오며(이벤트 제목은 항상, 그 밖에는 `{now}`와 `{today}`), 건드리지 않은 바이트는 그대로 두고, 체커가 거부할 내용은 쓰기 전에 거부합니다. 손으로 고치는 것도 여전히 되지만 경고를 받습니다. [기록과 공유 파일 수정](skills/research-orchestrator/references/records.md).
 
 ## 프리셋
 
@@ -145,7 +145,7 @@ python <skill-root>/scripts/check_project.py .
 
 초기화 도구는 네 조정 파일을 쓰고 렌더링 메타데이터를 `.ro/`에 저장합니다. `Language`는 자유 텍스트에만 적용됩니다. 제목, 필드명, ID, 상태 단어, 검사 ID, 설정 키는 체커·훅·`ro`가 동작하도록 영어를 유지합니다.
 
-초기화는 `agents.md`에 `## Working rules`도 적습니다. 그래서 스킬을 불러오지 않은 세션도 작업 추가 전 검색, 결과는 한 곳에만 기록, 깔끔한 종료를 그대로 따릅니다. `CLAUDE.md`가 이미 `agents.md`를 언급하지 않으면 `@agents.md`(Claude Code의 가져오기 문법) 한 줄을 추가합니다(`--no-claude-md`로 생략). `--reconfigure`는 기존 프로젝트를 같은 형태로 올리고 `## Project rules`는 그대로 둡니다. `agents.md`는 매 세션 읽히고 Codex는 앞쪽 32 KiB만 읽으므로, 12 KiB를 넘으면 체커가 `agents.size`를 보고합니다.
+초기화는 `agents.md`에 `## Working rules`도 적습니다. 그래서 스킬을 불러오지 않은 세션도 작업 추가 전 검색, 기록 명령으로 결과를 한 곳에만 기록, `ro brief --delegate`로 위임 브리프 시작, 깔끔한 종료를 그대로 따릅니다. `CLAUDE.md`가 이미 `agents.md`를 언급하지 않으면 `@agents.md`(Claude Code의 가져오기 문법) 한 줄을 추가합니다(`--no-claude-md`로 생략). `--reconfigure`는 기존 프로젝트를 같은 형태로 올리고 `## Project rules`는 그대로 둡니다. `agents.md`는 매 세션 읽히고 Codex는 앞쪽 32 KiB만 읽으므로, 12 KiB를 넘으면 체커가 `agents.size`를 보고합니다.
 
 ## 워크플로
 
@@ -241,7 +241,7 @@ python <skill-root>/scripts/check_project.py .
   - Claude Code (A): CLOSED — reviewer subagent:ro-reviewer@2026-10-27T10:02 — reviewed 2026-10-27T10:15 — reran the benchmark: 8.5 s median
 ```
 
-**인계 이벤트.** 연구와 대회는 끝난 항목마다 하나씩 추가하며, 제목은 항목 ID로 끝납니다:
+**인계 이벤트.** 연구와 대회는 끝난 항목마다 `ro event <item>`이나 `ro close-item`으로 하나씩 추가합니다. 제목의 시각은 시계에서, 호스트와 사용자는 슬롯에서 가져오며, 제목은 항목 ID로 끝납니다:
 
 ```markdown
 ### 2026-10-27 10:20 — A — H-A-03
@@ -268,6 +268,8 @@ work 프로필은 대신 세션 요약 하나를 두고 항목이 끝날 때마�
 - Completed: H-A-02
 ```
 
+**기록 고치기.** `ro set-field <ID> <field> <value>`는 계획 항목의 `Next test` 같은 줄 하나를 바꿉니다. `ro set-field shared "Current best" <value>`는 Shared state 값을 바꾸고, `--add`는 `Correction: ({now}) …`처럼 기록에 없는 필드를 덧붙입니다. 값 안의 `{now}`와 `{today}`는 시계의 시각과 날짜로 바뀌므로 시각을 손으로 적지 않습니다. `Claimed`, 기록부 `Status`, `Source`, 검토 필드처럼 다른 명령이 관리하거나 작성자를 기록하는 필드는 거부합니다.
+
 **항목을 추가하기 전에** `ro dupcheck <terms>`를 실행하고 발견 색인(`ro index`)을 읽으세요. 같은 주장의 `VERIFIED` 결과가 있으면 `Improvement`를 갖춘, 실질적으로 다른 후속 항목만 추가할 수 있고, `CHALLENGED`는 이의가 해결될 때까지 기다리며, `PENDING`은 반복하기보다 검토하는 편이 낫습니다. 대기 항목의 제목과 `Hypothesis`/`Goal` 줄도 훑어보고, 쓰기 직전에 `plan.md`를 다시 읽으세요. 그사이 같은 항목이 생겼다면 먼저 생긴 항목을 남깁니다.
 
 **스크립트를 작성하기 전에는** 도구 목록을 검색하고(`ro tools <terms>`), 목록에 있는 도구는 복사하지 말고 버전을 올려 고쳐 씁니다([도구 목록](skills/research-orchestrator/references/tools.md)).
@@ -286,6 +288,8 @@ work 프로필은 대신 세션 요약 하나를 두고 항목이 끝날 때마�
 4. **이벤트**: 발견을 가리키는 이벤트를 `handoff.md`에 추가합니다.
 5. **후속 항목**: 결과가 시사하는 항목을 큐에 넣거나, 아무것도 이어지지 않는 이유를 기록합니다.
 6. **닫기**: 끝난 항목을 `plan.md`에서 지웁니다. 발견, 이벤트, 후속 항목, 삭제를 함께 마친 뒤 다른 일을 시작합니다.
+
+`ro close-item <item> --from <draft>`는 3–6단계를 검사와 저널을 거치는 트랜잭션 하나로 처리합니다. 초안에는 `## D-…` 발견, `## Event` 필드, 선택적인 `## Follow-ups` 항목을 적습니다. `--dry-run`은 결과를 미리 보여 주고, `--recover`는 중단된 닫기를 마저 끝내거나 되돌립니다. 중단된 닫기가 남아 있는 동안에는 기록 쓰기, 작업 시작, 외부 행동을 거부합니다. 단계형 항목의 단계는 `ro event <item>/sN`으로 기록합니다. work 프로필의 세션 요약(기록 형식 참고)은 대신 그 자리에서 고칩니다. `ro event`는 세션 요약을 새로 덧붙이지 않고 거부합니다.
 
 프로젝트 종료 후 [사후 검토](skills/research-orchestrator/references/postmortem.md)로 교훈을 기록합니다. 호스트 한도나 429/503 오류에는 [새 세션 재시도 규칙](skills/research-orchestrator/references/compute.md)을 적용합니다.
 
@@ -330,15 +334,21 @@ work 프로필(`quick`, `work-project`)은 더 가볍습니다. 점수와 Priori
 ```
 
 ```text
-ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python scripts/bench.py --runs 20 --cold
-ro monitor <job>
-ro jobs
+ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python ../../scripts/bench.py --runs 20 --cold
+ro monitor <job> [<job> ...]
+ro jobs --running
 ro kill <job>
 ```
 
-출력된 모니터 명령을 바로 시작하세요. 시작이 확인되었다는 것은 작업이 시작되었다는 뜻일 뿐입니다. `ro monitor`는 작업이 끝나거나, 오류 패턴과 일치하거나, 설정한 하트비트 한도를 넘어 조용하거나, 예상 시간의 두 배를 넘길 때까지 따라갑니다. `ro jobs`는 작업과 모니터 상태를 나열하고, `ro kill`은 내 슬롯이 소유하고 신원이 확인된 프로세스 트리를 중지합니다. 출력된 Job 줄을 `handoff.md`에 추가하고 산출물을 확인한 뒤, 작업이 확실히 끝난 다음에만 점유를 지우세요. 필요한 자원이 바쁘면 독립적인 작업이나 적격 검토를 하거나 `Blocker:`를 기록합니다. 두 항목은 모두 `Parallel: YES`이고 측정한 용량이 충분할 때만 자원을 나눠 씁니다. `ro launch`는 로컬 CPU와 GPU만 예약하므로 `Other` 자원에는 자체 잠금이나 스케줄러 예약이 필요합니다.
+출력된 모니터 명령을 바로 시작하세요. 시작이 확인되었다는 것은 작업이 시작되었다는 뜻일 뿐입니다. `ro monitor`는 작업 하나 이상을 따라가며, 각 작업이 끝나거나, 오류 패턴과 일치하거나, 설정한 하트비트 한도를 넘어 조용하거나, 예상 시간의 두 배를 넘길 때까지 지켜봅니다. `ro jobs`는 작업과 모니터 상태를 나열하고(`--running`: 소유권을 가졌거나 결과가 없는 작업만), `ro kill`은 내 슬롯이 소유하고 신원이 확인된 프로세스 트리를 중지합니다. 호스트가 재시작된 뒤에는 `ro jobs --reconcile <job> --evidence <text>`로 프로세스가 사라진 작업을 닫습니다. 다른 머신의 작업이나 실행기가 아직 살아 있는 작업은 거부합니다. `ro launch`는 시작 전에, 알려진 인터프리터 뒤에 적힌 스크립트가 없거나 하트비트 파일의 폴더가 없으면 거부하고, `--require-seal <file>`은 `ro seal` 뒤에 봉인한 파일(사전 등록한 판정 규칙 등)이 바뀌었으면 실행을 거부합니다. 출력된 Job 줄을 `handoff.md`에 추가하고 산출물을 확인한 뒤, 작업이 확실히 끝난 다음에만 점유를 지우세요. 필요한 자원이 바쁘면 독립적인 작업이나 적격 검토를 하거나 `Blocker:`를 기록합니다. 두 항목은 모두 `Parallel: YES`이고 측정한 용량이 충분할 때만 자원을 나눠 씁니다. `ro launch`는 로컬 CPU와 GPU만 예약하므로 `Other` 자원에는 자체 잠금이나 스케줄러 예약이 필요합니다.
 
 [작업자와 독점 자원](skills/research-orchestrator/references/compute.md), [시작, 모니터, 중지](skills/research-orchestrator/references/operations-safety.md#lookup-launch-monitor-and-stop).
+
+## 위임 에이전트
+
+위임 에이전트(서브에이전트, 다른 호스트의 모델, 작업자 명령줄 도구)에게는 스킬, `agents.md`, 위임하는 세션의 기억이 주어지지 않습니다. 확실히 전달되는 것은 브리프뿐입니다. 그 브리프는 `ro brief --delegate <item>`의 출력으로 시작하세요(단계는 `<item>/sN`, 계획 밖의 일은 `none`). 이 머리말은 절대 경로 실행 폴더 하나만 쓰기 범위로 정하고 삭제를 금지합니다. 자원 한도와 시계 시각을 요구하고, 긴 실행은 `ro launch`로 보내며, 차단 검사의 실제 범위를 밝히고, 7개 부분으로 된 보고 형식을 정합니다. 머리말의 명령에는 프로젝트와 슬롯이 들어가고, 설정된 셸의 문법을 씁니다.
+
+`quick`을 뺀 모든 기본 제공 프리셋은 `Brief requirements: general-purpose: ro-delegate: v1`을 설정합니다. 그래서 general-purpose Agent 브리프(유형을 생략하면 general-purpose로 봄)에 머리말의 표식 줄이 없으면 훅이 경고하고 그 줄을 알려 줍니다. 이 검사는 그 줄만 찾습니다. 머리말의 나머지를 검증하지도, 에이전트가 따랐다는 것을 증명하지도 않습니다. [위임](skills/research-orchestrator/references/delegation.md).
 
 ## `ro` CLI
 
@@ -348,21 +358,29 @@ ro kill <job>
 | --- | --- |
 | `next-id {D,H,I,X,N}` | 다음 발견, 계획 항목, 측정 도구, 외부 행동, 메모 ID 예약 |
 | `dupcheck <terms>` | 작업을 추가하기 전에 보관된 기록을 포함해 제목과 핵심 줄 검색 |
-| `index [ID] [--full]` | Finding을 잘라 보여 주는 현재 발견 색인(`--full`: 전체 줄과 보관 요약 포함), 또는 보관된 것을 포함한 항목 하나의 전체 내용 출력 |
+| `index [ID] [--full]` | Finding을 잘라 보여 주는 현재 발견 색인(`--full`: 전체 줄과 보관 요약 포함), 또는 발견 하나(보관된 것 포함)나 계획 항목 하나의 전체 내용 출력 |
 | `archive {discoveries,events,restore}` | 체커가 `history.size`를 보고하면 정리된 발견이나 오래된 기록을 `docs/archive/`로 이동; `restore <ID>`는 보관된 발견을 고치려고 되돌림; `--before`, `--dry-run` |
 | `tools [terms] [--init]` | 스크립트를 작성하기 전에 `docs/tools.md` 도구 목록 검색; `--init`은 사용 원칙을 담아 목록 생성 |
 | `claim <item>`, `release <item>` | 프로젝트 잠금 아래 unified 큐 항목 점유, 또는 해제 |
-| `launch --item … --expect … -- <command>` | 묶인 입력과 출력, 오류 패턴, 하트비트, 확인 구간, 선택적 `--require-receipt`를 갖춘 소유 작업 시작 |
-| `monitor <job>`, `jobs [--prune]`, `kill <job>` | 작업을 결과까지 추적, 작업과 모니터 상태 나열, 신원을 확인한 소유 프로세스 트리 중지 |
+| `launch --item … --expect … -- <command>` | 묶인 입력과 출력, 오류 패턴, 하트비트, 확인 구간, 선택적 `--require-receipt` 또는 `--require-seal`을 갖춘 소유 작업 시작 |
+| `monitor <job>…`, `jobs [--prune] [--running]`, `kill <job>` | 작업 하나 이상을 결과까지 추적, 작업과 모니터 상태 나열, 신원을 확인한 소유 프로세스 트리 중지 |
+| `jobs --reconcile <job> --evidence <text>` | 호스트 재시작 등으로 프로세스가 사라진 작업 닫기; 다른 머신의 작업이나 살아 있는 실행기는 거부 |
+| `event <item\|item/sN\|none>` | 시계 시각과 슬롯의 호스트·사용자로 인계 이벤트 추가(필드 옵션 또는 `--from <file>`); 형식이 틀린 이벤트는 쓰기 전에 거부 |
+| `close-item <item> --from <draft>` | 초안의 발견, 이벤트, 후속 항목을 넣고 항목을 지우는 일을 저널 트랜잭션 하나로 처리; `--dry-run`, `--recover` |
+| `set-field <ID\|slot\|shared> <field> <value>` | 한 줄짜리 필드 하나를 바꾸고 나머지 바이트는 유지; `--add`는 없는 필드 추가; `{now}`/`{today}`는 시계 사용 |
+| `seal <file>` | 파일의 SHA256과 시계 시각을 `<file>.seal.json`에 기록; `--check`는 파일과 봉인 대조 |
 | `receipt add`, `receipt check` | `Receipt policy`에 따라 PASS 또는 FAIL 판정을 산출물의 SHA256에 묶기, 또는 확인 |
-| `external --action <X-id> -- <command>` | 기록부, 영수증, 중복, 시도 이력 검사를 통과한 경우에만 외부 명령 실행 |
+| `external --action <X-id> -- <command>` | 기록부, 영수증, 중복, 시도 이력 검사를 통과한 경우에만 외부 명령 실행; `--check`는 실행 없이 검사만 하고, `--success-regex`는 기대한 출력이 없는 exit 0을 `unknown`으로 기록 |
 | `observe <key> <value>` | 변동성 Shared state 사실 기록; `--source`는 선택 사항, `--ttl` 기본값은 `6h` |
-| `brief [--max N]` | 사실만 담은 세션 요약: 설정, 훅 자체 시험, 슬롯 선택, 점유, 작업, 기한 지난 가드, 체커 건수 |
+| `brief [--max N]` | 사실만 담은 세션 요약: 설정, 훅 자체 시험, 슬롯 선택, 점유, 작업, 기한 지난 가드, 체커 건수, 스킬 버전, 미완료 트랜잭션 |
+| `brief --delegate <item>` | 위임 에이전트 브리프를 시작하는 머리말 출력 |
 | `close` | 실행 중이거나 모니터되지 않은 작업의 점유는 유지하고 나머지는 해제한 뒤 체커 실행 및 잔여 사항 보고 |
 | `hook <event>` | 호스트 훅은 표준 입력 JSON을, `pre-push`는 Git 참조 갱신 행을 받음 |
 | `check <command>` | 명령 문자열에 셸 검사 실행(`--dialect bash` 또는 `powershell`) |
 
 작업은 소유한 프로세스 그룹(Windows에서는 작업 개체)에서 실행됩니다. 작업자가 계속 도는 동안 실행기가 끝나도 바인딩과 점유는 유지되고, 실패한 실행기는 하위 프로세스가 살아 있거나 확인되지 않은 동안 슬롯을 유지합니다. `ro kill`은 슬롯 소유권, PID, 시작 시각을 확인하므로 재사용된 PID를 대상으로 삼지 않습니다. `ro external`은 실행 전에 시도를 저널에 기록하고 그 이력을 산출물 해시와 목적지로 대조하므로, 기록부 항목을 수정·철회·개명해도 이전 시도를 숨길 수 없습니다. 중단되거나 시간이 초과된 행동은 조정될 때까지 `unknown`으로 남습니다.
+
+기록 명령(`event`, `close-item`, `set-field`)은 쓰기 전에 바뀔 파일을 체커로 검증합니다. 새 ERROR와 형식이 틀린 기록에 대한 경고는 모두 거부합니다. 쓰기 자체가 만드는 상태 경고(아직 Shared state에 없는 새 최고점, 검토를 기다리는 단계 등)는 다음 할 일과 함께 메모로 알려 줍니다.
 
 [운영 명령과 그 한계](skills/research-orchestrator/references/operations-safety.md), [외부 행동과 영수증](skills/research-orchestrator/references/external-actions.md).
 
@@ -382,7 +400,7 @@ Codex 훅에 의존하기 전에 `/hooks`에서 신뢰를 설정하세요. `ro` 
 
 - `Enforcement: off`는 아무것도 출력하지 않고, `warn`은 막지 않으며, `block`은 `Block`에 나열된 검사만 거부합니다.
 - **각 셸 호출은 해당 도구의 방언(Bash 또는 PowerShell)으로 파싱합니다.** `Environment`와 달라도 마찬가지이며, `Environment`는 경로 규칙과 대체 셸을 정합니다. 불확실한 파싱은 경고만 하고 막지 않습니다.
-- 호출별 훅은 충돌, 시간 초과, 잘못된 입력, 인터프리터 부재 시 통과시키며, `ro brief`가 훅 자체 시험과 경고 건수를 보고합니다. `ro external`, `ro launch`, Git pre-push 관문은 검증이 실패하거나 실행될 수 없으면 거부하며, pre-push는 메시지와 경로를 포함해 나가는 모든 커밋을 검사합니다.
+- `Block`에 넣지 않으면 경고만 하는 검사로 `shell.backslash`(Windows Bash는 bash 실행 전에 `\\`를 `\`로 바꿈), `fs.delete`(재귀·와일드카드 삭제, 셸마다 따옴표와 옵션 규칙대로 읽음), `records.direct`(Edit나 Codex 패치로 `handoff.md`에 이벤트나 기록부 제목을 손으로 넣는 경우. 파일 전체 쓰기와 셸 편집은 대상이 아님)가 있습니다. `records.direct`는 편집이 끝난 뒤에 알리므로, `Block`에 넣어도 그 편집을 막거나 되돌리지 못합니다.- 호출별 훅은 충돌, 시간 초과, 잘못된 입력, 인터프리터 부재 시 통과시키며, `ro brief`가 훅 자체 시험과 경고 건수를 보고합니다. `ro external`, `ro launch`, Git pre-push 관문은 검증이 실패하거나 실행될 수 없으면 거부하며, pre-push는 메시지와 경로를 포함해 나가는 모든 커밋을 검사합니다.
 - 훅은 협조하는 세션의 사고를 막을 뿐, 적대적 공격에 대한 보안 경계가 아닙니다. 중첩된 인터프리터 본문, here-string 본문, 별칭, 동적 경로, 인코딩된 비밀은 신뢰할 수 있는 파싱 범위 밖입니다.
 
 Claude Code 플러그인은 `AskUserQuestion`과 `Agent`를 구독하며, `Autonomy: away`와 `Brief requirements`가 비활성이면 해당 래퍼는 Python을 생략합니다. Read-bound 구독은 설치 도구에서 선택합니다. SessionStart와 `ro brief`는 Git 체크아웃에 등록된 pre-push 관문이 없을 때만 `publish gate not installed`와 `install.py --project <체크아웃 루트>`를 출력합니다. 등록된 관문이 있으면 호출별 중복 게시 검사를 생략하며, 호출별 사전 검사는 푸시가 실행되는 체크아웃을 읽습니다. 래퍼는 프로젝트 힌트와 명령 작업 디렉터리를 별도로 해석하며 프로젝트 밖에서는 인터프리터가 필요 없습니다. 작업 레지스트리가 없으면 Stop과 편집 검사도 Python을 생략합니다. PostToolUse는 2초 이상 안정된 파일 스탬프만 재사용하고, 브리프는 검토 영수증이나 산출물이 바뀌면 캐시를 갱신하고, 검토 증거는 최대 64 MiB까지만 해시하며 나머지는 미검증으로 표시해 `check_project.py`가 확인하게 합니다. 저장된 Windows 측정의 p95는 프로젝트 밖과 작업 없는 Stop·편집에서 24–39 ms, 일반 셸 검사와 변경 없는 PostToolUse에서 52–123 ms입니다. 검토 디렉터리를 해시하는 전체 시작 SessionStart는 약 157 ms로, 빠른 경로 예산에 속하지 않습니다. 새 감독 하위 프로세스의 측정값을 뜻하지 않습니다.
@@ -391,11 +409,11 @@ Claude Code 플러그인은 `AskUserQuestion`과 `Agent`를 구독하며, `Auton
 
 ## 업그레이드
 
-설치된 플러그인을 업데이트해도 기존 프로젝트는 다시 쓰이지 않습니다. 릴리스 7.0은 `agents.md`에 `<!-- ro-template: ... -->` 표식이 있는 프로젝트(6.0 이후)만 읽습니다. 그보다 오래된 프로젝트는 7.0이 거부하므로 먼저 6.0.x로 올리세요(`init_research_orchestrator.py . --reconfigure`). 수동 설치는 두 사본을 함께 두지 말고 이전 스킬 폴더를 `research-orchestrator`로 교체하세요.
+설치된 플러그인을 업데이트해도 기존 프로젝트는 다시 쓰이지 않습니다. 릴리스 8.0은 `agents.md`에 `<!-- ro-template: ... -->` 표식이 있는 프로젝트(6.0 이후)만 읽습니다. 그보다 오래된 프로젝트는 8.0이 거부하므로 먼저 6.0.x로 올리세요(`init_research_orchestrator.py . --reconfigure`). 템플릿 v3.5 프로젝트는 바꾸지 않아도 동작합니다. 다만 8.0은 새 경고를 낼 수 있습니다. 예를 들어 `Next test`가 길면 `plan.next.size`를, v3.6으로 올리기 전까지는 `agents.rules.stale`을 냅니다. 그래서 `--strict` 실행은 이 경고를 고칠 때까지 실패할 수 있습니다. 수동 설치는 두 사본을 함께 두지 말고 이전 스킬 폴더를 `research-orchestrator`로 교체하세요.
 
 1. 네 파일과 `.ro/` 상태의 복구 가능한 사본을 저장하고, 체커를 실행해 구조 오류를 고치세요.
 2. `agents.md`의 생성된 부분에 직접 쓴 지침을 `## Project rules`로 옮기세요. 재구성은 이 영역을 그대로 보존합니다.
-3. 생성된 설정, 읽기 안내, 작업 원칙을 새로 고칩니다. 템플릿 v3.4 프로젝트는 v3.5로 올라갑니다. 프리셋을 쓰려면 `--preset <preset>`과 그 답을 추가하세요. 두 번째 명령은 classic 프로젝트를 unified 워크플로로 바꿉니다.
+3. 생성된 설정, 읽기 안내, 작업 원칙을 새로 고칩니다. 템플릿 v3.4나 v3.5 프로젝트는 v3.6으로 올라가며, v3.6의 작업 원칙은 위의 기록 명령을 가리킵니다. `Brief requirements`가 `none`인 프로젝트는 그 값을 유지하고, 실행 결과에 새 프리셋 기본값을 안내합니다. 프리셋을 쓰려면 `--preset <preset>`과 그 답을 추가하세요. 두 번째 명령은 classic 프로젝트를 unified 워크플로로 바꿉니다.
 
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure

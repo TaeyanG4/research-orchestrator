@@ -10,7 +10,7 @@
 
 A plugin for Claude Code, Codex, and Google Antigravity that keeps work projects, research, and competitions moving across AI sessions. It bundles a skill, host hooks, the `ro` command-line tool, and a read-only reviewer agent. Four Markdown files hold the settings, the work queue, reusable findings, and a durable handoff. A preset decides how sessions share the queue, who reviews a finding, and which evidence checks apply.
 
-**Release 8.0.1.** Changes are listed in [CHANGELOG.md](CHANGELOG.md). This release reads projects created or upgraded by release 6.0 or later; the Upgrading section below covers older ones.
+**Release 8.0.2.** Changes are listed in [CHANGELOG.md](CHANGELOG.md). This release reads projects created or upgraded by release 6.0 or later; the Upgrading section below covers older ones.
 
 ## Why use it
 
@@ -99,7 +99,7 @@ Every project keeps its coordination state in four lowercase Markdown files at t
 | `discoveries.md` | reusable findings with their evidence and review state | the source slot writes and revises its entry; eligible reviewers add review lines and set `Cross-check` |
 | `handoff.md` | shared state, the event history, external actions, and each slot's resume point | each slot edits only its own `### Agent:` section; every session appends events and updates Shared state values |
 
-Before editing a shared file, re-read it and patch only the relevant section or append an entry, so a stale copy never overwrites another session's work. Store each fact once and point to it elsewhere. [Records and shared-file edits](skills/research-orchestrator/references/records.md).
+Before editing a shared file, re-read it and patch only the relevant section or append an entry, so a stale copy never overwrites another session's work. Store each fact once and point to it elsewhere. Events, item closes, and single-field changes go through `ro event`, `ro close-item`, and `ro set-field`: they write under the project lock, take times from the clock (event headings always; `{now}` and `{today}` elsewhere), keep every untouched byte, and refuse what the checker would reject. A hand edit still works and is only warned about. [Records and shared-file edits](skills/research-orchestrator/references/records.md).
 
 ## Presets
 
@@ -145,7 +145,7 @@ python <skill-root>/scripts/check_project.py .
 
 The initializer writes the four coordination files and stores rendering metadata in `.ro/`. `Language` applies to free text only: headings, field names, IDs, status words, check IDs, and setting keys stay English so the checker, hooks, and `ro` keep working.
 
-Setup also writes `## Working rules` into `agents.md`, so a session that never loads the skill still searches before adding work, records results once and closes cleanly, and adds `@agents.md` (Claude Code's import) to `CLAUDE.md` unless that file already names `agents.md` (`--no-claude-md` skips it). `--reconfigure` brings existing projects to the same layout and keeps `## Project rules`. The checker reports `agents.size` when `agents.md` passes 12 KiB, since every session loads it and Codex reads only the first 32 KiB.
+Setup also writes `## Working rules` into `agents.md`, so a session that never loads the skill still searches before adding work, records results once through the record commands, starts delegated briefs with `ro brief --delegate`, and closes cleanly. It also adds `@agents.md` (Claude Code's import) to `CLAUDE.md` unless that file already names `agents.md` (`--no-claude-md` skips it). `--reconfigure` brings existing projects to the same layout and keeps `## Project rules`. The checker reports `agents.size` when `agents.md` passes 12 KiB, since every session loads it and Codex reads only the first 32 KiB.
 
 ## Workflows
 
@@ -241,7 +241,7 @@ Field names, IDs, and status words stay English; free text follows `Language`. R
   - Claude Code (A): CLOSED — reviewer subagent:ro-reviewer@2026-10-27T10:02 — reviewed 2026-10-27T10:15 — reran the benchmark: 8.5 s median
 ```
 
-**Handoff event.** Research and competition append one per completed item; the heading ends with the item ID:
+**Handoff event.** Research and competition append one per completed item through `ro event <item>` or `ro close-item`, which take the heading time from the clock and the host and user from the slot; the heading ends with the item ID:
 
 ```markdown
 ### 2026-10-27 10:20 — A — H-A-03
@@ -268,6 +268,8 @@ The work profile keeps one session summary instead, updated as items finish:
 - Completed: H-A-02
 ```
 
+**Changing a record.** `ro set-field <ID> <field> <value>` replaces one line, such as a plan item's `Next test`; `ro set-field shared "Current best" <value>` changes a Shared state value, and `--add` appends a field the record lacks, such as `Correction: ({now}) …`. `{now}` and `{today}` in a value become the clock time and date, so no time is typed by hand. Fields that another command owns or that record who wrote an entry, such as `Claimed`, a ledger `Status`, `Source`, or review fields, are refused.
+
 **Before adding an item**, run `ro dupcheck <terms>` and read the discovery index (`ro index`). A `VERIFIED` result with the same claim allows only a materially different follow-up with an `Improvement`, a `CHALLENGED` one waits until its challenge is resolved, and a `PENDING` one is better reviewed than repeated. Scan queued headings and `Hypothesis`/`Goal` lines too, then re-read `plan.md` just before writing; if the same item appeared meanwhile, keep the earlier one.
 
 **Before writing a script**, search the tool registry (`ro tools <terms>`) and extend a listed tool, bumping its version, instead of copying it ([tool registry](skills/research-orchestrator/references/tools.md)).
@@ -286,6 +288,8 @@ The work profile keeps one session summary instead, updated as items finish:
 4. **Event**: append a `handoff.md` event that points to the discovery.
 5. **Follow-ups**: queue what the result implies, or record why nothing follows.
 6. **Close**: remove the finished item from `plan.md`. Finish discovery, event, follow-ups, and removal together before starting something else.
+
+`ro close-item <item> --from <draft>` performs steps 3 to 6 as one checked, journaled transaction. The draft holds the `## D-…` discoveries, the `## Event` fields, and optional `## Follow-ups` items. `--dry-run` previews the result, and `--recover` completes or rolls back an interrupted close; while one is pending, record writes, launches, and external actions are refused. A stage of a staged item is logged with `ro event <item>/sN`. The work profile's session summary (see Record formats) is edited in place instead; `ro event` refuses to append one.
 
 After closing a project, use the [post-close review](skills/research-orchestrator/references/postmortem.md) to record lessons. For host limits or 429/503 failures, apply the [fresh-session retry rule](skills/research-orchestrator/references/compute.md).
 
@@ -330,15 +334,21 @@ Before using an exclusive resource, re-read `handoff.md` and check the machine's
 ```
 
 ```text
-ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python scripts/bench.py --runs 20 --cold
-ro monitor <job>
-ro jobs
+ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python ../../scripts/bench.py --runs 20 --cold
+ro monitor <job> [<job> ...]
+ro jobs --running
 ro kill <job>
 ```
 
-Start the printed monitor command at once: a confirmed launch only proves that the job started. `ro monitor` follows the job until it completes, matches an error pattern, falls silent past a configured heartbeat limit, or runs twice the expected time; `ro jobs` lists jobs and monitor state, and `ro kill` stops an identity-verified process tree that your slot owns. Append the printed Job line to `handoff.md`, inspect the artifacts, and remove the claim only after the job has verifiably ended. While a needed resource is busy, take independent work or an eligible review, or record a `Blocker:`. Two items share a resource only when both are `Parallel: YES` and measured capacity fits; `Other` resources need their own lock or scheduler reservation, because `ro launch` reserves only local CPU and GPU.
+Start the printed monitor command at once: a confirmed launch only proves that the job started. `ro monitor` follows one or more jobs until each completes, matches an error pattern, falls silent past a configured heartbeat limit, or runs twice the expected time; `ro jobs` lists jobs and monitor state (`--running`: only those that hold ownership or lack an outcome), and `ro kill` stops an identity-verified process tree that your slot owns. After a host restart, `ro jobs --reconcile <job> --evidence <text>` closes a job whose processes are gone; it refuses a job of another machine or one whose launcher is still alive. Before starting, `ro launch` refuses a missing script after a known interpreter or a heartbeat whose folder is missing, and `--require-seal <file>` refuses a run whose sealed file, such as a preregistered decision rule, changed after `ro seal`. Append the printed Job line to `handoff.md`, inspect the artifacts, and remove the claim only after the job has verifiably ended. While a needed resource is busy, take independent work or an eligible review, or record a `Blocker:`. Two items share a resource only when both are `Parallel: YES` and measured capacity fits; `Other` resources need their own lock or scheduler reservation, because `ro launch` reserves only local CPU and GPU.
 
 [Workers and exclusive resources](skills/research-orchestrator/references/compute.md), [launch, monitor, and stop](skills/research-orchestrator/references/operations-safety.md#lookup-launch-monitor-and-stop).
+
+## Delegated agents
+
+A delegated agent (a sub-agent, another host's model, or a worker command-line tool) is not given the skill, `agents.md`, or the delegating session's memory; only its brief is certain to reach it. Start that brief with the output of `ro brief --delegate <item>` (`<item>/sN` for a stage, `none` for work outside the plan). The header sets an absolute run folder as the only write scope and forbids deletes. It asks for resource limits and clock times, sends long runs through `ro launch`, states the real scope of blocking checks, and fixes a seven-part report. Its commands name the project and slot in the configured shell's syntax.
+
+Every built-in preset except `quick` sets `Brief requirements: general-purpose: ro-delegate: v1`, so the hook warns when a general-purpose Agent brief (an omitted type counts as one) lacks the header's marker line, and names that line. The check looks only for that line: it does not validate the rest of the header or prove that the agent followed it. [Delegation](skills/research-orchestrator/references/delegation.md).
 
 ## The `ro` CLI
 
@@ -348,21 +358,29 @@ Start the printed monitor command at once: a confirmed launch only proves that t
 | --- | --- |
 | `next-id {D,H,I,X,N}` | reserve the next discovery, plan item, instrument, external action, or note ID |
 | `dupcheck <terms>` | search headings and key lines, including archived records, before adding work |
-| `index [ID] [--full]` | print the live discovery index with findings clipped (`--full`: whole lines and archived stubs), or one full entry, archived ones included |
+| `index [ID] [--full]` | print the live discovery index with findings clipped (`--full`: whole lines and archived stubs), or one full discovery (archived ones included) or one plan item |
 | `archive {discoveries,events,restore}` | move settled discoveries or older events to `docs/archive/` when the checker reports `history.size`; `restore <ID>` brings an archived discovery back to revise it; `--before`, `--dry-run` |
 | `tools [terms] [--init]` | search the `docs/tools.md` registry before writing a script; `--init` creates it with its rules |
 | `claim <item>`, `release <item>` | claim a unified-queue item under the project lock, or release it |
-| `launch --item … --expect … -- <command>` | start an owned job with bound inputs and outputs, error patterns, heartbeat, a confirmation window, and optional `--require-receipt` |
-| `monitor <job>`, `jobs [--prune]`, `kill <job>` | follow a job to its outcome, list job and monitor state, stop an identity-verified owned process tree |
+| `launch --item … --expect … -- <command>` | start an owned job with bound inputs and outputs, error patterns, heartbeat, a confirmation window, and optional `--require-receipt` or `--require-seal` |
+| `monitor <job>…`, `jobs [--prune] [--running]`, `kill <job>` | follow one or more jobs to their outcome, list job and monitor state, stop an identity-verified owned process tree |
+| `jobs --reconcile <job> --evidence <text>` | close a job whose processes vanished, for example after a host restart; refuses another machine's job or a live launcher |
+| `event <item\|item/sN\|none>` | append a handoff event with the clock time and the slot's host and user, from field options or `--from <file>`; a malformed event is refused before it is written |
+| `close-item <item> --from <draft>` | add the drafted discoveries, the event, and follow-ups and remove the item in one journaled transaction; `--dry-run`, `--recover` |
+| `set-field <ID\|slot\|shared> <field> <value>` | replace one single-line field and keep every other byte; `--add` appends a missing field; `{now}`/`{today}` take the clock |
+| `seal <file>` | record a file's SHA256 and the clock time in `<file>.seal.json`; `--check` compares the file with its seal |
 | `receipt add`, `receipt check` | bind a PASS or FAIL verdict to an artifact's SHA256 under `Receipt policy`, or verify it |
-| `external --action <X-id> -- <command>` | run an outward command only after ledger, receipt, duplicate, and attempt-history checks pass |
+| `external --action <X-id> -- <command>` | run an outward command only after ledger, receipt, duplicate, and attempt-history checks pass; `--check` applies them without running, and `--success-regex` records an exit 0 without the expected output as `unknown` |
 | `observe <key> <value>` | record a volatile Shared state fact; optional `--source`, `--ttl` defaults to `6h` |
-| `brief [--max N]` | a facts-only session brief: settings, hooks self-test, slot choice, claims, jobs, overdue guards, checker counts |
+| `brief [--max N]` | a facts-only session brief: settings, hooks self-test, slot choice, claims, jobs, overdue guards, checker counts, skill version, pending transactions |
+| `brief --delegate <item>` | print the header that starts a delegated agent's brief |
 | `close` | keep claims for running or unmonitored jobs, release the others, run the checker, and report what is left |
 | `hook <event>` | host hooks consume JSON on stdin; `pre-push` consumes Git ref-update lines |
 | `check <command>` | run the shell checks on a command string (`--dialect bash` or `powershell`) |
 
 Jobs run in an owned process group, or a job object on Windows. A launcher that exits while its workers continue keeps its bindings and claims, and a failed runner keeps its slot while descendants are live or unverified. `ro kill` verifies slot ownership, PID, and start time, so a reused PID is never a target. `ro external` journals each attempt before running it and matches that history by artifact hash and destination, so editing, withdrawing, or renaming a ledger entry cannot hide an earlier attempt; an interrupted or timed-out action stays `unknown` until reconciled.
+
+Record commands (`event`, `close-item`, `set-field`) validate the proposed file with the checker before writing. They refuse any new ERROR and any warning about a malformed record. A state warning that the write itself brings about, such as a new best not yet in Shared state or a stage awaiting review, comes back as a note with the next step.
 
 [Operational commands and their limits](skills/research-orchestrator/references/operations-safety.md), [external actions and receipts](skills/research-orchestrator/references/external-actions.md).
 
@@ -382,7 +400,7 @@ Trust Codex hooks through `/hooks` before relying on them; `ro` commands and Git
 
 - `Enforcement: off` is silent, `warn` never blocks, and `block` denies only the checks listed in `Block`.
 - **Each shell call is parsed in its tool's own dialect** (Bash or PowerShell), even when that differs from `Environment`, which still sets path semantics and the fallback shell. Uncertain parses warn, never block.
-- Per-call hooks fail open on a crash, timeout, malformed input, or missing interpreter; `ro brief` reports the hooks self-test and warning counts. `ro external`, `ro launch`, and the Git pre-push gate refuse when their validation fails or cannot run; pre-push scans every outgoing commit, including messages and paths.
+- Checks that warn unless listed in `Block` include `shell.backslash` (Windows Bash turns `\\` into `\` before bash runs), `fs.delete` (recursive or wildcard deletes, read with each shell's quoting and options), and `records.direct` (an Edit or Codex patch that adds an event or ledger heading to `handoff.md` by hand; full-file writes and shell edits are not covered). `records.direct` reports the edit after it is made, so listing it in `Block` cannot prevent or undo it.- Per-call hooks fail open on a crash, timeout, malformed input, or missing interpreter; `ro brief` reports the hooks self-test and warning counts. `ro external`, `ro launch`, and the Git pre-push gate refuse when their validation fails or cannot run; pre-push scans every outgoing commit, including messages and paths.
 - Hooks prevent accidents in cooperating sessions; they are not an adversarial security boundary. Nested interpreter bodies, here-string bodies, aliases, dynamic paths, and encoded secrets are outside reliable parsing.
 
 The Claude Code plugin subscribes to `AskUserQuestion` and `Agent`; their wrappers skip Python when `Autonomy: away` and `Brief requirements` are inactive. Read-bound subscriptions remain opt-in through the installer. SessionStart and `ro brief` print `publish gate not installed` and `install.py --project <checkout root>` only when a Git checkout lacks its registered pre-push gate; a registered gate handles the publication scan without a duplicate per-call scan, and the per-call advisory reads the checkout the push runs in. Wrappers resolve project hints separately from the command working directory and need no interpreter outside a project. Stop and edit checks skip Python without a job registry. PostToolUse reuses stable file stamps only after two seconds, and briefs invalidate cached checks when review receipts or artifacts change; a brief hashes at most 64 MiB of review evidence and lists the rest as unverified for `check_project.py` to verify. Saved Windows measurements cover 24–39 ms p95 for outside-project and job-free Stop/edit calls, and 52–123 ms for ordinary shell checks and unchanged PostToolUse; a full startup SessionStart that hashes a reviewed directory took about 157 ms, outside the fast-path budget. They do not establish new supervised-child timings.
@@ -391,11 +409,11 @@ The Claude Code plugin subscribes to `AskUserQuestion` and `Agent`; their wrappe
 
 ## Upgrading
 
-Updating the installed plugin does not rewrite existing projects. Release 7.0 reads only projects whose `agents.md` carries a `<!-- ro-template: ... -->` marker (release 6.0 or later); upgrade an older project with release 6.0.x (`init_research_orchestrator.py . --reconfigure`) first, because 7.0 refuses it. For manual installations, replace the previous skill folder with `research-orchestrator` rather than keeping both.
+Updating the installed plugin does not rewrite existing projects. Release 8.0 reads only projects whose `agents.md` carries a `<!-- ro-template: ... -->` marker (release 6.0 or later); upgrade an older project with release 6.0.x (`init_research_orchestrator.py . --reconfigure`) first, because 8.0 refuses it. Projects on template v3.5 keep working without changes, but 8.0 can raise new warnings, such as `plan.next.size` for a long `Next test` and `agents.rules.stale` until the project moves to v3.6, so a run with `--strict` can fail until they are fixed. For manual installations, replace the previous skill folder with `research-orchestrator` rather than keeping both.
 
 1. Save a recoverable copy of the four files and any `.ro/` state, run the checker, and fix structural errors.
 2. Move hand-written instructions from the generated part of `agents.md` into `## Project rules`; reconfiguration preserves that region verbatim.
-3. Refresh the generated settings, reading pointers and working rules; a template v3.4 project moves to v3.5. Add `--preset <preset>` and its answers to adopt a preset; the second command switches a classic project to the unified workflow:
+3. Refresh the generated settings, reading pointers and working rules; a template v3.4 or v3.5 project moves to v3.6, whose working rules point at the record commands above. A project whose `Brief requirements` is `none` keeps it; the run mentions the new preset default. Add `--preset <preset>` and its answers to adopt a preset; the second command switches a classic project to the unified workflow:
 
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure

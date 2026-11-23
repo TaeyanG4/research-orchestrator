@@ -2,7 +2,7 @@
 
 Use this procedure to keep an existing project's evidence and user-owned rules while upgrading its generated rules, repairing missing structure or changing workflows. Updating the installed skill alone does not rewrite project files.
 
-Release 7.0 reads only the v3 layout, whose `agents.md` carries a `<!-- ro-template: ... -->` marker. A project from a release before 6.0 has no marker; the checker reports `agents.settings.unsupported` and `--reconfigure` refuses it. Upgrade such a project with research-orchestrator 6.0.x (`init_research_orchestrator.py . --reconfigure`), then return to this release.
+Release 8.0 reads only the v3 layout, whose `agents.md` carries a `<!-- ro-template: ... -->` marker. A project from a release before 6.0 has no marker; the checker reports `agents.settings.unsupported` and `--reconfigure` refuses it. Upgrade such a project with research-orchestrator 6.0.x (`init_research_orchestrator.py . --reconfigure`), then return to this release.
 
 ## Missing-file repair
 
@@ -31,7 +31,7 @@ If `agents.md` has no `## Project settings`, recover it before using the ordinar
 1. Save a recoverable copy of all four coordination files and any existing `.ro/` state before changing settings. Quiesce active work before a workflow change; a coherent snapshot makes a later rollback possible.
 2. Run `python <skill-root>/scripts/check_project.py .` and resolve structural errors. Read [presets.md](presets.md) to choose whether to keep the effective settings or apply a preset; `python <skill-root>/scripts/init_research_orchestrator.py --list-presets` lists the choices.
 3. Move hand-written instructions from the generated part of `agents.md` into its `## Project rules` region. Preserve the existing region; [presets.md](presets.md) owns generated-part recognition and the deliberate `--force` escape hatch. Save the original before using that flag, because it replaces generated text.
-4. To keep the existing workflow and settings while adopting the current template (for example v3.4 to v3.5, which adds `## Working rules`), run:
+4. To keep the existing workflow and settings while adopting the current template (for example v3.4 or v3.5 to v3.6, whose `## Working rules` point at the record commands), run:
 
    ```bash
    python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure

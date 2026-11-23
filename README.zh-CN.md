@@ -10,7 +10,7 @@
 
 一个面向 Claude Code、Codex 和 Google Antigravity 的插件，让工作项目、研究和竞赛在多个 AI 会话之间持续推进。它包含一个技能、主机钩子、`ro` 命令行工具和一个只读审核代理。四个 Markdown 文件保存设置、任务队列、可复用的发现和持久的交接记录。预设决定会话如何共享队列、由谁审核发现，以及适用哪些证据检查。
 
-**版本 8.0.1。** 变更见 [CHANGELOG.md](CHANGELOG.md)。此版本读取由 6.0 及以后版本创建或升级的项目；更早的项目见下方“升级”一节。
+**版本 8.0.2。** 变更见 [CHANGELOG.md](CHANGELOG.md)。此版本读取由 6.0 及以后版本创建或升级的项目；更早的项目见下方“升级”一节。
 
 ## 为什么使用它
 
@@ -99,7 +99,7 @@ ro --session <host-session> --slot A close
 | `discoveries.md` | 附带证据和审核状态的可复用发现 | 来源槽位撰写并修订条目；合格的审核者添加审核行并设置 `Cross-check` |
 | `handoff.md` | 共享状态、事件历史、外部操作，以及每个槽位的恢复点 | 每个槽位只编辑自己的 `### Agent:` 段落；每个会话都追加事件并更新 Shared state 的值 |
 
-编辑共享文件前请重新读取，只修改相关段落或追加条目，以免过时的副本覆盖其他会话的工作。每个事实只存一次，其他地方指向它。[记录与共享文件编辑](skills/research-orchestrator/references/records.md)。
+编辑共享文件前请重新读取，只修改相关段落或追加条目，以免过时的副本覆盖其他会话的工作。每个事实只存一次，其他地方指向它。事件、条目结束和单个字段的修改通过 `ro event`、`ro close-item` 和 `ro set-field` 完成：它们在项目锁下写入，时间取自时钟（事件标题总是如此，其他地方通过 `{now}` 和 `{today}`），未改动的字节保持原样，并在写入前拒绝检查器会拒绝的内容。手工编辑仍然可行，只会收到警告。[记录与共享文件编辑](skills/research-orchestrator/references/records.md)。
 
 ## 预设
 
@@ -145,7 +145,7 @@ python <skill-root>/scripts/check_project.py .
 
 初始化程序写入四个协调文件，并将渲染元数据存放在 `.ro/` 中。`Language` 只作用于自由文本；标题、字段名、ID、状态词、检查 ID 和设置键保持英文，以便检查器、钩子和 `ro` 正常工作。
 
-初始化还会在 `agents.md` 中写入 `## Working rules`，因此未加载技能的会话也会在添加工作前检索、只在一处记录结果并正常收尾。若 `CLAUDE.md` 尚未提到 `agents.md`，会追加一行 `@agents.md`（Claude Code 的导入语法），`--no-claude-md` 可跳过。`--reconfigure` 会把现有项目更新为同样的形式，并保留 `## Project rules`。由于每个会话都会加载 `agents.md`，而 Codex 只读取前 32 KiB，超过 12 KiB 时检查器会报告 `agents.size`。
+初始化还会在 `agents.md` 中写入 `## Working rules`，因此未加载技能的会话也会在添加工作前检索、通过记录命令只在一处记录结果、用 `ro brief --delegate` 开始委派简报并正常收尾。若 `CLAUDE.md` 尚未提到 `agents.md`，会追加一行 `@agents.md`（Claude Code 的导入语法），`--no-claude-md` 可跳过。`--reconfigure` 会把现有项目更新为同样的形式，并保留 `## Project rules`。由于每个会话都会加载 `agents.md`，而 Codex 只读取前 32 KiB，超过 12 KiB 时检查器会报告 `agents.size`。
 
 ## 工作流
 
@@ -241,7 +241,7 @@ python <skill-root>/scripts/check_project.py .
   - Claude Code (A): CLOSED — reviewer subagent:ro-reviewer@2026-10-27T10:02 — reviewed 2026-10-27T10:15 — reran the benchmark: 8.5 s median
 ```
 
-**交接事件。** 研究和竞赛为每个完成的条目追加一条，标题以条目 ID 结尾：
+**交接事件。** 研究和竞赛为每个完成的条目通过 `ro event <item>` 或 `ro close-item` 追加一条；标题时间取自时钟，主机和用户取自槽位，标题以条目 ID 结尾：
 
 ```markdown
 ### 2026-10-27 10:20 — A — H-A-03
@@ -268,6 +268,8 @@ work 配置则只保留一条会话摘要，随条目完成而更新：
 - Completed: H-A-02
 ```
 
+**修改记录。** `ro set-field <ID> <field> <value>` 替换一行，例如计划条目的 `Next test`；`ro set-field shared "Current best" <value>` 修改 Shared state 中的值，`--add` 追加记录中没有的字段，例如 `Correction: ({now}) …`。值中的 `{now}` 和 `{today}` 会变成时钟的时间和日期，因此无需手写时间。由其他命令管理或记录作者的字段，例如 `Claimed`、台账 `Status`、`Source` 或审核字段，会被拒绝。
+
 **添加条目之前**，运行 `ro dupcheck <terms>` 并阅读发现索引（`ro index`）。若已有相同主张的 `VERIFIED` 结果，只能添加带 `Improvement` 的实质不同的后续条目；`CHALLENGED` 的结果要等质疑解决后再说；`PENDING` 的结果与其重复，不如去审核。还要浏览已排队条目的标题和 `Hypothesis`/`Goal` 行，并在写入前重新读取 `plan.md`；若期间出现了相同条目，保留较早的那条。
 
 **编写脚本前**，先搜索工具登记表（`ro tools <terms>`），已登记的工具应升级版本后扩展，而不是复制（[工具登记表](skills/research-orchestrator/references/tools.md)）。
@@ -286,6 +288,8 @@ work 配置则只保留一条会话摘要，随条目完成而更新：
 4. **事件**：在 `handoff.md` 中追加一条指向该发现的事件。
 5. **后续条目**：把结果所指向的工作放入队列，或记录为何没有后续。
 6. **结束**：从 `plan.md` 中删除已完成的条目。先一并完成发现、事件、后续条目和删除，再开始其他工作。
+
+`ro close-item <item> --from <draft>` 把第 3 到第 6 步作为一个经过检查并写入日志的事务完成。草稿包含 `## D-…` 发现、`## Event` 字段和可选的 `## Follow-ups` 条目。`--dry-run` 预览结果，`--recover` 完成或回滚被中断的结束操作；在它未处理完之前，记录写入、作业启动和对外操作都会被拒绝。分阶段条目的阶段用 `ro event <item>/sN` 记录。work 配置的会话摘要（见记录格式）则改为原地编辑；`ro event` 会拒绝追加会话摘要。
 
 项目结束后，使用[事后复盘](skills/research-orchestrator/references/postmortem.md)记录教训。遇到主机限额或 429/503 错误，遵循[新会话重试规则](skills/research-orchestrator/references/compute.md)。
 
@@ -330,15 +334,21 @@ work 配置（`quick`、`work-project`）更轻量。分数和 Priority 是可�
 ```
 
 ```text
-ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python scripts/bench.py --runs 20 --cold
-ro monitor <job>
-ro jobs
+ro --slot A launch --item H-A-04 --expect 2h --run-dir runs/h-a-04 --error "Traceback" -- python ../../scripts/bench.py --runs 20 --cold
+ro monitor <job> [<job> ...]
+ro jobs --running
 ro kill <job>
 ```
 
-立即启动打印出的监控命令：确认启动只能证明作业已经开始。`ro monitor` 会跟踪作业，直到它完成、匹配到错误模式、超过所设心跳上限仍无输出，或运行时间超过预期的两倍；`ro jobs` 列出作业和监控状态，`ro kill` 停止你的槽位所拥有、且经身份核验的进程树。把打印出的 Job 行追加到 `handoff.md`，检查产物，并且只在作业确实结束后才移除认领。所需资源繁忙时，去做独立的工作或合格的审核，或记录 `Blocker:`。只有当两个条目都是 `Parallel: YES` 且实测容量足够时，才共享同一资源；`ro launch` 只预留本地 CPU 和 GPU，因此 `Other` 资源需要自己的锁或调度器预留。
+立即启动打印出的监控命令：确认启动只能证明作业已经开始。`ro monitor` 会跟踪一个或多个作业，直到每个作业完成、匹配到错误模式、超过所设心跳上限仍无输出，或运行时间超过预期的两倍；`ro jobs` 列出作业和监控状态（`--running`：只列出持有所有权或尚无结果的作业），`ro kill` 停止你的槽位所拥有、且经身份核验的进程树。主机重启后，用 `ro jobs --reconcile <job> --evidence <text>` 关闭进程已消失的作业；它会拒绝其他机器的作业，或启动器仍在运行的作业。`ro launch` 会在启动前拒绝已知解释器后不存在的脚本，或所在文件夹不存在的心跳文件，`--require-seal <file>` 会在封存的文件（例如预先登记的判定规则）于 `ro seal` 之后发生变化时拒绝运行。把打印出的 Job 行追加到 `handoff.md`，检查产物，并且只在作业确实结束后才移除认领。所需资源繁忙时，去做独立的工作或合格的审核，或记录 `Blocker:`。只有当两个条目都是 `Parallel: YES` 且实测容量足够时，才共享同一资源；`ro launch` 只预留本地 CPU 和 GPU，因此 `Other` 资源需要自己的锁或调度器预留。
 
 [工作进程与独占资源](skills/research-orchestrator/references/compute.md)、[启动、监控与停止](skills/research-orchestrator/references/operations-safety.md#lookup-launch-monitor-and-stop)。
+
+## 委派代理
+
+委派代理（子代理、其他主机的模型或工作命令行工具）不会得到技能、`agents.md` 或委派会话的记忆；能确定送达的只有它的简报。请以 `ro brief --delegate <item>` 的输出作为简报开头（阶段用 `<item>/sN`，计划外的工作用 `none`）。这段头部把一个绝对路径的运行文件夹设为唯一的写入范围，并禁止删除。它要求填写资源上限和时钟时间，把长时间运行交给 `ro launch`，说明拦截检查的实际范围，并规定七部分的报告格式。头部中的命令带有项目和槽位，并使用所配置 shell 的语法。
+
+除 `quick` 外，所有内置预设都设置 `Brief requirements: general-purpose: ro-delegate: v1`，因此 general-purpose 的 Agent 简报（省略类型时视为 general-purpose）缺少头部的标记行时，钩子会发出警告并指出该行。这项检查只查找这一行：它既不验证头部的其余内容，也不能证明代理遵守了它。[委派](skills/research-orchestrator/references/delegation.md)。
 
 ## `ro` CLI
 
@@ -348,21 +358,29 @@ ro kill <job>
 | --- | --- |
 | `next-id {D,H,I,X,N}` | 预留下一个发现、计划条目、测量工具、外部操作或笔记的 ID |
 | `dupcheck <terms>` | 添加工作前搜索标题和关键行，包括已归档的记录 |
-| `index [ID] [--full]` | 打印截断 Finding 的当前发现索引（`--full` 显示完整行和已归档存根），或包括已归档条目在内的单个完整条目 |
+| `index [ID] [--full]` | 打印截断 Finding 的当前发现索引（`--full` 显示完整行和已归档存根），或单个完整发现（包括已归档的）或单个计划条目 |
 | `archive {discoveries,events,restore}` | 检查器报告 `history.size` 时，将已确定的发现或较早的事件移到 `docs/archive/`；`restore <ID>` 把已归档的发现取回以便修改；`--before`、`--dry-run` |
 | `tools [terms] [--init]` | 编写脚本前搜索 `docs/tools.md` 工具登记表；`--init` 创建带使用规则的登记表 |
 | `claim <item>`、`release <item>` | 在项目锁下认领 unified 队列中的条目，或释放它 |
-| `launch --item … --expect … -- <command>` | 启动一个自有作业，带有绑定的输入和输出、错误模式、心跳、确认窗口和可选的 `--require-receipt` |
-| `monitor <job>`、`jobs [--prune]`、`kill <job>` | 跟踪作业直至得到结果，列出作业和监控状态，停止经身份核验的自有进程树 |
+| `launch --item … --expect … -- <command>` | 启动一个自有作业，带有绑定的输入和输出、错误模式、心跳、确认窗口和可选的 `--require-receipt` 或 `--require-seal` |
+| `monitor <job>…`、`jobs [--prune] [--running]`、`kill <job>` | 跟踪一个或多个作业直至得到结果，列出作业和监控状态，停止经身份核验的自有进程树 |
+| `jobs --reconcile <job> --evidence <text>` | 关闭进程已消失的作业（例如主机重启后）；拒绝其他机器的作业或仍在运行的启动器 |
+| `event <item\|item/sN\|none>` | 用时钟时间和槽位的主机、用户追加交接事件（来自字段选项或 `--from <file>`）；格式错误的事件在写入前即被拒绝 |
+| `close-item <item> --from <draft>` | 在一个写入日志的事务中加入草稿的发现、事件和后续条目，并移除该条目；`--dry-run`、`--recover` |
+| `set-field <ID\|slot\|shared> <field> <value>` | 替换一个单行字段并保留其余所有字节；`--add` 追加缺少的字段；`{now}`/`{today}` 取自时钟 |
+| `seal <file>` | 把文件的 SHA256 和时钟时间记录到 `<file>.seal.json`；`--check` 将文件与封存记录比对 |
 | `receipt add`、`receipt check` | 按 `Receipt policy` 将 PASS 或 FAIL 结论绑定到产物的 SHA256，或进行验证 |
-| `external --action <X-id> -- <command>` | 仅在台账、回执、重复和尝试历史检查通过后运行对外命令 |
+| `external --action <X-id> -- <command>` | 仅在台账、回执、重复和尝试历史检查通过后运行对外命令；`--check` 只做检查而不运行，`--success-regex` 把缺少预期输出的 exit 0 记为 `unknown` |
 | `observe <key> <value>` | 记录易变的 Shared state 事实；`--source` 可选，`--ttl` 默认为 `6h` |
-| `brief [--max N]` | 只含事实的会话简报：设置、钩子自检、槽位选择、认领、作业、逾期守卫、检查器计数 |
+| `brief [--max N]` | 只含事实的会话简报：设置、钩子自检、槽位选择、认领、作业、逾期守卫、检查器计数、技能版本、未完成的事务 |
+| `brief --delegate <item>` | 输出委派代理简报开头的头部 |
 | `close` | 保留运行中或未被监控的作业认领，释放其余认领，运行检查器并报告剩余事项 |
 | `hook <event>` | 主机钩子接收标准输入 JSON，`pre-push` 接收 Git 引用更新行 |
 | `check <command>` | 对命令字符串运行 shell 检查（`--dialect bash` 或 `powershell`） |
 
 作业在自有的进程组（Windows 上为作业对象）中运行。启动器退出而工作进程仍在运行时，绑定和认领会保留；失败的运行器在后代进程存活或无法确认期间保留其槽位。`ro kill` 会核验槽位所有权、PID 和启动时间，因此不会把被复用的 PID 当作目标。`ro external` 在运行前把每次尝试写入日志，并按产物哈希和目标核对这段历史，因此编辑、撤回或重命名台账条目都无法隐藏先前的尝试；被中断或超时的操作在核对前保持 `unknown`。
+
+记录命令（`event`、`close-item`、`set-field`）在写入前用检查器验证修改后的文件。它们拒绝任何新的 ERROR，以及任何针对格式错误记录的警告。写入本身带来的状态警告（例如尚未写入 Shared state 的新最佳结果，或等待审核的阶段）会作为附带下一步操作的提示返回。
 
 [操作命令及其限制](skills/research-orchestrator/references/operations-safety.md)、[外部操作与回执](skills/research-orchestrator/references/external-actions.md)。
 
@@ -382,7 +400,7 @@ ro kill <job>
 
 - `Enforcement: off` 不输出任何内容，`warn` 从不拦截，`block` 只拒绝列在 `Block` 中的检查。
 - **每次 shell 调用都按其工具自身的方言（Bash 或 PowerShell）解析，** 即使与 `Environment` 不同也是如此；`Environment` 仍决定路径规则和备用 shell。不确定的解析只警告，从不拦截。
-- 逐次调用的钩子在崩溃、超时、输入格式错误或缺少解释器时放行；`ro brief` 会报告钩子自检和警告计数。当验证失败或无法运行时，`ro external`、`ro launch` 和 Git pre-push 关卡会拒绝执行；pre-push 会扫描每个待推送的提交，包括提交信息和路径。
+- 未列入 `Block` 时只发出警告的检查包括 `shell.backslash`（Windows 的 Bash 在运行 bash 前会把 `\\` 变成 `\`）、`fs.delete`（递归或通配符删除，按各 shell 的引号与选项规则读取）和 `records.direct`（通过 Edit 或 Codex 补丁向 `handoff.md` 手工加入事件或台账标题；整文件写入和 shell 编辑不在范围内）。`records.direct` 在编辑完成后才报告，因此即使列入 `Block` 也无法阻止或撤销该编辑。- 逐次调用的钩子在崩溃、超时、输入格式错误或缺少解释器时放行；`ro brief` 会报告钩子自检和警告计数。当验证失败或无法运行时，`ro external`、`ro launch` 和 Git pre-push 关卡会拒绝执行；pre-push 会扫描每个待推送的提交，包括提交信息和路径。
 - 钩子用于防止协作会话中的意外，并不是针对恶意行为的安全边界。嵌套的解释器代码体、here-string 内容、别名、动态路径和编码过的密钥都超出了可靠解析的范围。
 
 Claude Code 插件订阅 `AskUserQuestion` 和 `Agent`；`Autonomy: away` 与 `Brief requirements` 未启用时，相应包装器不启动 Python。Read-bound 订阅仍需通过安装程序选择。SessionStart 和 `ro brief` 仅在 Git 检出目录缺少已注册的 pre-push 关卡时输出 `publish gate not installed` 和 `install.py --project <检出根目录>`；已有注册关卡负责发布扫描，避免每次调用重复扫描；逐次调用的预检读取推送所在的检出目录。包装器分别解析项目提示和命令工作目录，项目外不需要解释器。没有作业注册表时，Stop 和编辑检查也跳过 Python。PostToolUse 只复用稳定超过两秒的文件戳；审核回执或产物变化时，简报使缓存检查失效；简报最多对 64 MiB 审核证据计算哈希，其余标为未验证，由 `check_project.py` 完整验证。保存的 Windows 测量显示，项目外及无作业 Stop/编辑调用的 p95 为 24–39 ms，普通 shell 检查和未变化的 PostToolUse 为 52–123 ms；对已审查目录做哈希的完整启动 SessionStart 约 157 ms，不属于快速路径预算；这些数据不代表新的受监督子进程测量。
@@ -391,11 +409,11 @@ Claude Code 插件订阅 `AskUserQuestion` 和 `Agent`；`Autonomy: away` 与 `B
 
 ## 升级
 
-更新已安装的插件不会改写现有项目。7.0 只读取 `agents.md` 带有 `<!-- ro-template: ... -->` 标记的项目（6.0 及以后）；更早的项目会被 7.0 拒绝，请先用 6.0.x 升级（`init_research_orchestrator.py . --reconfigure`）。手动安装时请将旧技能文件夹替换为 `research-orchestrator`，不要保留两份。
+更新已安装的插件不会改写现有项目。8.0 只读取 `agents.md` 带有 `<!-- ro-template: ... -->` 标记的项目（6.0 及以后）；更早的项目会被 8.0 拒绝，请先用 6.0.x 升级（`init_research_orchestrator.py . --reconfigure`）。模板 v3.5 的项目无需修改即可继续使用，但 8.0 可能发出新的警告，例如 `Next test` 过长时的 `plan.next.size`，以及升级到 v3.6 之前的 `agents.rules.stale`；因此在修复之前，`--strict` 运行可能失败。手动安装时请将旧技能文件夹替换为 `research-orchestrator`，不要保留两份。
 
 1. 保存四个文件和 `.ro/` 状态的可恢复副本，运行检查器并修复结构性错误。
 2. 将手写在 `agents.md` 生成部分中的指示移到 `## Project rules`；重新配置会原样保留该区域。
-3. 刷新生成的设置、阅读指引和工作规则；模板 v3.4 的项目会升级到 v3.5。如要采用某个预设，请加上 `--preset <preset>` 及其回答；第二条命令会把 classic 项目切换为 unified 工作流：
+3. 刷新生成的设置、阅读指引和工作规则；模板 v3.4 或 v3.5 的项目会升级到 v3.6，其工作规则指向上述记录命令。`Brief requirements` 为 `none` 的项目保留该值，运行结果会提示新的预设默认值。如要采用某个预设，请加上 `--preset <preset>` 及其回答；第二条命令会把 classic 项目切换为 unified 工作流：
 
 ```text
 python <skill-root>/scripts/init_research_orchestrator.py . --reconfigure
